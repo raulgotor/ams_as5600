@@ -288,7 +288,8 @@ static as5600_error_t as5600_cfg_to_reg16(
 static as5600_error_t as5600_reg16_to_cfg(uint16_t const * const reg,
                                           as5600_configuration_t * const p_config);
 
-static as5600_error_t as5600_is_valid_configuration(as5600_configuration_t const * const p_config);
+static bool as5600_is_valid_configuration(
+                                 as5600_configuration_t const * const p_config);
 /*
  *******************************************************************************
  * Public Data Declarations                                                    *
@@ -534,6 +535,286 @@ as5600_error_t as5600_get_configuration(as5600_configuration_t * const p_config)
         return success;
 }
 
+as5600_error_t as5600_set_power_mode(as5600_power_mode_t const power_mode,
+                                     as5600_configuration_t * const p_config)
+{
+        as5600_error_t success = AS5600_ERROR_SUCCESS;
+        as5600_power_mode_t const fence = AS5600_POWER_MODE_COUNT;
+
+        if ((NULL == p_config) || (fence <= power_mode)) {
+                success = AS5600_ERROR_BAD_PARAMETER;
+        }
+
+        if (AS5600_ERROR_SUCCESS == success) {
+                p_config->power_mode = power_mode;
+        }
+
+        return success;
+
+}
+
+as5600_error_t as5600_get_power_mode(as5600_power_mode_t * const p_power_mode,
+                                     as5600_configuration_t * const p_config)
+{
+        as5600_error_t success = AS5600_ERROR_SUCCESS;
+
+        if ((NULL == p_config) || (NULL == p_power_mode)) {
+                success = AS5600_ERROR_BAD_PARAMETER;
+        }
+
+        if (AS5600_ERROR_SUCCESS == success) {
+                *p_power_mode = p_config->power_mode;
+        }
+
+        return success;
+
+}
+
+as5600_error_t as5600_set_hysteresis(as5600_hysteresis_t const hysteresis,
+                                     as5600_configuration_t * const p_config)
+{
+        as5600_error_t success = AS5600_ERROR_SUCCESS;
+        as5600_hysteresis_t const fence = AS5600_HYSTERESIS_COUNT;
+
+        if ((NULL == p_config) || (fence <= hysteresis)) {
+                success = AS5600_ERROR_BAD_PARAMETER;
+        }
+
+        if (AS5600_ERROR_SUCCESS == success) {
+                p_config->hysteresis = hysteresis;
+        }
+
+        return success;
+
+}
+
+as5600_error_t as5600_get_hysteresis(as5600_hysteresis_t * const p_hysteresis,
+                                     as5600_configuration_t * const p_config)
+{
+        as5600_error_t success = AS5600_ERROR_SUCCESS;
+
+        if ((NULL == p_config) || (NULL == p_hysteresis)) {
+                success = AS5600_ERROR_BAD_PARAMETER;
+        }
+
+        if (AS5600_ERROR_SUCCESS == success) {
+                *p_hysteresis = p_config->hysteresis;
+        }
+
+        return success;
+
+}
+
+as5600_error_t as5600_set_output_state(as5600_output_stage_t const output_stage,
+                                       as5600_configuration_t * const p_config)
+{
+        as5600_error_t success = AS5600_ERROR_SUCCESS;
+        as5600_output_stage_t const fence = AS5600_OUTPUT_STAGE_COUNT;
+
+        if ((NULL == p_config) || (fence <= output_stage)) {
+                success = AS5600_ERROR_BAD_PARAMETER;
+        }
+
+        if (AS5600_ERROR_SUCCESS == success) {
+                p_config->output_stage = output_stage;
+        }
+
+        return success;
+
+}
+
+as5600_error_t as5600_get_output_stage(as5600_output_stage_t * const p_output_stage,
+                                       as5600_configuration_t * const p_config)
+{
+        as5600_error_t success = AS5600_ERROR_SUCCESS;
+
+        if ((NULL == p_config) || (NULL == p_output_stage)) {
+                success = AS5600_ERROR_BAD_PARAMETER;
+        }
+
+        if (AS5600_ERROR_SUCCESS == success) {
+                *p_output_stage = p_config->output_stage;
+        }
+
+        return success;
+
+}
+
+as5600_error_t as5600_set_pwm_frequency(as5600_pwm_frequency_t const pwm_frequency,
+                                        as5600_configuration_t * const p_config)
+{
+        as5600_error_t success = AS5600_ERROR_SUCCESS;
+        as5600_pwm_frequency_t const fence = AS5600_PWM_FREQUENCY_COUNT;
+
+        if ((NULL == p_config) || (fence <= pwm_frequency)) {
+                success = AS5600_ERROR_BAD_PARAMETER;
+        }
+
+        if (AS5600_ERROR_SUCCESS == success) {
+                p_config->pwm_frequency = pwm_frequency;
+        }
+
+        return success;
+
+}
+
+as5600_error_t as5600_get_pwm_frequency(as5600_pwm_frequency_t * const p_pwm_frequency,
+                                        as5600_configuration_t * const p_config)
+{
+        as5600_error_t success = AS5600_ERROR_SUCCESS;
+
+        if ((NULL == p_config) || (NULL == p_pwm_frequency)) {
+                success = AS5600_ERROR_BAD_PARAMETER;
+        }
+
+        if (AS5600_ERROR_SUCCESS == success) {
+                *p_pwm_frequency = p_config->pwm_frequency;
+        }
+
+        return success;
+
+}
+
+as5600_error_t as5600_set_slow_filter(as5600_slow_filter_t const slow_filter,
+                                      as5600_configuration_t * const p_config)
+{
+        as5600_error_t success = AS5600_ERROR_SUCCESS;
+        as5600_slow_filter_t const fence = AS5600_SLOW_FILTER_COUNT;
+
+        if ((NULL == p_config) || (fence <= slow_filter)) {
+                success = AS5600_ERROR_BAD_PARAMETER;
+        }
+
+        if (AS5600_ERROR_SUCCESS == success) {
+                p_config->slow_filter = slow_filter;
+        }
+
+        return success;
+
+}
+
+as5600_error_t as5600_get_slow_filter(as5600_slow_filter_t * const p_slow_filter,
+                                      as5600_configuration_t * const p_config)
+{
+        as5600_error_t success = AS5600_ERROR_SUCCESS;
+
+        if ((NULL == p_config) || (NULL == p_slow_filter)) {
+                success = AS5600_ERROR_BAD_PARAMETER;
+        }
+
+        if (AS5600_ERROR_SUCCESS == success) {
+                *p_slow_filter = p_config->slow_filter;
+        }
+
+        return success;
+
+}
+
+as5600_error_t as5600_set_ff_threshold(as5600_ff_threshold_t const ff_threshold,
+                                       as5600_configuration_t * const p_config)
+{
+        as5600_error_t success = AS5600_ERROR_SUCCESS;
+        as5600_ff_threshold_t const fence = AS5600_FF_THRESHOLD_COUNT;
+
+        if ((NULL == p_config) || (fence <= ff_threshold)) {
+                success = AS5600_ERROR_BAD_PARAMETER;
+        }
+
+        if (AS5600_ERROR_SUCCESS == success) {
+                p_config->ff_threshold = ff_threshold;
+        }
+
+        return success;
+
+}
+
+as5600_error_t as5600_get_ff_threshold(as5600_ff_threshold_t * const p_ff_threshold,
+                                       as5600_configuration_t * const p_config)
+{
+        as5600_error_t success = AS5600_ERROR_SUCCESS;
+
+        if ((NULL == p_config) || (NULL == p_ff_threshold)) {
+                success = AS5600_ERROR_BAD_PARAMETER;
+        }
+
+        if (AS5600_ERROR_SUCCESS == success) {
+                *p_ff_threshold = p_config->ff_threshold;
+        }
+
+        return success;
+
+}
+
+as5600_error_t as5600_set_watchdog_enabled(bool const enabled,
+                                           as5600_configuration_t * const p_config)
+{
+        as5600_error_t success = AS5600_ERROR_SUCCESS;
+
+        if (NULL == p_config) {
+                success = AS5600_ERROR_BAD_PARAMETER;
+        }
+
+        if (AS5600_ERROR_SUCCESS == success) {
+                p_config->watchdog = true;
+        }
+
+        return success;
+
+}
+
+as5600_error_t as5600_is_watchdog_enabled(bool * const p_enabled,
+                                          as5600_configuration_t * const p_config)
+{
+        as5600_error_t success = AS5600_ERROR_SUCCESS;
+
+        if ((NULL == p_config) || (NULL == p_enabled)) {
+                success = AS5600_ERROR_BAD_PARAMETER;
+        }
+
+        if (AS5600_ERROR_SUCCESS == success) {
+                *p_enabled = p_config->watchdog;
+        }
+
+        return success;
+
+}
+
+/*
+as5600_error_t as5600_set_x(as5600_x_t const x,
+                                     as5600_configuration_t * const p_config)
+{
+        as5600_error_t success = AS5600_ERROR_SUCCESS;
+        as5600_x_t const fence = AS5600_x_COUNT;
+
+        if ((NULL == p_config) || (fence <= x)) {
+                success = AS5600_ERROR_BAD_PARAMETER;
+        }
+
+        if (AS5600_ERROR_SUCCESS == success) {
+                p_config->x = x;
+        }
+
+        return success;
+
+}
+
+as5600_error_t as5600_get_x(as5600_x_t * const p_x,
+                                     as5600_configuration_t * const p_config)
+{
+        as5600_error_t success = AS5600_ERROR_SUCCESS;
+
+        if ((NULL == p_config) || (NULL == p_x)) {
+                success = AS5600_ERROR_BAD_PARAMETER;
+        }
+
+        if (AS5600_ERROR_SUCCESS == success) {
+                *p_x = p_config->x;
+        }
+
+        return success;
+
+}
+ */
 
 
 /*
@@ -641,8 +922,7 @@ static as5600_error_t as5600_write_16register(uint8_t const reg, uint16_t const 
 { return 0;}
 
 
-static as5600_error_t
-as5600_write_n_consecutive_bytes(uint8_t const reg, uint8_t const * const p_tx_buffer, size_t const bytes_count)
+static as5600_error_t as5600_write_n_consecutive_bytes(uint8_t const reg, uint8_t const * const p_tx_buffer, size_t const bytes_count)
 {
         as5600_error_t result = AS5600_ERROR_SUCCESS;
         uint8_t addr;
@@ -685,8 +965,7 @@ as5600_write_n_consecutive_bytes(uint8_t const reg, uint8_t const * const p_tx_b
         return result;
 }
 
-static as5600_error_t
-as5600_read_n_consecutive_bytes(uint8_t const reg, uint8_t * const p_rx_buffer, size_t const bytes_count)
+static as5600_error_t as5600_read_n_consecutive_bytes(uint8_t const reg, uint8_t * const p_rx_buffer, size_t const bytes_count)
 {
         as5600_error_t result = AS5600_ERROR_SUCCESS;
         uint8_t addr;
@@ -848,8 +1127,8 @@ static as5600_error_t as5600_cfg_to_reg16(
 }
 
 static as5600_error_t as5600_reg16_to_cfg(
-        uint16_t const * const reg,
-        as5600_configuration_t * const p_config)
+                                        uint16_t const * const reg,
+                                        as5600_configuration_t * const p_config)
 {
         as5600_error_t success = AS5600_ERROR_SUCCESS;
         uint8_t reg_buffer[2];
@@ -920,11 +1199,24 @@ static as5600_error_t as5600_reg16_to_cfg(
                 p_config->pwm_frequency = (uint8_t) pwm_frequency;
                 p_config->slow_filter = (uint8_t) slow_filter;
                 p_config->ff_threshold = (uint8_t) ff_threshold;
-                p_config->watchdog = (uint8_t) watchdog;
+                p_config->watchdog = (bool) watchdog;
         }
 
         return success;
 }
+
+static bool as5600_is_valid_configuration(
+                                  as5600_configuration_t const * const p_config)
+{
+        return ((NULL != p_config) &&
+                (AS5600_POWER_MODE_COUNT > p_config->power_mode) &&
+                (AS5600_HYSTERESIS_COUNT > p_config->hysteresis) &&
+                (AS5600_OUTPUT_STAGE_COUNT > p_config->output_stage) &&
+                (AS5600_PWM_FREQUENCY_COUNT > p_config->pwm_frequency) &&
+                (AS5600_SLOW_FILTER_COUNT > p_config->slow_filter) &&
+                (AS5600_FF_THRESHOLD_COUNT > p_config->ff_threshold));
+}
+
 
 /*
  *******************************************************************************
