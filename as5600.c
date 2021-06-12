@@ -249,11 +249,9 @@ static as5600_error_t as5600_get_field_value(as5600_bit_field_t const field,
 static as5600_error_t as5600_set_field_value(as5600_bit_field_t const field,
                                              uint8_t const field_value);
 
-static as5600_error_t
-as5600_read_n_consecutive_bytes(uint8_t const reg, uint8_t * const p_rx_buffer, size_t const bytes_count);
+static as5600_error_t as5600_read_n_consecutive_bytes(uint8_t const reg, uint8_t * const p_rx_buffer, size_t const bytes_count);
 
-static as5600_error_t
-as5600_write_n_consecutive_bytes(uint8_t const reg, uint8_t const * const p_tx_buffer, size_t const bytes_count);
+static as5600_error_t as5600_write_n_consecutive_bytes(uint8_t const reg, uint8_t const * const p_tx_buffer, size_t const bytes_count);
 
 static as5600_error_t as5600_read_16register(uint8_t const reg, uint16_t * const p_rx_buffer);
 
@@ -274,12 +272,23 @@ static as5600_error_t as5600_get_conf_bitfield(uint8_t const instance,
                                                uint8_t const start_bit,
                                                uint8_t const width,
                                                uint8_t * const value);
+
+static as5600_error_t as5600_reg_set_bit_field_value(uint8_t const value,
+                                                     as5600_bit_field_t const bit_field,
+                                                     uint8_t * const p_reg_value);
+
+static as5600_error_t as5600_reg_get_bit_field_value(uint8_t * const value,
+                                                     as5600_bit_field_t const bit_field,
+                                                     uint8_t const reg_value);
+
 static as5600_error_t as5600_cfg_to_reg16(
         as5600_configuration_t const * const p_config,
         uint16_t * const reg);
 
-static as5600_error_t as5600_reg16_to_cfg(uint16_t * const reg,
-                                          as5600_configuration_t const * const p_config);
+static as5600_error_t as5600_reg16_to_cfg(uint16_t const * const reg,
+                                          as5600_configuration_t * const p_config);
+
+static as5600_error_t as5600_is_valid_configuration(as5600_configuration_t const * const p_config);
 /*
  *******************************************************************************
  * Public Data Declarations                                                    *
@@ -642,8 +651,7 @@ as5600_write_n_consecutive_bytes(uint8_t const reg, uint8_t const * const p_tx_b
         uint8_t buffer[bytes_count + 1];
         uint8_t i;
 
-        if (m_instance_count < instance ||
-            (NULL == p_tx_buffer) ||
+        if ((NULL == p_tx_buffer) ||
             (AS5600_REGISTER_COUNT < reg)) {
 
                 result = AS5600_ERROR_BAD_PARAMETER;
@@ -685,9 +693,8 @@ as5600_read_n_consecutive_bytes(uint8_t const reg, uint8_t * const p_rx_buffer, 
         uint8_t xfer_func_result = 0;
         uint8_t reg_addr;
 
-        if (m_instance_count < instance ||
-           (NULL == p_rx_buffer) ||
-           (AS5600_REGISTER_COUNT < reg)) {
+        if ((NULL == p_rx_buffer) ||
+            (AS5600_REGISTER_COUNT < reg)) {
 
                 result = AS5600_ERROR_BAD_PARAMETER;
         } else if (!m_is_initialized) {
@@ -716,6 +723,208 @@ as5600_read_n_consecutive_bytes(uint8_t const reg, uint8_t * const p_rx_buffer, 
         return result;
 }
 
+static as5600_error_t as5600_reg_set_bit_field_value(uint8_t const value,
+                                                     as5600_bit_field_t const bit_field,
+                                                     uint8_t * const p_reg_value)
+{
+        as5600_bit_field_specs_t const specs = fields[bit_field];
+        uint8_t const bit_field_lsb = specs.lsbit_pos;
+        uint8_t const bit_field_width = specs.width;
+        uint8_t const max_value = ((1 << bit_field_width) - 1);
+
+        as5600_error_t success = AS5600_ERROR_SUCCESS;
+
+        uint8_t temp;
+        uint8_t mask;
+
+        if ((NULL == p_reg_value) || (max_value < *p_reg_value) ||
+            (AS5600_BIT_FIELD_COUNT <= bit_field)) {
+                success = AS5600_ERROR_BAD_PARAMETER;
+        }
+
+        if (AS5600_ERROR_SUCCESS == success) {
+
+                mask &= ((1 << bit_field_width) - 1);
+                mask <<= bit_field_lsb;
+                mask = ~mask;
+
+                temp = *p_reg_value;
+                temp &= mask;
+                temp &= (value << bit_field_lsb);
+
+                *p_reg_value = temp;
+        }
+
+        return success;
+}
+
+static as5600_error_t as5600_reg_get_bit_field_value(uint8_t * const value,
+                                                     as5600_bit_field_t const bit_field,
+                                                     uint8_t const reg_value)
+{
+        as5600_bit_field_specs_t const specs = fields[bit_field];
+        uint8_t const bit_field_width = specs.width;
+        uint8_t const bit_field_lsb = specs.lsbit_pos;
+        as5600_error_t success = AS5600_ERROR_SUCCESS;
+        uint8_t temp = reg_value;
+        uint8_t mask;
+
+        if ((NULL == value) || (AS5600_BIT_FIELD_COUNT <= bit_field)) {
+                success = AS5600_ERROR_BAD_PARAMETER;
+        }
+
+        if (AS5600_ERROR_SUCCESS == success) {
+                mask = ((1 << bit_field_width) - 1);
+                temp >>= bit_field_lsb;
+                temp &= mask;
+                *value = temp;
+        }
+
+        return success;
+
+}
+
+static as5600_error_t as5600_cfg_to_reg16(
+                                  as5600_configuration_t const * const p_config,
+                                  uint16_t * const reg)
+{
+        as5600_error_t success = AS5600_ERROR_SUCCESS;
+
+        uint8_t buffer[2] = {0};
+
+        if ((NULL == p_config) || (NULL == reg) ||
+            (!as5600_is_valid_configuration(p_config))) {
+                success = AS5600_ERROR_BAD_PARAMETER;
+        }
+
+        if (AS5600_ERROR_SUCCESS == success) {
+                success = as5600_reg_set_bit_field_value(p_config->power_mode,
+                                                         AS5600_BIT_FIELD_PM,
+                                                         &buffer[1]);
+        }
+
+        if (AS5600_ERROR_SUCCESS == success) {
+                success = as5600_reg_set_bit_field_value(p_config->hysteresis,
+                                                         AS5600_BIT_FIELD_HYST,
+                                                         &buffer[1]);
+        }
+
+        if (AS5600_ERROR_SUCCESS == success) {
+                success = as5600_reg_set_bit_field_value(p_config->output_stage,
+                                                         AS5600_BIT_FIELD_OUTS,
+                                                         &buffer[1]);
+        }
+
+        if (AS5600_ERROR_SUCCESS == success) {
+                success = as5600_reg_set_bit_field_value(p_config->pwm_frequency,
+                                                         AS5600_BIT_FIELD_PWMF,
+                                                         &buffer[1]);
+        }
+
+        if (AS5600_ERROR_SUCCESS == success) {
+                success = as5600_reg_set_bit_field_value(p_config->slow_filter,
+                                                         AS5600_BIT_FIELD_SF,
+                                                         &buffer[0]);
+        }
+
+        if (AS5600_ERROR_SUCCESS == success) {
+                success = as5600_reg_set_bit_field_value(p_config->ff_threshold,
+                                                         AS5600_BIT_FIELD_FTH,
+                                                         &buffer[0]);
+        }
+
+        if (AS5600_ERROR_SUCCESS == success) {
+                success = as5600_reg_set_bit_field_value(p_config->watchdog,
+                                                         AS5600_BIT_FIELD_WD,
+                                                         &buffer[0]);
+        }
+
+        if (AS5600_ERROR_SUCCESS == success) {
+                *reg &= (buffer[0] << 8);
+                *reg &= buffer[1];
+        }
+
+        return success;
+}
+
+static as5600_error_t as5600_reg16_to_cfg(
+        uint16_t const * const reg,
+        as5600_configuration_t * const p_config)
+{
+        as5600_error_t success = AS5600_ERROR_SUCCESS;
+        uint8_t reg_buffer[2];
+
+        uint8_t power_mode;
+        uint8_t hysteresis;
+        uint8_t output_stage;
+        uint8_t pwm_frequency;
+        uint8_t slow_filter;
+        uint8_t ff_threshold;
+        uint8_t watchdog;
+
+        if ((NULL == reg) || (NULL == p_config)) {
+                success = AS5600_ERROR_BAD_PARAMETER;
+        }
+
+        if (AS5600_ERROR_SUCCESS == success) {
+                reg_buffer[0] = (uint8_t)(*reg >> 8);
+                reg_buffer[1] = (uint8_t)(*reg & 0x00FF);
+        }
+
+        if (AS5600_ERROR_SUCCESS == success) {
+                success = as5600_reg_get_bit_field_value(&power_mode,
+                                                         AS5600_BIT_FIELD_PM,
+                                                         reg_buffer[1]);
+        }
+
+        if (AS5600_ERROR_SUCCESS == success) {
+                success = as5600_reg_get_bit_field_value(&hysteresis,
+                                                         AS5600_BIT_FIELD_HYST,
+                                                         reg_buffer[1]);
+        }
+
+        if (AS5600_ERROR_SUCCESS == success) {
+                success = as5600_reg_get_bit_field_value(&output_stage,
+                                                         AS5600_BIT_FIELD_OUTS,
+                                                         reg_buffer[1]);
+        }
+
+        if (AS5600_ERROR_SUCCESS == success) {
+                success = as5600_reg_get_bit_field_value(&pwm_frequency,
+                                                         AS5600_BIT_FIELD_PWMF,
+                                                         reg_buffer[1]);
+        }
+
+        if (AS5600_ERROR_SUCCESS == success) {
+                success = as5600_reg_get_bit_field_value(&slow_filter,
+                                                         AS5600_BIT_FIELD_SF,
+                                                         reg_buffer[0]);
+        }
+
+        if (AS5600_ERROR_SUCCESS == success) {
+                success = as5600_reg_get_bit_field_value(&ff_threshold,
+                                                         AS5600_BIT_FIELD_FTH,
+                                                         reg_buffer[0]);
+        }
+
+        if (AS5600_ERROR_SUCCESS == success) {
+                success = as5600_reg_get_bit_field_value(&watchdog,
+                                                         AS5600_BIT_FIELD_WD,
+                                                         reg_buffer[0]);
+        }
+
+        if (AS5600_ERROR_SUCCESS == success) {
+                p_config->power_mode = (uint8_t) power_mode;
+                p_config->hysteresis = (uint8_t) hysteresis;
+                p_config->output_stage = (uint8_t) output_stage;
+                p_config->pwm_frequency = (uint8_t) pwm_frequency;
+                p_config->slow_filter = (uint8_t) slow_filter;
+                p_config->ff_threshold = (uint8_t) ff_threshold;
+                p_config->watchdog = (uint8_t) watchdog;
+        }
+
+        return success;
+}
 
 /*
  *******************************************************************************
