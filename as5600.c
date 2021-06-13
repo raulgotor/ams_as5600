@@ -323,7 +323,7 @@ as5600_error_t as5600_init(pf_i2c_xfer_as5600_t const pf_xfer_function)
         return result;
 }
 
-as5600_error_t as5600_get_start_and_stop_position_write_counter(
+as5600_error_t as5600_get_otp_write_counter(
                                                       uint8_t * p_write_counter)
 {
         as5600_bit_field_t const field = AS5600_BIT_FIELD_ZMCO;
@@ -889,93 +889,118 @@ as5600_error_t as5600_get_cordic_magnitude(uint16_t * const p_magnitude)
         return success;
 }
 
-as5600_error_t as5600_burn_command(as5600_burn_mode_t const p_mode)
+as5600_error_t as5600_burn_command(as5600_burn_mode_t const mode)
 {
         as5600_register_t const reg = AS5600_REGISTER_BURN;
+        uint32_t const min_angle_in_steps = 4095 * 18 / 359;
+        uint8_t const burn_setting_max_writes = 1;
+        uint8_t const burn_angle_max_writes = 3;
+        uint8_t load_sequence[] = {0x01U, 0x11U, 0x10U};
+
         as5600_error_t success = AS5600_ERROR_SUCCESS;
         as5600_status_t status;
         uint8_t counter;
-        bool burn_angle_allowed = true;
-        bool burn_setting_allowed = true;
+        uint16_t start_pos;
+        uint16_t stop_pos;
+        uint16_t max_angle;
+        bool min_angle_ok;
 
-        success = as5600_get_start_and_stop_position_write_counter(&counter);
+        success = as5600_get_otp_write_counter(&counter);
 
         if (AS5600_ERROR_SUCCESS == success) {
                 success = as5600_get_status(&status);
         }
 
-        if (AS5600_ERROR_SUCCESS == success) {
-                switch (p_mode) {
-                case AS5600_BURN_MODE_BURN_ANGLE:
+        if (AS5600_ERROR_SUCCESS != success) {
+                // Code style exception for readability;
+                return success;
+        }
 
-                        if (2 < counter) {
-                                success = AS5600_ERROR_MAX_WRITE_CYCLES_REACHED;
-                        } else if (AS5600_STATUS_MD != status) {
-                                success = AS5600_ERROR_MAGNET_NOT_DETECTED;
-                        }
+        switch (mode) {
+        case AS5600_BURN_MODE_BURN_ANGLE:
 
-
-                        break;
-                case AS5600_BURN_MODE_BURN_SETTING:
-
-                        if (0 < counter) {
-                                success = AS5600_ERROR_MAX_WRITE_CYCLES_REACHED;
-                        } else {
-
-                        }
-
-                        break;
-                default:
-                        success = AS5600_ERROR_BAD_PARAMETER;
-                        break;
-
+                // Abort if maximum write cycles reached or magnet not detected
+                if (burn_angle_max_writes <= counter) {
+                        success = AS5600_ERROR_MAX_WRITE_CYCLES_REACHED;
+                } else if (AS5600_STATUS_MD != status) {
+                        success = AS5600_ERROR_MAGNET_NOT_DETECTED;
                 }
-        }
 
-        if (AS5600_ERROR_SUCCESS == success) {
-                success = as5600_write_8register(reg, (uint8_t *)p_mode);
-        }
+                // Check for resulting angle to be over minimum angle
+                if (AS5600_ERROR_SUCCESS == success) {
+                        success = as5600_get_start_position(&start_pos);
+                }
 
+                if (AS5600_ERROR_SUCCESS == success) {
+                        success = as5600_get_stop_position(&stop_pos);
+                }
 
-}
+                if (AS5600_ERROR_SUCCESS == success) {
 
-/*
-as5600_error_t as5600_set_x(as5600_x_t const x,
-                                     as5600_configuration_t * const p_config)
-{
-        as5600_error_t success = AS5600_ERROR_SUCCESS;
-        as5600_x_t const fence = AS5600_x_COUNT;
+                        // XOR Swap for avoiding negative overflow
+                        if (start_pos > stop_pos)
+                        {
+                                stop_pos  ^= start_pos;
+                                start_pos ^= stop_pos;
+                                stop_pos  ^= start_pos;
+                        }
 
-        if ((NULL == p_config) || (fence <= x)) {
+                        min_angle_ok = (min_angle_in_steps <=
+                                       (stop_pos - start_pos));
+                }
+
+                break;
+
+        case AS5600_BURN_MODE_BURN_SETTING:
+
+                // Abort if maximum write cycles reached
+                if (burn_setting_max_writes <= counter) {
+                        success = AS5600_ERROR_MAX_WRITE_CYCLES_REACHED;
+                }
+
+                // Check for resulting angle to be over minimum angle
+                if (AS5600_ERROR_SUCCESS == success) {
+                        success = as5600_get_maximum_angle(&max_angle);
+                }
+
+                if (AS5600_ERROR_SUCCESS == success) {
+                        min_angle_ok = (min_angle_ok <= max_angle);
+                }
+
+                break;
+
+        default:
                 success = AS5600_ERROR_BAD_PARAMETER;
+                break;
+
+        }
+
+        // Abort if minimum angle not being fullfiled
+        if ((AS5600_ERROR_SUCCESS == success) && (!min_angle_ok)) {
+                success = AS5600_ERROR_MIN_ANGLE_TOO_SMALL;
+        }
+
+        // Burn the settings in OTP
+        if (AS5600_ERROR_SUCCESS == success) {
+                success = as5600_write_8register(reg, (uint8_t *)mode);
+        }
+
+        // Load OTP content
+        if (AS5600_ERROR_SUCCESS == success) {
+                success = as5600_write_8register(reg, &load_sequence[0]);
         }
 
         if (AS5600_ERROR_SUCCESS == success) {
-                p_config->x = x;
+                success = as5600_write_8register(reg, &load_sequence[1]);
+        }
+
+        if (AS5600_ERROR_SUCCESS == success) {
+                success = as5600_write_8register(reg, &load_sequence[2]);
         }
 
         return success;
 
 }
-
-as5600_error_t as5600_get_x(as5600_x_t * const p_x,
-                                     as5600_configuration_t * const p_config)
-{
-        as5600_error_t success = AS5600_ERROR_SUCCESS;
-
-        if ((NULL == p_config) || (NULL == p_x)) {
-                success = AS5600_ERROR_BAD_PARAMETER;
-        }
-
-        if (AS5600_ERROR_SUCCESS == success) {
-                *p_x = p_config->x;
-        }
-
-        return success;
-
-}
- */
-
 
 /*
  *******************************************************************************

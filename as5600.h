@@ -37,6 +37,7 @@ typedef enum as5600_error_e {
         AS5600_ERROR_NOT_INITIALIZED,
         AS5600_ERROR_MAGNET_NOT_DETECTED,
         AS5600_ERROR_MAX_WRITE_CYCLES_REACHED,
+        AS5600_ERROR_MIN_ANGLE_TOO_SMALL,
         AS5600_ERROR_GENERAL_ERROR,
         AS5600_ERROR_COUNT
 } as5600_error_t;
@@ -192,7 +193,7 @@ typedef enum
 
 as5600_error_t as5600_init(pf_i2c_xfer_as5600_t const xfer_function);
 
-as5600_error_t as5600_get_start_and_stop_position_write_counter(uint8_t * p_write_counter);
+as5600_error_t as5600_get_otp_write_counter(uint8_t * p_write_counter);
 
 as5600_error_t as5600_set_start_position(uint16_t const start_position);
 
@@ -262,6 +263,6 @@ as5600_error_t as5600_get_automatic_gain_control(uint8_t * const p_agc);
 
 as5600_error_t as5600_get_cordic_magnitude(uint16_t * const p_magnitude);
 
-as5600_error_t as5600_burn_command(as5600_burn_mode_t const p_mode);
+as5600_error_t as5600_burn_command(as5600_burn_mode_t const mode);
 
 #endif //AS5600_H
