@@ -257,13 +257,11 @@ static as5600_error_t as5600_read_16register(uint8_t const reg, uint16_t * const
 
 static as5600_error_t as5600_write_16register(uint8_t const reg, uint16_t const tx_buffer);
 
-static as5600_error_t as5600_write_8register(uint8_t const instance,
-                                             uint8_t const reg,
+static as5600_error_t as5600_write_8register(uint8_t const reg,
                                              uint8_t const * const p_tx_buffer);
 
 
-static as5600_error_t as5600_read_8register(uint8_t const instance,
-                                            uint8_t const reg,
+static as5600_error_t as5600_read_8register(uint8_t const reg,
                                             uint8_t * const p_tx_buffer);
 
 static as5600_error_t as5600_set_conf_bit_field(uint8_t const start_bit, uint8_t const width, uint8_t const value);
@@ -779,6 +777,168 @@ as5600_error_t as5600_is_watchdog_enabled(bool * const p_enabled,
 
 }
 
+as5600_error_t as5600_get_raw_angle(uint16_t * const p_raw_angle)
+{
+        as5600_register_t const reg = AS5600_REGISTER_RAWANGLE_H;
+        as5600_error_t success = AS5600_ERROR_SUCCESS;
+        uint16_t buffer;
+
+        if (NULL == p_raw_angle) {
+                success = AS5600_ERROR_BAD_PARAMETER;
+        }
+
+        if (AS5600_ERROR_SUCCESS == success) {
+                success = as5600_read_16register(reg, &buffer);
+        }
+
+        if (AS5600_ERROR_SUCCESS == success) {
+                *p_raw_angle = buffer;
+        }
+
+        return success;
+}
+
+as5600_error_t as5600_get_angle(uint16_t * const p_angle)
+{
+        as5600_register_t const reg = AS5600_REGISTER_ANGLE_H;
+        as5600_error_t success = AS5600_ERROR_SUCCESS;
+        uint16_t buffer;
+
+        if (NULL == p_angle) {
+                success = AS5600_ERROR_BAD_PARAMETER;
+        }
+
+        if (AS5600_ERROR_SUCCESS == success) {
+                success = as5600_read_16register(reg, &buffer);
+        }
+
+        if (AS5600_ERROR_SUCCESS == success) {
+                *p_angle = buffer;
+        }
+
+        return success;
+}
+
+as5600_error_t as5600_get_status(as5600_status_t * const p_status)
+{
+        as5600_register_t const reg = AS5600_REGISTER_STATUS;
+        as5600_bit_field_t const bit_field = AS5600_BIT_FIELD_STATUS;
+        as5600_error_t success = AS5600_ERROR_SUCCESS;
+        uint8_t reg_value;
+        uint8_t bit_field_value;
+
+        if (NULL == p_status) {
+                success = AS5600_ERROR_BAD_PARAMETER;
+        }
+
+        if (AS5600_ERROR_SUCCESS == success) {
+                success = as5600_read_8register(reg, &reg_value);
+        }
+
+        if (AS5600_ERROR_SUCCESS == success) {
+                success = as5600_reg_get_bit_field_value(&bit_field_value,
+                                                         bit_field, reg_value)
+        }
+
+        if (AS5600_ERROR_SUCCESS == success) {
+                *p_status = (as5600_status_t)bit_field_value;
+        }
+
+        return success;
+}
+
+as5600_error_t as5600_get_automatic_gain_control(uint8_t * const p_agc)
+{
+        as5600_register_t const reg = AS5600_REGISTER_AGC;
+        as5600_error_t success = AS5600_ERROR_SUCCESS;
+        uint8_t reg_value;
+
+        if (NULL == p_agc) {
+                success = AS5600_ERROR_BAD_PARAMETER;
+        }
+
+        if (AS5600_ERROR_SUCCESS == success) {
+                success = as5600_read_8register(reg, &reg_value);
+        }
+
+        if (AS5600_ERROR_SUCCESS == success) {
+                *p_agc = reg_value;
+        }
+
+        return success;
+}
+
+as5600_error_t as5600_get_cordic_magnitude(uint16_t * const p_magnitude)
+{
+        as5600_register_t const reg = AS5600_REGISTER_MAGNITUDE_H;
+        as5600_error_t success = AS5600_ERROR_SUCCESS;
+        uint16_t reg_val;
+
+        if (NULL == p_magnitude) {
+                success = AS5600_ERROR_BAD_PARAMETER;
+        }
+
+        if (AS5600_ERROR_SUCCESS == success) {
+                success = as5600_read_16register(reg, &reg_val);
+        }
+
+        if (AS5600_ERROR_SUCCESS == success) {
+                *p_magnitude = reg_val;
+        }
+
+        return success;
+}
+
+as5600_error_t as5600_burn_command(as5600_burn_mode_t const p_mode)
+{
+        as5600_register_t const reg = AS5600_REGISTER_BURN;
+        as5600_error_t success = AS5600_ERROR_SUCCESS;
+        as5600_status_t status;
+        uint8_t counter;
+        bool burn_angle_allowed = true;
+        bool burn_setting_allowed = true;
+
+        success = as5600_get_start_and_stop_position_write_counter(&counter);
+
+        if (AS5600_ERROR_SUCCESS == success) {
+                success = as5600_get_status(&status);
+        }
+
+        if (AS5600_ERROR_SUCCESS == success) {
+                switch (p_mode) {
+                case AS5600_BURN_MODE_BURN_ANGLE:
+
+                        if (2 < counter) {
+                                success = AS5600_ERROR_MAX_WRITE_CYCLES_REACHED;
+                        } else if (AS5600_STATUS_MD != status) {
+                                success = AS5600_ERROR_MAGNET_NOT_DETECTED;
+                        }
+
+
+                        break;
+                case AS5600_BURN_MODE_BURN_SETTING:
+
+                        if (0 < counter) {
+                                success = AS5600_ERROR_MAX_WRITE_CYCLES_REACHED;
+                        } else {
+
+                        }
+
+                        break;
+                default:
+                        success = AS5600_ERROR_BAD_PARAMETER;
+                        break;
+
+                }
+        }
+
+        if (AS5600_ERROR_SUCCESS == success) {
+                success = as5600_write_8register(reg, (uint8_t *)p_mode);
+        }
+
+
+}
+
 /*
 as5600_error_t as5600_set_x(as5600_x_t const x,
                                      as5600_configuration_t * const p_config)
@@ -855,8 +1015,7 @@ static as5600_error_t as5600_set_conf_bit_field(uint8_t const start_bit,
 
 }
 
-static as5600_error_t as5600_read_8register(uint8_t const instance,
-                                            uint8_t const reg,
+static as5600_error_t as5600_read_8register(uint8_t const reg,
                                             uint8_t * const p_rx_buffer)
 {
         as5600_error_t result = AS5600_ERROR_SUCCESS;
@@ -875,8 +1034,7 @@ static as5600_error_t as5600_read_8register(uint8_t const instance,
 
 }
 
-static as5600_error_t as5600_write_8register(uint8_t const instance,
-                                             uint8_t const reg,
+static as5600_error_t as5600_write_8register(uint8_t const reg,
                                              uint8_t const * const p_tx_buffer)
 {
         as5600_error_t success = AS5600_ERROR_SUCCESS;
