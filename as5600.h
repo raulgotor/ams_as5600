@@ -96,7 +96,6 @@ typedef enum {
         AS5600_REGISTER_MAGNITUDE_H,
         AS5600_REGISTER_MAGNITUDE_L,
         AS5600_REGISTER_BURN = 0xFF,
-        AS5600_REGISTER_COUNT
 } as5600_register_t;
 
 typedef enum {
@@ -191,7 +190,7 @@ typedef enum
  *******************************************************************************
  */
 
-as5600_error_t as5600_init(pf_i2c_xfer_as5600_t const xfer_function);
+as5600_error_t as5600_init(pf_i2c_xfer_as5600_t const pf_transfer_func);
 
 as5600_error_t as5600_get_otp_write_counter(uint8_t * p_write_counter);
 

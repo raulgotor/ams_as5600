@@ -30,42 +30,6 @@
  *******************************************************************************
  */
 
-#define AS5600_REG_ADDR_ZMCO                    0x00U
-
-#define AS5600_REG_ADDR_ZPOS_HI_BYTE            0x01U
-
-#define AS5600_REG_ADDR_ZPOS_LO_BYTE            0x02U
-
-#define AS5600_REG_ADDR_MPOS_HI_BYTE            0x03U
-
-#define AS5600_REG_ADDR_MPOS_LO_BYTE            0x04U
-
-#define AS5600_REG_ADDR_MANG_HI_BYTE            0x05U
-
-#define AS5600_REG_ADDR_MANG_LO_BYTE            0x06U
-
-#define AS5600_REG_ADDR_CONF_HI_BYTE            0x07U
-
-#define AS5600_REG_ADDR_CONF_LO_BYTE            0x08U
-
-#define AS5600_REG_ADDR_RAWANGLE_HI_BYTE        0x0CU
-
-#define AS5600_REG_ADDR_RAWANGLE_LO_BYTE        0x0DU
-
-#define AS5600_REG_ADDR_ANGLE_HI_BYTE           0x0EU
-
-#define AS5600_REG_ADDR_ANGLE_LO_BYTE           0x0FU
-
-#define AS5600_REG_ADDR_STATUS                  0x0BU
-
-#define AS5600_REG_ADDR_AGC                     0x1AU
-
-#define AS5600_REG_ADDR_MAGNITUDE_HI_BYTE       0x1BU
-
-#define AS5600_REG_ADDR_MAGNITUDE_LO_BYTE       0x1CU
-
-#define AS5600_REG_ADDR_BURN                    0xFFU
-
 /*
  *******************************************************************************
  * Data types                                                                  *
@@ -111,12 +75,12 @@ typedef enum {
  *******************************************************************************
  */
 
-static const pf_i2c_xfer_as5600_t m_as5600_xfer_func = NULL;
+static pf_i2c_xfer_as5600_t m_as5600_xfer_func = NULL;
+
+static uint8_t const m_as5600_i2c_addr = 0x36;
 
 static bool m_is_initialized = false;
 
-static const uint8_t m_instance_count = 1;
-static const uint8_t m_instance_addr[m_instance_count] = { 0x36 };
 
 as5600_bit_field_specs_t fields[] = {
         {
@@ -169,22 +133,22 @@ as5600_bit_field_specs_t fields[] = {
                 .lsbit_pos = 5,
                 .width = 1
         },
-        {       //PM
+        {
                 .reg = AS5600_REGISTER_CONF_L,
                 .lsbit_pos = 0,
                 .width = 2
         },
-        {       //HYST
+        {
                 .reg = AS5600_REGISTER_CONF_L,
                 .lsbit_pos = 2,
                 .width = 2
         },
-        {       //OUT
+        {
                 .reg = AS5600_REGISTER_CONF_L,
                 .lsbit_pos = 4,
                 .width = 2
         },
-        {       //PWMF
+        {
                 .reg = AS5600_REGISTER_CONF_L,
                 .lsbit_pos = 6,
                 .width = 2
@@ -249,19 +213,19 @@ static as5600_error_t as5600_get_field_value(as5600_bit_field_t const field,
 static as5600_error_t as5600_set_field_value(as5600_bit_field_t const field,
                                              uint8_t const field_value);
 
-static as5600_error_t as5600_read_n_consecutive_bytes(uint8_t const reg, uint8_t * const p_rx_buffer, size_t const bytes_count);
+static as5600_error_t as5600_read_n_consecutive_bytes(as5600_register_t const reg, uint8_t * const p_rx_buffer, size_t const bytes_count);
 
-static as5600_error_t as5600_write_n_consecutive_bytes(uint8_t const reg, uint8_t const * const p_tx_buffer, size_t const bytes_count);
+static as5600_error_t as5600_write_n_consecutive_bytes(as5600_register_t const reg, uint8_t const * const p_tx_buffer, size_t const bytes_count);
 
-static as5600_error_t as5600_read_16register(uint8_t const reg, uint16_t * const p_rx_buffer);
+static as5600_error_t as5600_read_16register(as5600_register_t const reg, uint16_t * const p_rx_buffer);
 
-static as5600_error_t as5600_write_16register(uint8_t const reg, uint16_t const tx_buffer);
+static as5600_error_t as5600_write_16register(as5600_register_t const reg, uint16_t const tx_buffer);
 
-static as5600_error_t as5600_write_8register(uint8_t const reg,
+static as5600_error_t as5600_write_8register(as5600_register_t const reg,
                                              uint8_t const * const p_tx_buffer);
 
 
-static as5600_error_t as5600_read_8register(uint8_t const reg,
+static as5600_error_t as5600_read_8register(as5600_register_t const reg,
                                             uint8_t * const p_tx_buffer);
 
 static as5600_error_t as5600_set_conf_bit_field(uint8_t const start_bit, uint8_t const width, uint8_t const value);
@@ -288,6 +252,9 @@ static as5600_error_t as5600_reg16_to_cfg(uint16_t const * const reg,
 
 static bool as5600_is_valid_configuration(
                                  as5600_configuration_t const * const p_config);
+
+static as5600_error_t as5600_is_register_valid(as5600_register_t const reg);
+
 /*
  *******************************************************************************
  * Public Data Declarations                                                    *
@@ -306,25 +273,39 @@ static bool as5600_is_valid_configuration(
  *******************************************************************************
  */
 
-as5600_error_t as5600_init(pf_i2c_xfer_as5600_t const pf_xfer_function)
+/*!
+ * @brief Initialize the module
+ *
+ * This function initializes the module for operation. The module can only
+ * be initialized once.
+ *
+ * @param           pf_transfer_func        Object containing the pointer
+ *                                          to a data transfer function
+ *
+ * @return          as5600_error_t          Result of the operation
+ * @return          AS5600_ERROR_SUCCESS    If everything went well
+ * @return          AS5600_ERROR_RUNTIME_ERROR Module already initialized
+ * @return          AS5600_ERROR_BAD_PARAMETER Invalid transfer function pointer
+ */
+as5600_error_t as5600_init(pf_i2c_xfer_as5600_t const pf_transfer_func)
 {
         as5600_error_t result = AS5600_ERROR_SUCCESS;
 
         if (m_is_initialized) {
                 result = AS5600_ERROR_RUNTIME_ERROR;
-        } else if (NULL == pf_xfer_function) {
+        } else if (NULL == pf_transfer_func) {
                 result = AS5600_ERROR_BAD_PARAMETER;
         }
 
         if (AS5600_ERROR_SUCCESS == result) {
+                m_as5600_xfer_func = pf_transfer_func;
                 m_is_initialized = true;
         }
 
         return result;
 }
 
-as5600_error_t as5600_get_otp_write_counter(
-                                                      uint8_t * p_write_counter)
+as5600_error_t as5600_get_otp_write_counter(uint8_t * p_write_counter)
 {
         as5600_bit_field_t const field = AS5600_BIT_FIELD_ZMCO;
         as5600_error_t success = AS5600_ERROR_SUCCESS;
@@ -352,7 +333,7 @@ as5600_error_t as5600_get_otp_write_counter(
  * position (MPOS) or maximum angle (MANG) for a narrower angular range.
  * The angular range must be greater than 18 degrees. In case of narrowed
  * angular range, the resolution is not scaled to narrowed range
- * (e.g. 0° to 360°(full-turn) → 4096dec; 0° to180°→2048dec).
+ * (e.g. 0° to 360°(full-turn) → 4096 dec; 0° to 180° → 2048 dec).
  *
  * @param       start_position              start position value [0 - 4095]
  *
@@ -379,6 +360,18 @@ as5600_error_t as5600_set_start_position(uint16_t const start_position)
         return success;
 }
 
+/*!
+ * @brief Get start position angle (ZPOS)
+ *
+ * @see `as5600_set_start_position`
+ *
+ * @param       p_start_position            pointer to memory where to write
+ *                                          the start position to [0 - 4095]
+ *
+ * @return      as5600_error_t              Result of the operation
+ * @retval      AS5600_ERROR_SUCCESS        If everything went well
+ * @retval      AS5600_ERROR_BAD_PARAMETER  Invalid pointer
+ */
 as5600_error_t as5600_get_start_position(uint16_t * const p_start_position)
 {
         as5600_register_t const reg = AS5600_REGISTER_ZPOS_H;
@@ -400,6 +393,22 @@ as5600_error_t as5600_get_start_position(uint16_t * const p_start_position)
         return success;
 }
 
+
+/*!
+ * @brief Set stop position angle (MPOS)
+ *
+ * These registers are used to configure the start position (ZPOS) and a stop
+ * position (MPOS) or maximum angle (MANG) for a narrower angular range.
+ * The angular range must be greater than 18 degrees. In case of narrowed
+ * angular range, the resolution is not scaled to narrowed range
+ * (e.g. 0° to 360°(full-turn) → 4096 dec; 0° to 180° → 2048 dec).
+ *
+ * @param       stop_position               stop position value [0 - 4095]
+ *
+ * @return      as5600_error_t              Result of the operation
+ * @retval      AS5600_ERROR_SUCCESS        If everything went well
+ * @retval      AS5600_ERROR_BAD_PARAMETER  Parameter OOR
+ */
 as5600_error_t as5600_set_stop_position(uint16_t const stop_position)
 {
         as5600_register_t const reg = AS5600_REGISTER_MPOS_H;
@@ -420,6 +429,18 @@ as5600_error_t as5600_set_stop_position(uint16_t const stop_position)
 
 }
 
+/*!
+ * @brief Get stop position angle (MPOS)
+ *
+ * @see `as5600_set_stop_position`
+ *
+ * @param       p_stop_position            pointer to memory where to write
+ *                                          the stop position to [0 - 4095]
+ *
+ * @return      as5600_error_t              Result of the operation
+ * @retval      AS5600_ERROR_SUCCESS        If everything went well
+ * @retval      AS5600_ERROR_BAD_PARAMETER  Invalid pointer
+ */
 as5600_error_t as5600_get_stop_position(uint16_t * const p_stop_position)
 {
         as5600_register_t const reg = AS5600_REGISTER_MPOS_H;
@@ -441,6 +462,21 @@ as5600_error_t as5600_get_stop_position(uint16_t * const p_stop_position)
         return success;
 }
 
+/*!
+ * @brief Set maximum angle (MANG)
+ *
+ * These registers are used to configure the start position (ZPOS) and a stop
+ * position (MPOS) or maximum angle (MANG) for a narrower angular range.
+ * The angular range must be greater than 18 degrees. In case of narrowed
+ * angular range, the resolution is not scaled to narrowed range
+ * (e.g. 0° to 360°(full-turn) → 4096 dec; 0° to 180° → 2048 dec).
+ *
+ * @param       max_angle                   maximum allowed angle [0 - 4095]
+ *
+ * @return      as5600_error_t              Result of the operation
+ * @retval      AS5600_ERROR_SUCCESS        If everything went well
+ * @retval      AS5600_ERROR_BAD_PARAMETER  Parameter OOR
+ */
 as5600_error_t as5600_set_maximum_angle(uint16_t const max_angle)
 {
         as5600_register_t const reg = AS5600_REGISTER_MANG_H;
@@ -461,6 +497,18 @@ as5600_error_t as5600_set_maximum_angle(uint16_t const max_angle)
 
 }
 
+/*!
+ * @brief Get maximum angle (MANG)
+ *
+ * @see `as5600_set_maximum_angle`
+ *
+ * @param       p_max_angle                 pointer to memory where to write
+ *                                          the maximum angle to [0 - 4095]
+ *
+ * @return      as5600_error_t              Result of the operation
+ * @retval      AS5600_ERROR_SUCCESS        If everything went well
+ * @retval      AS5600_ERROR_BAD_PARAMETER  Invalid pointer
+ */
 as5600_error_t as5600_get_maximum_angle(uint16_t * const p_max_angle)
 {
         as5600_register_t const reg = AS5600_REGISTER_MANG_H;
@@ -837,7 +885,7 @@ as5600_error_t as5600_get_status(as5600_status_t * const p_status)
 
         if (AS5600_ERROR_SUCCESS == success) {
                 success = as5600_reg_get_bit_field_value(&bit_field_value,
-                                                         bit_field, reg_value)
+                                                         bit_field, reg_value);
         }
 
         if (AS5600_ERROR_SUCCESS == success) {
@@ -1040,7 +1088,7 @@ static as5600_error_t as5600_set_conf_bit_field(uint8_t const start_bit,
 
 }
 
-static as5600_error_t as5600_read_8register(uint8_t const reg,
+static as5600_error_t as5600_read_8register(as5600_register_t const reg,
                                             uint8_t * const p_rx_buffer)
 {
         as5600_error_t result = AS5600_ERROR_SUCCESS;
@@ -1059,7 +1107,7 @@ static as5600_error_t as5600_read_8register(uint8_t const reg,
 
 }
 
-static as5600_error_t as5600_write_8register(uint8_t const reg,
+static as5600_error_t as5600_write_8register(as5600_register_t const reg,
                                              uint8_t const * const p_tx_buffer)
 {
         as5600_error_t success = AS5600_ERROR_SUCCESS;
@@ -1078,7 +1126,7 @@ static as5600_error_t as5600_write_8register(uint8_t const reg,
 
 }
 
-static as5600_error_t as5600_read_16register(uint8_t const reg, uint16_t * const p_rx_buffer)
+static as5600_error_t as5600_read_16register(as5600_register_t const reg, uint16_t * const p_rx_buffer)
 {
         size_t const count = sizeof(uint16_t);
         uint8_t buffer[count];
@@ -1101,22 +1149,21 @@ static as5600_error_t as5600_read_16register(uint8_t const reg, uint16_t * const
 
 }
 
-static as5600_error_t as5600_write_16register(uint8_t const reg, uint16_t const tx_buffer)
+static as5600_error_t as5600_write_16register(as5600_register_t const reg, uint16_t const tx_buffer)
 { return 0;}
 
 
-static as5600_error_t as5600_write_n_consecutive_bytes(uint8_t const reg, uint8_t const * const p_tx_buffer, size_t const bytes_count)
+static as5600_error_t as5600_write_n_consecutive_bytes(as5600_register_t const reg,
+                                                       uint8_t const * const p_tx_buffer,
+                                                       size_t const bytes_count)
 {
-        as5600_error_t result = AS5600_ERROR_SUCCESS;
-        uint8_t addr;
-        uint8_t xfer_func_result = 0;
-        uint8_t reg_addr;
+        as5600_error_t result = as5600_is_register_valid(reg);
         uint8_t buffer[bytes_count + 1];
+        uint8_t xfer_func_result = 0;
+        uint8_t const reg_addr = (uint8_t)reg;
         uint8_t i;
 
-        if ((NULL == p_tx_buffer) ||
-            (AS5600_REGISTER_COUNT < reg)) {
-
+        if (NULL == p_tx_buffer) {
                 result = AS5600_ERROR_BAD_PARAMETER;
         } else if (!m_is_initialized) {
                 result = AS5600_ERROR_NOT_INITIALIZED;
@@ -1126,14 +1173,12 @@ static as5600_error_t as5600_write_n_consecutive_bytes(uint8_t const reg, uint8_
 
         if (AS5600_ERROR_SUCCESS == result) {
 
-                addr = m_instance_addr[instance];
-                reg_addr = m_as5600_reg_addr[reg];
                 buffer[0] = reg_addr;
                 for (i = 0; bytes_count > i; ++i) {
                         buffer[i + 1] = p_tx_buffer[i];
                 }
 
-                xfer_func_result = m_as5600_xfer_func(addr,
+                xfer_func_result = m_as5600_xfer_func(m_as5600_i2c_addr,
                                                       buffer,
                                                       sizeof(buffer),
                                                       NULL, 0);
@@ -1143,21 +1188,17 @@ static as5600_error_t as5600_write_n_consecutive_bytes(uint8_t const reg, uint8_
                 }
         }
 
-
-
         return result;
 }
 
-static as5600_error_t as5600_read_n_consecutive_bytes(uint8_t const reg, uint8_t * const p_rx_buffer, size_t const bytes_count)
+static as5600_error_t as5600_read_n_consecutive_bytes(as5600_register_t const reg, uint8_t * const p_rx_buffer, size_t const bytes_count)
 {
-        as5600_error_t result = AS5600_ERROR_SUCCESS;
+        as5600_error_t result = as5600_is_register_valid(reg);
+        uint8_t const reg_addr = (uint8_t)reg;
         uint8_t addr;
         uint8_t xfer_func_result = 0;
-        uint8_t reg_addr;
 
-        if ((NULL == p_rx_buffer) ||
-            (AS5600_REGISTER_COUNT < reg)) {
-
+        if (NULL == p_rx_buffer) {
                 result = AS5600_ERROR_BAD_PARAMETER;
         } else if (!m_is_initialized) {
                 result = AS5600_ERROR_NOT_INITIALIZED;
@@ -1167,10 +1208,8 @@ static as5600_error_t as5600_read_n_consecutive_bytes(uint8_t const reg, uint8_t
 
         if (AS5600_ERROR_SUCCESS == result) {
 
-                addr = m_instance_addr[instance];
-                reg_addr = m_as5600_reg_addr[reg];
 
-                xfer_func_result = m_as5600_xfer_func(addr,
+                xfer_func_result = m_as5600_xfer_func(m_as5600_i2c_addr,
                                                       &reg_addr,
                                                       sizeof(reg_addr),
                                                       p_rx_buffer, bytes_count);
@@ -1179,8 +1218,6 @@ static as5600_error_t as5600_read_n_consecutive_bytes(uint8_t const reg, uint8_t
                         result = AS5600_ERROR_I2C_ERROR;
                 }
         }
-
-
 
         return result;
 }
@@ -1400,6 +1437,37 @@ static bool as5600_is_valid_configuration(
                 (AS5600_FF_THRESHOLD_COUNT > p_config->ff_threshold));
 }
 
+static as5600_error_t as5600_is_register_valid(as5600_register_t const reg)
+{
+        as5600_error_t result;
+
+        switch (reg) {
+        case AS5600_REGISTER_ZMCO:
+        case AS5600_REGISTER_ZPOS_H:
+        case AS5600_REGISTER_ZPOS_L:
+        case AS5600_REGISTER_MPOS_H:
+        case AS5600_REGISTER_MPOS_L:
+        case AS5600_REGISTER_MANG_H:
+        case AS5600_REGISTER_MANG_L:
+        case AS5600_REGISTER_CONF_H:
+        case AS5600_REGISTER_CONF_L:
+        case AS5600_REGISTER_STATUS:
+        case AS5600_REGISTER_RAWANGLE_H:
+        case AS5600_REGISTER_RAWANGLE_L:
+        case AS5600_REGISTER_ANGLE_H:
+        case AS5600_REGISTER_ANGLE_L:
+        case AS5600_REGISTER_AGC:
+        case AS5600_REGISTER_MAGNITUDE_H:
+        case AS5600_REGISTER_MAGNITUDE_L:
+        case AS5600_REGISTER_BURN:
+                result = AS5600_ERROR_SUCCESS;
+                break;
+        default:
+                result = AS5600_ERROR_BAD_PARAMETER;
+                break;
+        }
+        return result;
+}
 
 /*
  *******************************************************************************
