@@ -84,121 +84,143 @@ static bool m_is_initialized = false;
 
 as5600_bit_field_specs_t fields[] = {
         {
+                //! @brief Configuration of ZMCO bitfield
                 .reg = AS5600_REGISTER_ZMCO,
                 .lsbit_pos = 0,
                 .width = 2
         },
         {
+                //! @brief Configuration of high byte of ZPOS bitfield
                 .reg = AS5600_REGISTER_ZPOS_H,
                 .lsbit_pos = 0,
                 .width = 4
         },
         {
+                //! @brief Configuration of low byte of ZPOS bitfield
                 .reg = AS5600_REGISTER_ZPOS_L,
                 .lsbit_pos = 0,
                 .width = 8
         },
         {
+                //! @brief Configuration of high byte of MPOS bitfield
                 .reg = AS5600_REGISTER_MPOS_H,
                 .lsbit_pos = 0,
                 .width = 4
         },
         {
+                //! @brief Configuration of low byte of MPOS bitfield
                 .reg = AS5600_REGISTER_MPOS_L,
                 .lsbit_pos = 0,
                 .width = 8
         },
         {
+                //! @brief Configuration of high byte of MANG bitfield
                 .reg = AS5600_REGISTER_MANG_H,
                 .lsbit_pos = 0,
                 .width = 4
         },
         {
+                //! @brief Configuration of low byte of MANG bitfield
                 .reg = AS5600_REGISTER_MANG_L,
                 .lsbit_pos = 0,
                 .width = 8
         },
-        {       //SF
+        {
+                //! @brief Configuration of SF bitfield
                 .reg = AS5600_REGISTER_CONF_H,
                 .lsbit_pos = 0,
                 .width = 2,
         },
-        {       //FTH
+        {
+                //! @brief Configuration of FTH bitfield
                 .reg = AS5600_REGISTER_CONF_H,
                 .lsbit_pos = 2,
                 .width = 3
         },
-        {       //WD
+        {
+                //! @brief Configuration of WD bitfield
                 .reg = AS5600_REGISTER_CONF_H,
                 .lsbit_pos = 5,
                 .width = 1
         },
         {
+                //! @brief Configuration of PM bitfield
                 .reg = AS5600_REGISTER_CONF_L,
                 .lsbit_pos = 0,
                 .width = 2
         },
         {
+                //! @brief Configuration of HYST bitfield
                 .reg = AS5600_REGISTER_CONF_L,
                 .lsbit_pos = 2,
                 .width = 2
         },
         {
+                //! @brief Configuration of OUTS bitfield
                 .reg = AS5600_REGISTER_CONF_L,
                 .lsbit_pos = 4,
                 .width = 2
         },
         {
+                //! @brief Configuration of PWMF bitfield
                 .reg = AS5600_REGISTER_CONF_L,
                 .lsbit_pos = 6,
                 .width = 2
         },
         {
+                //! @brief Configuration of high byte of RAWANGLE bitfield
                 .reg = AS5600_REGISTER_RAWANGLE_H,
                 .lsbit_pos = 0,
                 .width = 4
         },
         {
-                .reg = AS5600_REGISTER_RAWANGLE_H,
+                //! @brief Configuration of low byte of RAWANGLE bitfield
+                .reg = AS5600_REGISTER_RAWANGLE_L,
                 .lsbit_pos = 0,
                 .width = 8
         },
         {
+                //! @brief Configuration of high byte of ANGLE bitfield
                 .reg = AS5600_REGISTER_ANGLE_H,
                 .lsbit_pos = 0,
                 .width = 4
         },
         {
+                //! @brief Configuration of low byte of ANGLE bitfield
                 .reg = AS5600_REGISTER_ANGLE_L,
                 .lsbit_pos = 0,
                 .width = 8
         },
         {
+                //! @brief Configuration of STATUS bitfield
                 .reg = AS5600_REGISTER_STATUS,
                 .lsbit_pos = 3,
                 .width = 3
         },
         {
+                //! @brief Configuration of AGC bitfield
                 .reg = AS5600_REGISTER_AGC,
                 .lsbit_pos = 0,
                 .width = 8
         },
         {
+                //! @brief Configuration of high byte of MAGNITUDE bitfield
                 .reg = AS5600_REGISTER_MAGNITUDE_H,
                 .lsbit_pos = 0,
                 .width = 4
         },
         {
+                //! @brief Configuration of low byte of MAGNITUDE bitfield
                 .reg = AS5600_REGISTER_MAGNITUDE_L,
                 .lsbit_pos = 0,
                 .width = 8
         },
         {
+                //! @brief Configuration of BURN bitfield
                 .reg = AS5600_REGISTER_BURN,
                 .lsbit_pos = 0,
                 .width = 8
-        },
-
+        }
 };
 
 /*
@@ -1204,7 +1226,10 @@ static as5600_error_t as5600_write_n_consecutive_bytes(as5600_register_t const r
         return result;
 }
 
-static as5600_error_t as5600_read_n_consecutive_bytes(as5600_register_t const reg, uint8_t * const p_rx_buffer, size_t const bytes_count)
+static as5600_error_t as5600_read_n_consecutive_bytes(
+                                                    as5600_register_t const reg,
+                                                    uint8_t * const p_rx_buffer,
+                                                    size_t const bytes_count)
 {
         as5600_error_t result = as5600_is_register_valid(reg);
         uint8_t const reg_addr = (uint8_t)reg;
