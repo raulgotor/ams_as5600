@@ -1351,8 +1351,9 @@ static as5600_error_t as5600_cfg_to_reg16(
         }
 
         if (AS5600_ERROR_SUCCESS == success) {
-                *reg &= (buffer[0] << 8);
-                *reg &= buffer[1];
+                *reg = 0U;
+                *reg |= (buffer[0] << 8);
+                *reg |= buffer[1];
         }
 
         return success;
