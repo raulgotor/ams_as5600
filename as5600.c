@@ -624,12 +624,15 @@ as5600_error_t as5600_set_configuration(as5600_configuration_t const * const p_c
  * operation. The values can be accessed directly from the structure or via
  * the other getter methods.
  *
+ * @see  `as5600_set_configuration`
+ *
  * @see `as5600_get_slow_filter`, `as5600_get_ff_threshold`,
  *      `as5600_is_watchdog_enabled`, `as5600_get_power_mode`,
  *      `as5600_get_hysteresis`, `as5600_get_output_state`,
  *      `as5600_get_pwm_frequency`
  *
  * @param       p_config                    Pointer to a configuration structure
+ *                                          of type `as5600_configuration_t`
  *
  * @return      as5600_error_t              Result of the operation
  * @retval      AS5600_ERROR_SUCCESS        If everything went well
@@ -681,11 +684,12 @@ as5600_error_t as5600_get_configuration(as5600_configuration_t * const p_config)
  * @note this function only modifies the `as5600_configuration_t` object and
  *       performs no I2C write operation
  *
- * @param       slow_filter             step response delay to set, multiples of
- *                                      0.143 ms `as5600_slow_filter_t` type
+ * @param       slow_filter                 step response delay to set,
+ *                                          multiples of 0.143 ms
+ *                                          `as5600_slow_filter_t` type
  *
- * @param       p_config                Pointer to the `as5600_configuration_t`
- *                                      to be modified
+ * @param       p_config                    Pointer to `as5600_configuration_t`
+ *                                          object to be modified
  *
  * @return      as5600_error_t              Result of the operation
  * @retval      AS5600_ERROR_SUCCESS        If everything went well
@@ -714,14 +718,16 @@ as5600_error_t as5600_set_slow_filter(as5600_slow_filter_t const slow_filter,
  *
  * Gets the slow filter field of a `as5600_configuration_t` object.
  *
+ * @see  `as5600_set_slow_filter`
+ *
  * @note this function only reads the `as5600_configuration_t` object and
  *       performs no I2C read operation
  *
- * @param       p_slow_filter           current step response delay
- *                                      `as5600_slow_filter_t` type
+ * @param       p_slow_filter               current step response delay
+ *                                          `as5600_slow_filter_t` type
  *
- * @param       p_config                Pointer to the `as5600_configuration_t`
- *                                      to be modified
+ * @param       p_config                    Pointer to `as5600_configuration_t`
+ *                                          object to be modified
  *
  * @return      as5600_error_t              Result of the operation
  * @retval      AS5600_ERROR_SUCCESS        If everything went well
@@ -758,11 +764,12 @@ as5600_error_t as5600_get_slow_filter(as5600_slow_filter_t * const p_slow_filter
  * @note this function only modifies the `as5600_configuration_t` object and
  *       performs no I2C write operation
  *
- * @param       ff_threshold            slow to fast filter threshold (LSB), to
- *                                      be set, `as5600_ff_threshold_t` type
+ * @param       ff_threshold                slow to fast filter threshold (LSB),
+ *                                          to be set, `as5600_ff_threshold_t`
+ *                                          type
  *
- * @param       p_config                Pointer to the `as5600_configuration_t`
- *                                      to be modified
+ * @param       p_config                    Pointer to `as5600_configuration_t`
+ *                                          object to be modified
  *
  * @return      as5600_error_t              Result of the operation
  * @retval      AS5600_ERROR_SUCCESS        If everything went well
@@ -791,13 +798,16 @@ as5600_error_t as5600_set_ff_threshold(as5600_ff_threshold_t const ff_threshold,
  *
  * Gets the fast filter threshold field of a `as5600_configuration_t` object.
  *
+ * @see  `as5600_set_ff_threshold`
+ *
  * @note this function only reads the `as5600_configuration_t` object and
  *       performs no I2C read operation
  *
- * @param       p_ff_threshold          current slow to fast filter threshold
+ * @param       p_ff_threshold              current slow to fast filter
+ *                                          threshold
  *
- * @param       p_config                Pointer to the `as5600_configuration_t`
- *                                      to be modified
+ * @param       p_config                    Pointer to `as5600_configuration_t`
+ *                                          object to be modified
  *
  * @return      as5600_error_t              Result of the operation
  * @retval      AS5600_ERROR_SUCCESS        If everything went well
@@ -820,6 +830,28 @@ as5600_error_t as5600_get_ff_threshold(as5600_ff_threshold_t * const p_ff_thresh
 
 }
 
+/*!
+ * @brief Set watchdog status
+ *
+ * Set the status of the watchdog in a `as5600_configuration_t` object.
+ *
+ * The watchdog timer allows saving power by switching into LMP3 if the angle
+ * stays within the watchdog threshold of 4 LSB for at least one minute. The
+ * watchdog function can be enabled with the WD bit in the CONF register.
+ *
+ * @note this function only modifies the `as5600_configuration_t` object and
+ *       performs no I2C write operation
+ *
+ * @param       enabled                     True: enable watchdog
+ *                                          False: disable watchdog
+ *
+ * @param       p_config                    Pointer to `as5600_configuration_t`
+ *                                          object to be modified
+ *
+ * @return      as5600_error_t              Result of the operation
+ * @retval      AS5600_ERROR_SUCCESS        If everything went well
+ * @retval      AS5600_ERROR_BAD_PARAMETER  Pointer invalid
+ */
 as5600_error_t as5600_set_watchdog_enabled(bool const enabled,
                                            as5600_configuration_t * const p_config)
 {
@@ -837,6 +869,28 @@ as5600_error_t as5600_set_watchdog_enabled(bool const enabled,
 
 }
 
+/*!
+ * @brief Get status of the watchdog
+ *
+ * Gets the status of the watchdog in a `as5600_configuration_t` object.
+ *
+ * @see  `as5600_set_watchdog_enabled`
+ *
+ * @note this function only reads the `as5600_configuration_t` object and
+ *       performs no I2C read operation
+ *
+ * @param       p_enabled                   pointer to save the status of the
+ *                                          watchdog to.
+ *                                          True: watchdog is enabled
+ *                                          False: watchdog is disabled
+ *
+ * @param       p_config                    Pointer to `as5600_configuration_t`
+ *                                          object to be modified
+ *
+ * @return      as5600_error_t              Result of the operation
+ * @retval      AS5600_ERROR_SUCCESS        If everything went well
+ * @retval      AS5600_ERROR_BAD_PARAMETER  Invalid pointer
+ */
 as5600_error_t as5600_is_watchdog_enabled(bool * const p_enabled,
                                           as5600_configuration_t * const p_config)
 {
@@ -854,6 +908,35 @@ as5600_error_t as5600_is_watchdog_enabled(bool * const p_enabled,
 
 }
 
+/*!
+ * @brief Set power mode
+ *
+ * Set power mode of the AS5600 configured in a `as5600_configuration_t` object
+ *
+ * A digital state machine automatically manages the low power modes to reduce
+ * the average current consumption. Three low power modes are available and can
+ * be enabled with the PM bits in the CONF register. Current consumption and
+ * polling times are shown below
+ *
+ * Power Mode | Polling time (ms) | Supply current (mA)
+ * -----------|-------------------|--------------------
+ * NOM        | Always on         | 6.5
+ * LPM1       | 5                 | 3.4
+ * LPM2       | 20                | 1.8
+ * LPM3       | 100               | 1.5
+ *
+ * @note this function only modifies the `as5600_configuration_t` object and
+ *       performs no I2C write operation
+ *
+ * @param       power_mode                  value of type `as5600_power_mode_t`
+ *
+ * @param       p_config                    Pointer to `as5600_configuration_t`
+ *                                          object to be modified
+ *
+ * @return      as5600_error_t              Result of the operation
+ * @retval      AS5600_ERROR_SUCCESS        If everything went well
+ * @retval      AS5600_ERROR_BAD_PARAMETER  Pointer invalid
+ */
 as5600_error_t as5600_set_power_mode(as5600_power_mode_t const power_mode,
                                      as5600_configuration_t * const p_config)
 {
@@ -872,6 +955,25 @@ as5600_error_t as5600_set_power_mode(as5600_power_mode_t const power_mode,
 
 }
 
+/*!
+ * @brief Get power mode
+ *
+ * Get power mode of the AS5600 configured in a `as5600_configuration_t` object
+ *
+ * @see  `as5600_set_power_mode`
+ *
+ * @note this function only modifies the `as5600_configuration_t` object and
+ *       performs no I2C read operation
+ *
+ * @param       power_mode                  value of type `as5600_power_mode_t`
+ *
+ * @param       p_config                    Pointer to `as5600_configuration_t`
+ *                                          object to be modified
+ *
+ * @return      as5600_error_t              Result of the operation
+ * @retval      AS5600_ERROR_SUCCESS        If everything went well
+ * @retval      AS5600_ERROR_BAD_PARAMETER  Pointer invalid
+ */
 as5600_error_t as5600_get_power_mode(as5600_power_mode_t * const p_power_mode,
                                      as5600_configuration_t * const p_config)
 {
@@ -889,6 +991,27 @@ as5600_error_t as5600_get_power_mode(as5600_power_mode_t * const p_power_mode,
 
 }
 
+/*!
+ * @brief Set hysteresis sensitivity
+ *
+ * Set hysteresis sensitivity configured in a `as5600_configuration_t` object
+ *
+ * To avoid any toggling of the output when the magnet is not moving, a 1 to 3
+ * LSB hysteresis of the 12-bit resolution can be enabled with the HYST bits
+ * in the CONF register.
+ *
+ * @note this function only modifies the `as5600_configuration_t` object and
+ *       performs no I2C write operation
+ *
+ * @param       hysteresis                  value of type `as5600_hysteresis_t`
+ *
+ * @param       p_config                    Pointer to `as5600_configuration_t`
+ *                                          object to be modified
+ *
+ * @return      as5600_error_t              Result of the operation
+ * @retval      AS5600_ERROR_SUCCESS        If everything went well
+ * @retval      AS5600_ERROR_BAD_PARAMETER  Pointer invalid
+ */
 as5600_error_t as5600_set_hysteresis(as5600_hysteresis_t const hysteresis,
                                      as5600_configuration_t * const p_config)
 {
@@ -907,6 +1030,25 @@ as5600_error_t as5600_set_hysteresis(as5600_hysteresis_t const hysteresis,
 
 }
 
+/*!
+ * @brief Get hysteresis sensitivity
+ *
+ * Get hysteresis sensitivity configured in a `as5600_configuration_t` object
+ *
+ * @see  `as5600_set_hysteresis`
+ *
+ * @note this function only modifies the `as5600_configuration_t` object and
+ *       performs no I2C read operation
+ *
+ * @param       hysteresis                  value of type `as5600_hysteresis_t`
+ *
+ * @param       p_config                    Pointer to `as5600_configuration_t`
+ *                                          object to be modified
+ *
+ * @return      as5600_error_t              Result of the operation
+ * @retval      AS5600_ERROR_SUCCESS        If everything went well
+ * @retval      AS5600_ERROR_BAD_PARAMETER  Pointer invalid
+ */
 as5600_error_t as5600_get_hysteresis(as5600_hysteresis_t * const p_hysteresis,
                                      as5600_configuration_t * const p_config)
 {
