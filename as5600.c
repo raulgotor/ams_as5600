@@ -36,12 +36,14 @@
  *******************************************************************************
  */
 
+//! @brief Data structure for bitfield specification
 typedef struct {
         as5600_register_t reg;
         uint8_t lsbit_pos;
         uint8_t width;
 } as5600_bit_field_specs_t;
 
+//! @brief Different bitfields in AS5600 ordered by address and lsb
 typedef enum {
         AS5600_BIT_FIELD_ZMCO = 0,
         AS5600_BIT_FIELD_ZPOS_HI_BYTE,
@@ -75,13 +77,19 @@ typedef enum {
  *******************************************************************************
  */
 
+//! @brief Pointer to a I2C transfer function
 static pf_i2c_xfer_as5600_t m_as5600_xfer_func = NULL;
 
-static uint8_t const m_as5600_i2c_addr = 0x36;
+//! @brief I2C address of the AS5600
+static uint8_t const m_as5600_i2c_addr = 0x36U;
 
+//! @brief Control whether the driver is initialized or not
 static bool m_is_initialized = false;
 
-
+/*!
+ * @brief List of the different specification for each bitfield, ordered by
+ *        address and lsb
+ */
 as5600_bit_field_specs_t m_bitfields[] = {
         {
                 //! @brief Configuration of ZMCO bitfield
@@ -229,13 +237,21 @@ as5600_bit_field_specs_t m_bitfields[] = {
  *******************************************************************************
  */
 
-static as5600_error_t as5600_read_n_consecutive_bytes(as5600_register_t const reg, uint8_t * const p_rx_buffer, size_t const bytes_count);
+static as5600_error_t as5600_read_n_consecutive_bytes(
+                                                    as5600_register_t const reg,
+                                                    uint8_t * const p_rx_buffer,
+                                                    size_t const bytes_count);
 
-static as5600_error_t as5600_write_n_consecutive_bytes(as5600_register_t const reg, uint8_t const * const p_tx_buffer, size_t const bytes_count);
+static as5600_error_t as5600_write_n_consecutive_bytes(
+                                              as5600_register_t const reg,
+                                              uint8_t const * const p_tx_buffer,
+                                              size_t const bytes_count);
 
-static as5600_error_t as5600_read_16register(as5600_register_t const reg, uint16_t * const p_rx_buffer);
+static as5600_error_t as5600_read_16register(as5600_register_t const reg,
+                                             uint16_t * const p_rx_buffer);
 
-static as5600_error_t as5600_write_16register(as5600_register_t const reg, uint16_t const tx_buffer);
+static as5600_error_t as5600_write_16register(as5600_register_t const reg,
+                                              uint16_t const tx_buffer);
 
 static as5600_error_t as5600_write_8register(as5600_register_t const reg,
                                              uint8_t const tx_buffer);
@@ -244,27 +260,32 @@ static as5600_error_t as5600_write_8register(as5600_register_t const reg,
 static as5600_error_t as5600_read_8register(as5600_register_t const reg,
                                             uint8_t * const p_tx_buffer);
 
-static as5600_error_t as5600_set_conf_bit_field(uint8_t const start_bit, uint8_t const width, uint8_t const value);
+static as5600_error_t as5600_set_conf_bit_field(uint8_t const start_bit,
+                                                uint8_t const width,
+                                                uint8_t const value);
 
 static as5600_error_t as5600_get_conf_bitfield(uint8_t const instance,
                                                uint8_t const start_bit,
                                                uint8_t const width,
                                                uint8_t * const value);
 
-static as5600_error_t as5600_reg_set_bit_field_value(uint8_t const value,
-                                                     as5600_bit_field_t const bit_field,
-                                                     uint8_t * const p_reg_value);
+static as5600_error_t as5600_reg_set_bit_field_value(
+                                             uint8_t const value,
+                                             as5600_bit_field_t const bit_field,
+                                             uint8_t * const p_reg_value);
 
-static as5600_error_t as5600_reg_get_bit_field_value(uint8_t * const value,
-                                                     as5600_bit_field_t const bit_field,
-                                                     uint8_t const reg_value);
+static as5600_error_t as5600_reg_get_bit_field_value(
+                                             uint8_t * const value,
+                                             as5600_bit_field_t const bit_field,
+                                             uint8_t const reg_value);
 
 static as5600_error_t as5600_cfg_to_reg16(
-        as5600_configuration_t const * const p_config,
-        uint16_t * const reg);
+                                  as5600_configuration_t const * const p_config,
+                                  uint16_t * const reg);
 
-static as5600_error_t as5600_reg16_to_cfg(uint16_t const * const reg,
-                                          as5600_configuration_t * const p_config);
+static as5600_error_t as5600_reg16_to_cfg(
+                                       uint16_t const * const reg,
+                                       as5600_configuration_t * const p_config);
 
 static bool as5600_is_valid_configuration(
                                  as5600_configuration_t const * const p_config);
@@ -549,6 +570,28 @@ as5600_error_t as5600_get_maximum_angle(uint16_t * const p_max_angle)
         return success;
 }
 
+/*!
+ * @brief Set configuration of the AS5600
+ *
+ * This function will configure the AS5600 CONF register according to the
+ * configuration structure passed to it. The function checks for the validity of
+ * the passed configuration, converts the configuration to AS5600 register value
+ * and performs a write operation. The elements of the structure can be manually
+ * configured, or with the according safe functions functions
+ *
+ * @see `as5600_set_slow_filter`, `as5600_set_ff_threshold`,
+ *      `as5600_set_watchdog_enabled`, `as5600_set_power_mode`,
+ *      `as5600_set_hysteresis`, `as5600_set_output_state`,
+ *      `as5600_set_pwm_frequency`
+ *
+ * @param       p_config                    Pointer to a configuration structure
+ *
+ * @return      as5600_error_t              Result of the operation
+ * @retval      AS5600_ERROR_SUCCESS        If everything went well
+ * @retval      AS5600_ERROR_BAD_PARAMETER  Pointer or configuration invalid
+ * @retval      *                           Any other errors returned by the
+ *                                          sub-callees
+ */
 as5600_error_t as5600_set_configuration(as5600_configuration_t const * const p_config)
 {
         as5600_register_t const reg = AS5600_REGISTER_CONF_H;
@@ -573,6 +616,27 @@ as5600_error_t as5600_set_configuration(as5600_configuration_t const * const p_c
         return success;
 }
 
+/*!
+ * @brief Get configuration of the AS5600
+ *
+ * This function will get the current configuration of the AS5600 CONF register
+ * and will convert it to a `as5600_configuration_t` object in a single read
+ * operation. The values can be accessed directly from the structure or via
+ * the other getter methods.
+ *
+ * @see `as5600_get_slow_filter`, `as5600_get_ff_threshold`,
+ *      `as5600_is_watchdog_enabled`, `as5600_get_power_mode`,
+ *      `as5600_get_hysteresis`, `as5600_get_output_state`,
+ *      `as5600_get_pwm_frequency`
+ *
+ * @param       p_config                    Pointer to a configuration structure
+ *
+ * @return      as5600_error_t              Result of the operation
+ * @retval      AS5600_ERROR_SUCCESS        If everything went well
+ * @retval      AS5600_ERROR_BAD_PARAMETER  Pointer invalid
+ * @retval      *                           Any other errors returned by the
+ *                                          sub-callees
+ */
 as5600_error_t as5600_get_configuration(as5600_configuration_t * const p_config)
 {
         as5600_register_t const reg = AS5600_REGISTER_CONF_H;
@@ -598,6 +662,196 @@ as5600_error_t as5600_get_configuration(as5600_configuration_t * const p_config)
         }
 
         return success;
+}
+
+/*!
+ * @brief Set slow filter
+ *
+ * Sets the slow filter field of a `as5600_configuration_t` object.
+ *
+ * The AS5600 has a digital post-processing programmable filter which can be set
+ * in fast or slow modes. The fast filter mode can be enabled by setting a fast
+ * filter threshold in the FTH bits of the CONF register. If the fast filter is
+ * OFF, the step output response is controlled by the slow linear filter. The
+ * step response of the slow filter is programmable with the SF bits in the CONF
+ * register.
+ *
+ * @note `AS5600_SLOW_FILTER_16X` is forced in low power mode (LPM)
+ *
+ * @note this function only modifies the `as5600_configuration_t` object and
+ *       performs no I2C write operation
+ *
+ * @param       slow_filter             step response delay to set, multiples of
+ *                                      0.143 ms `as5600_slow_filter_t` type
+ *
+ * @param       p_config                Pointer to the `as5600_configuration_t`
+ *                                      to be modified
+ *
+ * @return      as5600_error_t              Result of the operation
+ * @retval      AS5600_ERROR_SUCCESS        If everything went well
+ * @retval      AS5600_ERROR_BAD_PARAMETER  Pointer or parameter value invalid
+ */
+as5600_error_t as5600_set_slow_filter(as5600_slow_filter_t const slow_filter,
+                                      as5600_configuration_t * const p_config)
+{
+        as5600_error_t success = AS5600_ERROR_SUCCESS;
+        as5600_slow_filter_t const fence = AS5600_SLOW_FILTER_COUNT;
+
+        if ((NULL == p_config) || (fence <= slow_filter)) {
+                success = AS5600_ERROR_BAD_PARAMETER;
+        }
+
+        if (AS5600_ERROR_SUCCESS == success) {
+                p_config->slow_filter = slow_filter;
+        }
+
+        return success;
+
+}
+
+/*!
+ * @brief Get slow filter
+ *
+ * Gets the slow filter field of a `as5600_configuration_t` object.
+ *
+ * @note this function only reads the `as5600_configuration_t` object and
+ *       performs no I2C read operation
+ *
+ * @param       p_slow_filter           current step response delay
+ *                                      `as5600_slow_filter_t` type
+ *
+ * @param       p_config                Pointer to the `as5600_configuration_t`
+ *                                      to be modified
+ *
+ * @return      as5600_error_t              Result of the operation
+ * @retval      AS5600_ERROR_SUCCESS        If everything went well
+ * @retval      AS5600_ERROR_BAD_PARAMETER  Invalid pointer
+ */
+as5600_error_t as5600_get_slow_filter(as5600_slow_filter_t * const p_slow_filter,
+                                      as5600_configuration_t * const p_config)
+{
+        as5600_error_t success = AS5600_ERROR_SUCCESS;
+
+        if ((NULL == p_config) || (NULL == p_slow_filter)) {
+                success = AS5600_ERROR_BAD_PARAMETER;
+        }
+
+        if (AS5600_ERROR_SUCCESS == success) {
+                *p_slow_filter = p_config->slow_filter;
+        }
+
+        return success;
+
+}
+
+/*!
+ * @brief Set fast filter threshold
+ *
+ * Sets the fast filter threshold field of a `as5600_configuration_t` object.
+ *
+ * For a fast step response and low noise after settling, the fast filter can be
+ * enabled. The fast filter works only if the input variation is greater than
+ * the fast filter threshold, otherwise the output response is determined only
+ * by the slow filter. The fast filter threshold is programmed with the FTH bits
+ * in the CONF Register
+ *
+ * @note this function only modifies the `as5600_configuration_t` object and
+ *       performs no I2C write operation
+ *
+ * @param       ff_threshold            slow to fast filter threshold (LSB), to
+ *                                      be set, `as5600_ff_threshold_t` type
+ *
+ * @param       p_config                Pointer to the `as5600_configuration_t`
+ *                                      to be modified
+ *
+ * @return      as5600_error_t              Result of the operation
+ * @retval      AS5600_ERROR_SUCCESS        If everything went well
+ * @retval      AS5600_ERROR_BAD_PARAMETER  Pointer or parameter value invalid
+ */
+as5600_error_t as5600_set_ff_threshold(as5600_ff_threshold_t const ff_threshold,
+                                       as5600_configuration_t * const p_config)
+{
+        as5600_error_t success = AS5600_ERROR_SUCCESS;
+        as5600_ff_threshold_t const fence = AS5600_FF_THRESHOLD_COUNT;
+
+        if ((NULL == p_config) || (fence <= ff_threshold)) {
+                success = AS5600_ERROR_BAD_PARAMETER;
+        }
+
+        if (AS5600_ERROR_SUCCESS == success) {
+                p_config->ff_threshold = ff_threshold;
+        }
+
+        return success;
+
+}
+
+/*!
+ * @brief Get fast filter threshold
+ *
+ * Gets the fast filter threshold field of a `as5600_configuration_t` object.
+ *
+ * @note this function only reads the `as5600_configuration_t` object and
+ *       performs no I2C read operation
+ *
+ * @param       p_ff_threshold          current slow to fast filter threshold
+ *
+ * @param       p_config                Pointer to the `as5600_configuration_t`
+ *                                      to be modified
+ *
+ * @return      as5600_error_t              Result of the operation
+ * @retval      AS5600_ERROR_SUCCESS        If everything went well
+ * @retval      AS5600_ERROR_BAD_PARAMETER  Invalid pointer
+ */
+as5600_error_t as5600_get_ff_threshold(as5600_ff_threshold_t * const p_ff_threshold,
+                                       as5600_configuration_t * const p_config)
+{
+        as5600_error_t success = AS5600_ERROR_SUCCESS;
+
+        if ((NULL == p_config) || (NULL == p_ff_threshold)) {
+                success = AS5600_ERROR_BAD_PARAMETER;
+        }
+
+        if (AS5600_ERROR_SUCCESS == success) {
+                *p_ff_threshold = p_config->ff_threshold;
+        }
+
+        return success;
+
+}
+
+as5600_error_t as5600_set_watchdog_enabled(bool const enabled,
+                                           as5600_configuration_t * const p_config)
+{
+        as5600_error_t success = AS5600_ERROR_SUCCESS;
+
+        if (NULL == p_config) {
+                success = AS5600_ERROR_BAD_PARAMETER;
+        }
+
+        if (AS5600_ERROR_SUCCESS == success) {
+                p_config->watchdog = true;
+        }
+
+        return success;
+
+}
+
+as5600_error_t as5600_is_watchdog_enabled(bool * const p_enabled,
+                                          as5600_configuration_t * const p_config)
+{
+        as5600_error_t success = AS5600_ERROR_SUCCESS;
+
+        if ((NULL == p_config) || (NULL == p_enabled)) {
+                success = AS5600_ERROR_BAD_PARAMETER;
+        }
+
+        if (AS5600_ERROR_SUCCESS == success) {
+                *p_enabled = p_config->watchdog;
+        }
+
+        return success;
+
 }
 
 as5600_error_t as5600_set_power_mode(as5600_power_mode_t const power_mode,
@@ -734,110 +988,6 @@ as5600_error_t as5600_get_pwm_frequency(as5600_pwm_frequency_t * const p_pwm_fre
 
         if (AS5600_ERROR_SUCCESS == success) {
                 *p_pwm_frequency = p_config->pwm_frequency;
-        }
-
-        return success;
-
-}
-
-as5600_error_t as5600_set_slow_filter(as5600_slow_filter_t const slow_filter,
-                                      as5600_configuration_t * const p_config)
-{
-        as5600_error_t success = AS5600_ERROR_SUCCESS;
-        as5600_slow_filter_t const fence = AS5600_SLOW_FILTER_COUNT;
-
-        if ((NULL == p_config) || (fence <= slow_filter)) {
-                success = AS5600_ERROR_BAD_PARAMETER;
-        }
-
-        if (AS5600_ERROR_SUCCESS == success) {
-                p_config->slow_filter = slow_filter;
-        }
-
-        return success;
-
-}
-
-as5600_error_t as5600_get_slow_filter(as5600_slow_filter_t * const p_slow_filter,
-                                      as5600_configuration_t * const p_config)
-{
-        as5600_error_t success = AS5600_ERROR_SUCCESS;
-
-        if ((NULL == p_config) || (NULL == p_slow_filter)) {
-                success = AS5600_ERROR_BAD_PARAMETER;
-        }
-
-        if (AS5600_ERROR_SUCCESS == success) {
-                *p_slow_filter = p_config->slow_filter;
-        }
-
-        return success;
-
-}
-
-as5600_error_t as5600_set_ff_threshold(as5600_ff_threshold_t const ff_threshold,
-                                       as5600_configuration_t * const p_config)
-{
-        as5600_error_t success = AS5600_ERROR_SUCCESS;
-        as5600_ff_threshold_t const fence = AS5600_FF_THRESHOLD_COUNT;
-
-        if ((NULL == p_config) || (fence <= ff_threshold)) {
-                success = AS5600_ERROR_BAD_PARAMETER;
-        }
-
-        if (AS5600_ERROR_SUCCESS == success) {
-                p_config->ff_threshold = ff_threshold;
-        }
-
-        return success;
-
-}
-
-as5600_error_t as5600_get_ff_threshold(as5600_ff_threshold_t * const p_ff_threshold,
-                                       as5600_configuration_t * const p_config)
-{
-        as5600_error_t success = AS5600_ERROR_SUCCESS;
-
-        if ((NULL == p_config) || (NULL == p_ff_threshold)) {
-                success = AS5600_ERROR_BAD_PARAMETER;
-        }
-
-        if (AS5600_ERROR_SUCCESS == success) {
-                *p_ff_threshold = p_config->ff_threshold;
-        }
-
-        return success;
-
-}
-
-as5600_error_t as5600_set_watchdog_enabled(bool const enabled,
-                                           as5600_configuration_t * const p_config)
-{
-        as5600_error_t success = AS5600_ERROR_SUCCESS;
-
-        if (NULL == p_config) {
-                success = AS5600_ERROR_BAD_PARAMETER;
-        }
-
-        if (AS5600_ERROR_SUCCESS == success) {
-                p_config->watchdog = true;
-        }
-
-        return success;
-
-}
-
-as5600_error_t as5600_is_watchdog_enabled(bool * const p_enabled,
-                                          as5600_configuration_t * const p_config)
-{
-        as5600_error_t success = AS5600_ERROR_SUCCESS;
-
-        if ((NULL == p_config) || (NULL == p_enabled)) {
-                success = AS5600_ERROR_BAD_PARAMETER;
-        }
-
-        if (AS5600_ERROR_SUCCESS == success) {
-                *p_enabled = p_config->watchdog;
         }
 
         return success;

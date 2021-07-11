@@ -208,6 +208,24 @@ as5600_error_t as5600_set_configuration(as5600_configuration_t const * const p_c
 
 as5600_error_t as5600_get_configuration(as5600_configuration_t * const p_config);
 
+as5600_error_t as5600_set_slow_filter(as5600_slow_filter_t const slow_filter,
+                                      as5600_configuration_t * const p_config);
+
+as5600_error_t as5600_get_slow_filter(as5600_slow_filter_t * const p_slow_filter,
+                                      as5600_configuration_t * const p_config);
+
+as5600_error_t as5600_set_ff_threshold(as5600_ff_threshold_t const ff_threshold,
+                                       as5600_configuration_t * const p_config);
+
+as5600_error_t as5600_get_ff_threshold(as5600_ff_threshold_t * const p_ff_threshold,
+                                       as5600_configuration_t * const p_config);
+
+as5600_error_t as5600_set_watchdog_enabled(bool const enabled,
+                                           as5600_configuration_t * const p_config);
+
+as5600_error_t as5600_is_watchdog_enabled(bool * const p_enabled,
+                                          as5600_configuration_t * const p_config);
+
 as5600_error_t as5600_set_power_mode(as5600_power_mode_t const power_mode,
                                      as5600_configuration_t * const p_config);
 
@@ -231,24 +249,6 @@ as5600_error_t as5600_set_pwm_frequency(as5600_pwm_frequency_t const pwm_frequen
 
 as5600_error_t as5600_get_pwm_frequency(as5600_pwm_frequency_t * const p_pwm_frequency,
                                         as5600_configuration_t * const p_config);
-
-as5600_error_t as5600_set_slow_filter(as5600_slow_filter_t const slow_filter,
-                                      as5600_configuration_t * const p_config);
-
-as5600_error_t as5600_get_slow_filter(as5600_slow_filter_t * const p_slow_filter,
-                                      as5600_configuration_t * const p_config);
-
-as5600_error_t as5600_set_ff_threshold(as5600_ff_threshold_t const ff_threshold,
-                                       as5600_configuration_t * const p_config);
-
-as5600_error_t as5600_get_ff_threshold(as5600_ff_threshold_t * const p_ff_threshold,
-                                       as5600_configuration_t * const p_config);
-
-as5600_error_t as5600_set_watchdog_enabled(bool const enabled,
-                                           as5600_configuration_t * const p_config);
-
-as5600_error_t as5600_is_watchdog_enabled(bool * const p_enabled,
-                                          as5600_configuration_t * const p_config);
 
 as5600_error_t as5600_get_raw_angle(uint16_t * const p_raw_angle);
 
