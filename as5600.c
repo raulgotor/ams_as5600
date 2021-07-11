@@ -222,7 +222,7 @@ static as5600_error_t as5600_read_16register(as5600_register_t const reg, uint16
 static as5600_error_t as5600_write_16register(as5600_register_t const reg, uint16_t const tx_buffer);
 
 static as5600_error_t as5600_write_8register(as5600_register_t const reg,
-                                             uint8_t const * const p_tx_buffer);
+                                             uint8_t const tx_buffer);
 
 
 static as5600_error_t as5600_read_8register(as5600_register_t const reg,
@@ -1030,20 +1030,20 @@ as5600_error_t as5600_burn_command(as5600_burn_mode_t const mode)
 
         // Burn the settings in OTP
         if (AS5600_ERROR_SUCCESS == success) {
-                success = as5600_write_8register(reg, (uint8_t *)mode);
+                success = as5600_write_8register(reg, mode);
         }
 
         // Load OTP content
         if (AS5600_ERROR_SUCCESS == success) {
-                success = as5600_write_8register(reg, &load_sequence[0]);
+                success = as5600_write_8register(reg, load_sequence[0]);
         }
 
         if (AS5600_ERROR_SUCCESS == success) {
-                success = as5600_write_8register(reg, &load_sequence[1]);
+                success = as5600_write_8register(reg, load_sequence[1]);
         }
 
         if (AS5600_ERROR_SUCCESS == success) {
-                success = as5600_write_8register(reg, &load_sequence[2]);
+                success = as5600_write_8register(reg, load_sequence[2]);
         }
 
         return success;
@@ -1108,25 +1108,23 @@ static as5600_error_t as5600_read_8register(as5600_register_t const reg,
 }
 
 static as5600_error_t as5600_write_8register(as5600_register_t const reg,
-                                             uint8_t const * const p_tx_buffer)
+                                             uint8_t const tx_buffer)
 {
         as5600_error_t success = AS5600_ERROR_SUCCESS;
+        uint8_t const buffer = tx_buffer;
         size_t const count = sizeof(uint8_t);
-
-        if (NULL == p_tx_buffer) {
-                success = AS5600_ERROR_BAD_PARAMETER;
-        }
 
         if (AS5600_ERROR_SUCCESS == success) {
                 success = as5600_write_n_consecutive_bytes(reg,
-                                                           p_tx_buffer, count);
+                                                           &buffer, count);
         }
 
         return success;
 
 }
 
-static as5600_error_t as5600_read_16register(as5600_register_t const reg, uint16_t * const p_rx_buffer)
+static as5600_error_t as5600_read_16register(as5600_register_t const reg,
+                                             uint16_t * const p_rx_buffer)
 {
         size_t const count = sizeof(uint16_t);
         uint8_t buffer[count];
