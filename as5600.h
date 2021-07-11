@@ -162,13 +162,11 @@ typedef struct as5600_configuration_s {
 typedef enum
 {
         // @brief AGC minimum gain overflow, magnet too strong
-        AS5600_STATUS_MH = 0,
+        AS5600_STATUS_MH = 0x01U,
         // @brief AGC maximum gain overflow, magnet too weak
-        AS5600_STATUS_ML,
+        AS5600_STATUS_ML = 0x02U,
         // @brief Magnet was detected
-        AS5600_STATUS_MD,
-        // @brief Fence member
-        AS5600_STATUS_COUNT
+        AS5600_STATUS_MD = 0x04U,
 } as5600_status_t;
 
 typedef enum
