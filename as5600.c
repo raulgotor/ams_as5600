@@ -82,7 +82,7 @@ static uint8_t const m_as5600_i2c_addr = 0x36;
 static bool m_is_initialized = false;
 
 
-as5600_bit_field_specs_t fields[] = {
+as5600_bit_field_specs_t m_bitfields[] = {
         {
                 //! @brief Configuration of ZMCO bitfield
                 .reg = AS5600_REGISTER_ZMCO,
@@ -229,12 +229,6 @@ as5600_bit_field_specs_t fields[] = {
  *******************************************************************************
  */
 
-static as5600_error_t as5600_get_field_value(as5600_bit_field_t const field,
-                                             uint8_t * const p_field_value);
-
-static as5600_error_t as5600_set_field_value(as5600_bit_field_t const field,
-                                             uint8_t const field_value);
-
 static as5600_error_t as5600_read_n_consecutive_bytes(as5600_register_t const reg, uint8_t * const p_rx_buffer, size_t const bytes_count);
 
 static as5600_error_t as5600_write_n_consecutive_bytes(as5600_register_t const reg, uint8_t const * const p_tx_buffer, size_t const bytes_count);
@@ -330,6 +324,8 @@ as5600_error_t as5600_init(pf_i2c_xfer_as5600_t const pf_transfer_func)
 as5600_error_t as5600_get_otp_write_counter(uint8_t * p_write_counter)
 {
         as5600_bit_field_t const field = AS5600_BIT_FIELD_ZMCO;
+        as5600_register_t const reg = m_bitfields[field].reg;
+
         as5600_error_t success = AS5600_ERROR_SUCCESS;
         uint8_t field_value;
 
@@ -338,7 +334,8 @@ as5600_error_t as5600_get_otp_write_counter(uint8_t * p_write_counter)
         }
 
         if (AS5600_ERROR_SUCCESS == success) {
-                success = as5600_get_field_value(field, &field_value);
+                success = as5600_reg_get_bit_field_value(&field_value,
+                                                         field, reg);
         }
 
         if (AS5600_ERROR_SUCCESS == success) {
@@ -1233,7 +1230,6 @@ static as5600_error_t as5600_read_n_consecutive_bytes(
 {
         as5600_error_t result = as5600_is_register_valid(reg);
         uint8_t const reg_addr = (uint8_t)reg;
-        uint8_t addr;
         uint8_t xfer_func_result = 0;
 
         if (NULL == p_rx_buffer) {
@@ -1264,7 +1260,7 @@ static as5600_error_t as5600_reg_set_bit_field_value(uint8_t const value,
                                                      as5600_bit_field_t const bit_field,
                                                      uint8_t * const p_reg_value)
 {
-        as5600_bit_field_specs_t const specs = fields[bit_field];
+        as5600_bit_field_specs_t const specs = m_bitfields[bit_field];
         uint8_t const bit_field_lsb = specs.lsbit_pos;
         uint8_t const bit_field_width = specs.width;
         uint8_t const max_value = ((1 << bit_field_width) - 1);
@@ -1298,7 +1294,7 @@ static as5600_error_t as5600_reg_get_bit_field_value(uint8_t * const value,
                                                      as5600_bit_field_t const bit_field,
                                                      uint8_t const reg_value)
 {
-        as5600_bit_field_specs_t const specs = fields[bit_field];
+        as5600_bit_field_specs_t const specs = m_bitfields[bit_field];
         uint8_t const bit_field_width = specs.width;
         uint8_t const bit_field_lsb = specs.lsbit_pos;
         as5600_error_t success = AS5600_ERROR_SUCCESS;
