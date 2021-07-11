@@ -57,11 +57,11 @@ typedef enum {
         AS5600_BIT_FIELD_HYST,
         AS5600_BIT_FIELD_OUTS,
         AS5600_BIT_FIELD_PWMF,
-        AS5600_BIT_FIELD_STATUS,
         AS5600_BIT_FIELD_RAWANGLE_HI_BYTE,
         AS5600_BIT_FIELD_RAWANGLE_LO_BYTE,
         AS5600_BIT_FIELD_ANGLE_HI_BYTE,
         AS5600_BIT_FIELD_ANGLE_LO_BYTE,
+        AS5600_BIT_FIELD_STATUS,
         AS5600_BIT_FIELD_AGC,
         AS5600_BIT_FIELD_MAGNITUDE_HI_BYTE,
         AS5600_BIT_FIELD_MAGNITUDE_LO_BYTE,
@@ -1234,24 +1234,23 @@ static as5600_error_t as5600_reg_set_bit_field_value(uint8_t const value,
         as5600_error_t success = AS5600_ERROR_SUCCESS;
 
         uint8_t temp;
-        uint8_t mask;
+        uint8_t mask = 0;
 
-        if ((NULL == p_reg_value) || (max_value < *p_reg_value) ||
+        if ((NULL == p_reg_value) || (max_value < value) ||
             (AS5600_BIT_FIELD_COUNT <= bit_field)) {
                 success = AS5600_ERROR_BAD_PARAMETER;
         }
 
         if (AS5600_ERROR_SUCCESS == success) {
 
-                mask &= ((1 << bit_field_width) - 1);
+                mask |= ((1 << bit_field_width) - 1);
                 mask <<= bit_field_lsb;
-                mask = ~mask;
 
                 temp = *p_reg_value;
                 temp &= mask;
-                temp &= (value << bit_field_lsb);
+                temp |= (value << bit_field_lsb);
 
-                *p_reg_value = temp;
+                *p_reg_value |= temp;
         }
 
         return success;
