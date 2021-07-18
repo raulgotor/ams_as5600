@@ -238,7 +238,7 @@ as5600_error_t as5600_set_hysteresis(as5600_hysteresis_t const hysteresis,
 as5600_error_t as5600_get_hysteresis(as5600_hysteresis_t * const p_hysteresis,
                                      as5600_configuration_t * const p_config);
 
-as5600_error_t as5600_set_output_state(as5600_output_stage_t const output_stage,
+as5600_error_t as5600_set_output_stage(as5600_output_stage_t const output_stage,
                                        as5600_configuration_t * const p_config);
 
 as5600_error_t as5600_get_output_stage(as5600_output_stage_t * const p_output_stage,

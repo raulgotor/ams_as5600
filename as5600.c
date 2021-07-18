@@ -581,7 +581,7 @@ as5600_error_t as5600_get_maximum_angle(uint16_t * const p_max_angle)
  *
  * @see `as5600_set_slow_filter`, `as5600_set_ff_threshold`,
  *      `as5600_set_watchdog_enabled`, `as5600_set_power_mode`,
- *      `as5600_set_hysteresis`, `as5600_set_output_state`,
+ *      `as5600_set_hysteresis`, `as5600_set_output_stage`,
  *      `as5600_set_pwm_frequency`
  *
  * @param       p_config                    Pointer to a configuration structure
@@ -727,7 +727,7 @@ as5600_error_t as5600_set_slow_filter(as5600_slow_filter_t const slow_filter,
  *                                          `as5600_slow_filter_t` type
  *
  * @param       p_config                    Pointer to `as5600_configuration_t`
- *                                          object to be modified
+ *                                          object to be read
  *
  * @return      as5600_error_t              Result of the operation
  * @retval      AS5600_ERROR_SUCCESS        If everything went well
@@ -807,7 +807,7 @@ as5600_error_t as5600_set_ff_threshold(as5600_ff_threshold_t const ff_threshold,
  *                                          threshold
  *
  * @param       p_config                    Pointer to `as5600_configuration_t`
- *                                          object to be modified
+ *                                          object to be read
  *
  * @return      as5600_error_t              Result of the operation
  * @retval      AS5600_ERROR_SUCCESS        If everything went well
@@ -879,13 +879,13 @@ as5600_error_t as5600_set_watchdog_enabled(bool const enabled,
  * @note this function only reads the `as5600_configuration_t` object and
  *       performs no I2C read operation
  *
- * @param       p_enabled                   pointer to save the status of the
- *                                          watchdog to.
+ * @param       p_enabled                   Pointer to save the status of the
+ *                                          watchdog at.
  *                                          True: watchdog is enabled
  *                                          False: watchdog is disabled
  *
  * @param       p_config                    Pointer to `as5600_configuration_t`
- *                                          object to be modified
+ *                                          object to be read
  *
  * @return      as5600_error_t              Result of the operation
  * @retval      AS5600_ERROR_SUCCESS        If everything went well
@@ -965,10 +965,11 @@ as5600_error_t as5600_set_power_mode(as5600_power_mode_t const power_mode,
  * @note this function only modifies the `as5600_configuration_t` object and
  *       performs no I2C read operation
  *
- * @param       power_mode                  value of type `as5600_power_mode_t`
+ * @param       p_power_mode                Pointer to object to save the power
+ *                                          mode value at
  *
  * @param       p_config                    Pointer to `as5600_configuration_t`
- *                                          object to be modified
+ *                                          object to be read
  *
  * @return      as5600_error_t              Result of the operation
  * @retval      AS5600_ERROR_SUCCESS        If everything went well
@@ -1040,10 +1041,11 @@ as5600_error_t as5600_set_hysteresis(as5600_hysteresis_t const hysteresis,
  * @note this function only modifies the `as5600_configuration_t` object and
  *       performs no I2C read operation
  *
- * @param       hysteresis                  value of type `as5600_hysteresis_t`
+ * @param       p_hysteresis                Pointer to object to save the
+ *                                          hysteresis value at
  *
  * @param       p_config                    Pointer to `as5600_configuration_t`
- *                                          object to be modified
+ *                                          object to be read
  *
  * @return      as5600_error_t              Result of the operation
  * @retval      AS5600_ERROR_SUCCESS        If everything went well
@@ -1066,7 +1068,30 @@ as5600_error_t as5600_get_hysteresis(as5600_hysteresis_t * const p_hysteresis,
 
 }
 
-as5600_error_t as5600_set_output_state(as5600_output_stage_t const output_stage,
+/*!
+ * @brief Set output stage
+ *
+ * Set output stage in a `as5600_configuration_t` object
+ *
+ * The OUTS bits in the CONF register are used to choose between an analog
+ * ratiometric output (default) and a digital PWM output. If PWM is selected,
+ * the DAC is powered down. Without regard to which output is enabled, an
+ * external unit can read the angle from the ANGLE register through I2C
+ * interface at any time.
+ *
+ * @note this function only modifies the `as5600_configuration_t` object and
+ *       performs no I2C write operation
+ *
+ * @param       output_stage                Value of type `as5600_output_stage_t`
+ *
+ * @param       p_config                    Pointer to `as5600_configuration_t`
+ *                                          object to be modified
+ *
+ * @return      as5600_error_t              Result of the operation
+ * @retval      AS5600_ERROR_SUCCESS        If everything went well
+ * @retval      AS5600_ERROR_BAD_PARAMETER  Pointer or value invalid
+ */
+as5600_error_t as5600_set_output_stage(as5600_output_stage_t const output_stage,
                                        as5600_configuration_t * const p_config)
 {
         as5600_error_t success = AS5600_ERROR_SUCCESS;
@@ -1084,6 +1109,26 @@ as5600_error_t as5600_set_output_state(as5600_output_stage_t const output_stage,
 
 }
 
+/*!
+ * @brief Get output stage
+ *
+ * Get output stage in a `as5600_configuration_t` object
+ *
+ * @see `as5600_set_output_stage`
+ *
+ * @note this function only modifies the `as5600_configuration_t` object and
+ *       performs no I2C read operation
+ *
+ * @param       p_output_stage              Pointer to object to save the
+ *                                          output stage value at
+ *
+ * @param       p_config                    Pointer to `as5600_configuration_t`
+ *                                          object to be read
+ *
+ * @return      as5600_error_t              Result of the operation
+ * @retval      AS5600_ERROR_SUCCESS        If everything went well
+ * @retval      AS5600_ERROR_BAD_PARAMETER  Pointer invalid
+ */
 as5600_error_t as5600_get_output_stage(as5600_output_stage_t * const p_output_stage,
                                        as5600_configuration_t * const p_config)
 {
@@ -1101,6 +1146,36 @@ as5600_error_t as5600_get_output_stage(as5600_output_stage_t * const p_output_st
 
 }
 
+/*!
+ * @brief Set PWM frequency
+ *
+ * Set PWM frequency in a `as5600_configuration_t` object
+ *
+ * The AS5600 output stage can be programmed in the OUTS bits of the CONF
+ * register for a PWM-encoded digital output (OUTS = 10). In this mode, the OUT
+ * pin provides a digital PWM signal. The duty cycle of each pulse is
+ * proportional to the absolute angle of the rotating magnet.
+ * The PWM signal consists of a frame of 4351 PWM clock periods.
+ * This PWM frame is composed of the following sections:
+ * • 128 PWM clock periods high
+ * • 4095 PWM clock periods data
+ * • 128 PWM clock periods low
+ * The angle is represented in the data part of the frame, and one PWM clock
+ * period represents one 4096th of the full angular range. The PWM frequency is
+ * programmed with the PWMF bits in the CONF register.
+ *
+ * @note this function only modifies the `as5600_configuration_t` object and
+ *       performs no I2C write operation
+ *
+ * @param       pwm_frequency               Value of type `as5600_pwm_frequency_t`
+ *
+ * @param       p_config                    Pointer to `as5600_configuration_t`
+ *                                          object to be modified
+ *
+ * @return      as5600_error_t              Result of the operation
+ * @retval      AS5600_ERROR_SUCCESS        If everything went well
+ * @retval      AS5600_ERROR_BAD_PARAMETER  Pointer or value invalid
+ */
 as5600_error_t as5600_set_pwm_frequency(as5600_pwm_frequency_t const pwm_frequency,
                                         as5600_configuration_t * const p_config)
 {
@@ -1119,6 +1194,26 @@ as5600_error_t as5600_set_pwm_frequency(as5600_pwm_frequency_t const pwm_frequen
 
 }
 
+/*!
+ * @brief Get PWM frequency
+ *
+ * Get PWM frequency in a `as5600_configuration_t` object
+ *
+ * @see `as5600_set_pwm_frequency`
+ *
+ * @note this function only modifies the `as5600_configuration_t` object and
+ *       performs no I2C read operation
+ *
+ * @param       p_output_stage              Pointer to object to save the pwm
+ *                                          frequency value at
+ *
+ * @param       p_config                    Pointer to `as5600_configuration_t`
+ *                                          object to be read
+ *
+ * @return      as5600_error_t              Result of the operation
+ * @retval      AS5600_ERROR_SUCCESS        If everything went well
+ * @retval      AS5600_ERROR_BAD_PARAMETER  Pointer invalid
+ */
 as5600_error_t as5600_get_pwm_frequency(as5600_pwm_frequency_t * const p_pwm_frequency,
                                         as5600_configuration_t * const p_config)
 {
@@ -1136,6 +1231,27 @@ as5600_error_t as5600_get_pwm_frequency(as5600_pwm_frequency_t * const p_pwm_fre
 
 }
 
+/*!
+ * @brief Get RAW angle
+ *
+ * Get RAW angle by directly reading the corresponding device register
+ *
+ * The RAW ANGLE register contains the unscaled and unmodified angle. The scaled
+ * output value is available in the ANGLE register.
+ *
+ * @note The ANGLE register has a 10-LSB hysteresis at the limit of the 360
+ *       degree range to avoid discontinuity points or toggling of the output
+ *       within one rotation.
+ *
+ * @param       p_raw_angle                 Pointer to object to save the raw
+ *                                          angle value at
+ *
+ * @return      as5600_error_t              Result of the operation
+ * @retval      AS5600_ERROR_SUCCESS        If everything went well
+ * @retval      AS5600_ERROR_BAD_PARAMETER  Pointer invalid
+ * @retval      *                           Any other errors returned by the
+ *                                          sub-callees
+ */
 as5600_error_t as5600_get_raw_angle(uint16_t * const p_raw_angle)
 {
         as5600_register_t const reg = AS5600_REGISTER_RAWANGLE_H;
