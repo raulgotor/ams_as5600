@@ -275,7 +275,7 @@ static as5600_error_t as5600_reg_set_bit_field_value(
                                              uint8_t * const p_reg_value);
 
 static as5600_error_t as5600_reg_get_bit_field_value(
-                                             uint8_t * const value,
+                                             uint8_t * const p_value,
                                              as5600_bit_field_t const bit_field,
                                              uint8_t const reg_value);
 
@@ -284,13 +284,13 @@ static as5600_error_t as5600_cfg_to_reg16(
                                   uint16_t * const reg);
 
 static as5600_error_t as5600_reg16_to_cfg(
-                                       uint16_t const * const reg,
+                                       uint16_t const * const p_reg,
                                        as5600_configuration_t * const p_config);
 
 static bool as5600_is_valid_configuration(
                                  as5600_configuration_t const * const p_config);
 
-static as5600_error_t as5600_is_register_valid(as5600_register_t const reg);
+static bool as5600_is_register_valid(as5600_register_t const reg);
 
 /*
  *******************************************************************************
@@ -1273,6 +1273,25 @@ as5600_error_t as5600_get_raw_angle(uint16_t * const p_raw_angle)
         return success;
 }
 
+/*!
+ * @brief Get angle
+ *
+ * Get scaled / modified output angle by directly reading the corresponding
+ * device register
+ *
+ * @note The ANGLE register has a 10-LSB hysteresis at the limit of the 360
+ *       degree range to avoid discontinuity points or toggling of the output
+ *       within one rotation.
+ *
+ * @param       p_angle                     Pointer to object to save the
+ *                                          angle value at
+ *
+ * @return      as5600_error_t              Result of the operation
+ * @retval      AS5600_ERROR_SUCCESS        If everything went well
+ * @retval      AS5600_ERROR_BAD_PARAMETER  Pointer invalid
+ * @retval      *                           Any other errors returned by the
+ *                                          sub-callees
+ */
 as5600_error_t as5600_get_angle(uint16_t * const p_angle)
 {
         as5600_register_t const reg = AS5600_REGISTER_ANGLE_H;
@@ -1294,6 +1313,24 @@ as5600_error_t as5600_get_angle(uint16_t * const p_angle)
         return success;
 }
 
+/*!
+ * @brief Get status of the device
+ *
+ * The STATUS register provides bits that indicate the current state of the
+ * AS5600. The possible states are:
+ * - MH, AGC minimum gain overflow, magnet too strong
+ * - ML, AGC maximum gain overflow, magnet too weak
+ * - MD, Magnet was detected
+ *
+ * @param       p_status                    Pointer to object to save the
+ *                                          status value at
+ *
+ * @return      as5600_error_t              Result of the operation
+ * @retval      AS5600_ERROR_SUCCESS        If everything went well
+ * @retval      AS5600_ERROR_BAD_PARAMETER  Pointer invalid
+ * @retval      *                           Any other errors returned by the
+ *                                          sub-callees
+ */
 as5600_error_t as5600_get_status(as5600_status_t * const p_status)
 {
         as5600_register_t const reg = AS5600_REGISTER_STATUS;
@@ -1322,6 +1359,27 @@ as5600_error_t as5600_get_status(as5600_status_t * const p_status)
         return success;
 }
 
+/*!
+ * @brief Get automatic gain control value
+ *
+ * The AS5600 uses Automatic Gain Control in a closed loop to compensate for
+ * variations of the magnetic field strength due to changes of temperature,
+ * airgap between IC and magnet, and magnet degradation. The AGC register
+ * indicates the gain. For the most robust performance, the gain value should
+ * be in the center of its range. The airgap of the physical system can be
+ * adjusted to achieve this value.
+ * In 5V operation, the AGC range is 0-255 counts. The AGC range is reduced
+ * to 0-128 counts in 3.3V mode.
+ *
+ * @param       p_agc                       Pointer to object to save the
+ *                                          agc value at [0 - 255]
+ *
+ * @return      as5600_error_t              Result of the operation
+ * @retval      AS5600_ERROR_SUCCESS        If everything went well
+ * @retval      AS5600_ERROR_BAD_PARAMETER  Pointer invalid
+ * @retval      *                           Any other errors returned by the
+ *                                          sub-callees
+ */
 as5600_error_t as5600_get_automatic_gain_control(uint8_t * const p_agc)
 {
         as5600_register_t const reg = AS5600_REGISTER_AGC;
@@ -1343,6 +1401,29 @@ as5600_error_t as5600_get_automatic_gain_control(uint8_t * const p_agc)
         return success;
 }
 
+/*!
+ * @brief Get cordic magnitude
+ *
+ * The MAGNITUDE register indicates the magnitude value of the internal CORDIC.
+ *
+ * The signals coming from the Hall sensors are first amplified and filtered
+ * before being converted by the analog-to-digital converter (ADC). The output
+ * of the ADC is processed by the hardwired CORDIC block (Coordinate Rotation
+ * Digital Computer) to compute the angle and magnitude of the magnetic field
+ * vector. The intensity of the magnetic field is used by the automatic gain
+ * control (AGC) to adjust the amplification level to compensate for temperature
+ * and magnetic field variations.
+ * The angle value provided by the CORDIC algorithm is used by the output stage
+ *
+ * @param       p_magnitude                 Pointer to object to save the
+ *                                          cordic value at
+ *
+ * @return      as5600_error_t              Result of the operation
+ * @retval      AS5600_ERROR_SUCCESS        If everything went well
+ * @retval      AS5600_ERROR_BAD_PARAMETER  Pointer invalid
+ * @retval      *                           Any other errors returned by the
+ *                                          sub-callees
+ */
 as5600_error_t as5600_get_cordic_magnitude(uint16_t * const p_magnitude)
 {
         as5600_register_t const reg = AS5600_REGISTER_MAGNITUDE_H;
@@ -1364,6 +1445,70 @@ as5600_error_t as5600_get_cordic_magnitude(uint16_t * const p_magnitude)
         return success;
 }
 
+/*!
+ * @brief Send burn command to the device
+ *
+ * Angle Programming
+ *
+ * For applications which do not use the full 0 to 360 degree angular range, the
+ * output resolution can be enhanced by programming the range which is actually
+ * used. In this case, the full resolution of the output is automatically scaled
+ * to the programmed angular range. The angular range must be greater than 18
+ * degrees. The range is specified by programming a start position (ZPOS) and
+ * either a stop position (MPOS) or the size of the angular range (MANG).
+ *
+ * 1- Power up the AS5600.
+ * 2- Turn the magnet to the start position.
+ * 3- Read the RAW ANGLE register. Write the RAW ANGLE value into the ZPOS
+ *    register. Wait at least 1 ms.
+ * 4- Rotate the magnet in the direction defined by the level on the DIR pin
+ *    (GND for clockwise, VDD for counterclockwise) to the stop position.
+ *    The amount of rotation must be greater than18 degrees.
+ * 5- Read the RAW ANGLE register.
+ *    Write the RAW ANGLE value into the MPOS register. Wait at least 1 ms.
+ * 6- Perform a BURN_ANGLE command to permanently program the device.
+ *    Wait at least 1 ms.
+ *
+ * Programming a Maximum Angular Range and default configuration settings
+ *
+ * 1- Power up the AS5600.
+ * 2- Use the I2C interface to write the maximum angular range into the MANG
+ *    register. For example, if the maximum angular range is 90 degrees, write
+ *    the MANG register with 0x400. Configure additional configuration settings
+ *    by writing the CONFIG register.Wait at least 1 ms.
+ * 3- Perform a BURN_SETTINGS command to permanently program the device. Wait at
+ *    least 1 ms.
+ *
+ * @warning This function performs irreversible changes to the IC and is NOT
+ *          tested. Proceed at your own risk
+ *
+ * @warning This function may only be executed if the presence of the magnet is
+ *          detected (MD = 1).
+ *
+ * @warning The BURN_ANGLE command can be executed up to 3 times.
+ *
+ * @warning MANG can be written only if ZPOS and MPOS have never been permanently
+ *          written (ZMCO = 00).
+ *
+ * @warning The BURN_ SETTING command can be performed only one time.
+ *
+ * @warning Page 22 of the datasheet mentions writting 0x01, 0x11 and 0x10
+ *          sequentially to the BURN register, in order to load the OTP values
+ *          back, but this seems not to be properly documented. Proceed at your
+ *          own risk
+ *
+ * @note ZMCO shows how many times ZPOS and MPOS have been permanently written.
+ *
+ * @see `as5600_get_otp_write_counter`
+ *
+ * @param       mode                        Burn command to execute
+ *
+ * @return      as5600_error_t              Result of the operation
+ * @retval      AS5600_ERROR_SUCCESS        If everything went well
+ * @retval      AS5600_ERROR_BAD_PARAMETER  Pointer invalid
+ * @retval      *                           Any other errors returned by the
+ *                                          sub-callees
+ */
 as5600_error_t as5600_burn_command(as5600_burn_mode_t const mode)
 {
         as5600_register_t const reg = AS5600_REGISTER_BURN;
@@ -1515,6 +1660,21 @@ static as5600_error_t as5600_set_conf_bit_field(uint8_t const start_bit,
 
 }
 
+/*!
+ * @brief Read 8-bit register
+ *
+ * Read 8-bit register of given address in a given buffer
+ *
+ * @param       reg                         Address of the register to read from
+ * @param       p_rx_buffer                 Pointer to buffer to save the
+ *                                          register value at
+ *
+ * @return      as5600_error_t              Result of the operation
+ * @retval      AS5600_ERROR_SUCCESS        If everything went well
+ * @retval      AS5600_ERROR_BAD_PARAMETER  Pointer invalid
+ * @retval      *                           Any other errors returned by the
+ *                                          sub-callees
+ */
 static as5600_error_t as5600_read_8register(as5600_register_t const reg,
                                             uint8_t * const p_rx_buffer)
 {
@@ -1534,6 +1694,20 @@ static as5600_error_t as5600_read_8register(as5600_register_t const reg,
 
 }
 
+/*!
+ * @brief Write 8-bit register
+ *
+ * Write a given buffer to a 8-bit register of a given address
+ *
+ * @param       reg                         Address of the register to write to
+ * @param       tx_buffer                   Buffer with data to write to the
+ *                                          register
+ *
+ * @return      as5600_error_t              Result of the operation
+ * @retval      AS5600_ERROR_SUCCESS        If everything went well
+ * @retval      *                           Any other errors returned by the
+ *                                          sub-callees
+ */
 static as5600_error_t as5600_write_8register(as5600_register_t const reg,
                                              uint8_t const tx_buffer)
 {
@@ -1550,6 +1724,24 @@ static as5600_error_t as5600_write_8register(as5600_register_t const reg,
 
 }
 
+/*!
+ * @brief Read 16-bit register
+ *
+ * Read 16-bit register of given address in a given buffer
+ *
+ * @param       reg                         Lowest byte address of the register
+ *                                          to read from
+ * @param       p_rx_buffer                 Pointer to buffer to save the
+ *                                          register value at.
+ *
+ * @note User should make sure that the buffer is of the right size
+ *
+ * @return      as5600_error_t              Result of the operation
+ * @retval      AS5600_ERROR_SUCCESS        If everything went well
+ * @retval      AS5600_ERROR_BAD_PARAMETER  Pointer invalid
+ * @retval      *                           Any other errors returned by the
+ *                                          sub-callees
+ */
 static as5600_error_t as5600_read_16register(as5600_register_t const reg,
                                              uint16_t * const p_rx_buffer)
 {
@@ -1574,6 +1766,21 @@ static as5600_error_t as5600_read_16register(as5600_register_t const reg,
 
 }
 
+
+/*!
+ * @brief Write 16-bit register
+ *
+ * Write a given buffer to a 16-bit register of a given address
+ *
+ * @param       reg                         Address of the register to write to
+ * @param       tx_buffer                   Buffer with data to write to the
+ *                                          register
+ *
+ * @return      as5600_error_t              Result of the operation
+ * @retval      AS5600_ERROR_SUCCESS        If everything went well
+ * @retval      *                           Any other errors returned by the
+ *                                          sub-callees
+ */
 static as5600_error_t as5600_write_16register(as5600_register_t const reg,
                                               uint16_t const tx_buffer)
 {
@@ -1592,18 +1799,94 @@ static as5600_error_t as5600_write_16register(as5600_register_t const reg,
         return success;
 }
 
+/*!
+ * @brief Read n consecutive bytes from a register
+ *
+ * Read n consecutive bytes from a register of a given address
+ *
+ * @param       reg                         Lowest byte address of the register
+ *                                          to read from
+ * @param       p_rx_buffer                 Pointer to buffer to save the
+ *                                          register value at.
+ * @param       bytes_count                 Number of bytes to read from the
+ *                                          register.
+ *
+ * @note User should make sure that the buffer is of the right size
+ *
+ * @return      as5600_error_t              Result of the operation
+ * @retval      AS5600_ERROR_SUCCESS        If everything went well
+ * @retval      AS5600_ERROR_BAD_PARAMETER  Pointer or register invalid
+ * @retval      AS5600_ERROR_GENERAL_ERROR  If transfer function pointer is null
+ * @retval      AS5600_ERROR_NOT_INITIALIZED If module wasn't initialized
+ * @retval      *                           Any other errors returned by the
+ *                                          sub-callees
+ */
+static as5600_error_t as5600_read_n_consecutive_bytes(
+                                                    as5600_register_t const reg,
+                                                    uint8_t * const p_rx_buffer,
+                                                    size_t const bytes_count)
+{
+        as5600_error_t result = AS5600_ERROR_SUCCESS;
+        uint8_t const reg_addr = (uint8_t)reg;
+        uint8_t xfer_func_result = 0;
 
+        if ((NULL == p_rx_buffer) || (!as5600_is_register_valid(reg))) {
+                result = AS5600_ERROR_BAD_PARAMETER;
+        } else if (!m_is_initialized) {
+                result = AS5600_ERROR_NOT_INITIALIZED;
+        } else if (NULL == m_as5600_xfer_func) {
+                result = AS5600_ERROR_GENERAL_ERROR;
+        }
+
+        if (AS5600_ERROR_SUCCESS == result) {
+
+
+                xfer_func_result = m_as5600_xfer_func(m_as5600_i2c_addr,
+                                                      &reg_addr,
+                                                      sizeof(reg_addr),
+                                                      p_rx_buffer, bytes_count);
+
+                if (0 != xfer_func_result) {
+                        result = AS5600_ERROR_I2C_ERROR;
+                }
+        }
+
+        return result;
+}
+
+/*!
+ * @brief Write n consecutive bytes to a register
+ *
+ * Write n consecutive bytes to a register of a given address
+ *
+ * @param       reg                         Lowest byte address of the register
+ *                                          to write to
+ * @param       p_tx_buffer                 Pointer to buffer to read the data
+ *                                          from
+ * @param       bytes_count                 Number of bytes to write from the
+ *                                          register.
+ *
+ * @note User should make sure that the buffer is of the right size
+ *
+ * @return      as5600_error_t              Result of the operation
+ * @retval      AS5600_ERROR_SUCCESS        If everything went well
+ * @retval      AS5600_ERROR_BAD_PARAMETER  Pointer or register invalid
+ * @retval      AS5600_ERROR_GENERAL_ERROR  If transfer function pointer is null
+ * @retval      AS5600_ERROR_NOT_INITIALIZED If module wasn't initialized
+ * @retval      *                           Any other errors returned by the
+ *                                          sub-callees
+ */
 static as5600_error_t as5600_write_n_consecutive_bytes(as5600_register_t const reg,
                                                        uint8_t const * const p_tx_buffer,
                                                        size_t const bytes_count)
 {
-        as5600_error_t result = as5600_is_register_valid(reg);
+        as5600_error_t result = AS5600_ERROR_SUCCESS;
         uint8_t buffer[bytes_count + 1];
         uint8_t xfer_func_result = 0;
         uint8_t const reg_addr = (uint8_t)reg;
         uint8_t i;
 
-        if (NULL == p_tx_buffer) {
+        if ((NULL == p_tx_buffer) || (!as5600_is_register_valid(reg))) {
                 result = AS5600_ERROR_BAD_PARAMETER;
         } else if (!m_is_initialized) {
                 result = AS5600_ERROR_NOT_INITIALIZED;
@@ -1631,39 +1914,22 @@ static as5600_error_t as5600_write_n_consecutive_bytes(as5600_register_t const r
         return result;
 }
 
-static as5600_error_t as5600_read_n_consecutive_bytes(
-                                                    as5600_register_t const reg,
-                                                    uint8_t * const p_rx_buffer,
-                                                    size_t const bytes_count)
-{
-        as5600_error_t result = as5600_is_register_valid(reg);
-        uint8_t const reg_addr = (uint8_t)reg;
-        uint8_t xfer_func_result = 0;
-
-        if (NULL == p_rx_buffer) {
-                result = AS5600_ERROR_BAD_PARAMETER;
-        } else if (!m_is_initialized) {
-                result = AS5600_ERROR_NOT_INITIALIZED;
-        } else if (NULL == m_as5600_xfer_func) {
-                result = AS5600_ERROR_GENERAL_ERROR;
-        }
-
-        if (AS5600_ERROR_SUCCESS == result) {
-
-
-                xfer_func_result = m_as5600_xfer_func(m_as5600_i2c_addr,
-                                                      &reg_addr,
-                                                      sizeof(reg_addr),
-                                                      p_rx_buffer, bytes_count);
-
-                if (0 != xfer_func_result) {
-                        result = AS5600_ERROR_I2C_ERROR;
-                }
-        }
-
-        return result;
-}
-
+/*!
+ * @brief Set bit field value from a given register
+ *
+ * Set a value to the given bit field of a given register
+ *
+ * @param       value                       Value to set
+ *
+ * @param       bit_field                   Bit field to modify
+ *
+ * @param       p_reg_value                 Pointer to the register value to
+ *                                          modify.
+ *
+ * @return      as5600_error_t              Result of the operation
+ * @retval      AS5600_ERROR_SUCCESS        If everything went well
+ * @retval      AS5600_ERROR_BAD_PARAMETER  Pointer invalid
+ */
 static as5600_error_t as5600_reg_set_bit_field_value(uint8_t const value,
                                                      as5600_bit_field_t const bit_field,
                                                      uint8_t * const p_reg_value)
@@ -1698,7 +1964,23 @@ static as5600_error_t as5600_reg_set_bit_field_value(uint8_t const value,
         return success;
 }
 
-static as5600_error_t as5600_reg_get_bit_field_value(uint8_t * const value,
+/*!
+ * @brief Get value from bit field
+ *
+ * Get the value from a given register and bit field
+ *
+ * @param       p_value                     Pointer to object where to store the
+ *                                          value to
+ *
+ * @param       bit_field                   Bit field to read
+ *
+ * @param       p_reg_value                 Register value to read from
+ *
+ * @return      as5600_error_t              Result of the operation
+ * @retval      AS5600_ERROR_SUCCESS        If everything went well
+ * @retval      AS5600_ERROR_BAD_PARAMETER  Pointer invalid
+ */
+ static as5600_error_t as5600_reg_get_bit_field_value(uint8_t * const p_value,
                                                      as5600_bit_field_t const bit_field,
                                                      uint8_t const reg_value)
 {
@@ -1709,7 +1991,7 @@ static as5600_error_t as5600_reg_get_bit_field_value(uint8_t * const value,
         uint8_t temp = reg_value;
         uint8_t mask;
 
-        if ((NULL == value) || (AS5600_BIT_FIELD_COUNT <= bit_field)) {
+        if ((NULL == p_value) || (AS5600_BIT_FIELD_COUNT <= bit_field)) {
                 success = AS5600_ERROR_BAD_PARAMETER;
         }
 
@@ -1717,13 +1999,29 @@ static as5600_error_t as5600_reg_get_bit_field_value(uint8_t * const value,
                 mask = ((1 << bit_field_width) - 1);
                 temp >>= bit_field_lsb;
                 temp &= mask;
-                *value = temp;
+                *p_value = temp;
         }
 
         return success;
 
 }
 
+/*!
+ * @brief Configuration structure to 16-bit register value
+ *
+ * This function takes a `as5600_configuration_t` structure object and converts
+ * it to the corresponding 16-bit register value
+ *
+ * @param       p_config                    Pointer to the configuration object
+ *                                          to read from for the conversion
+ *
+ * @param       value                       Pointer to object where to save the
+ *                                          the resulting register value
+ *
+ * @return      as5600_error_t              Result of the operation
+ * @retval      AS5600_ERROR_SUCCESS        If everything went well
+ * @retval      AS5600_ERROR_BAD_PARAMETER  Pointer or configuration invalid
+ */
 static as5600_error_t as5600_cfg_to_reg16(
                                   as5600_configuration_t const * const p_config,
                                   uint16_t * const reg)
@@ -1788,8 +2086,25 @@ static as5600_error_t as5600_cfg_to_reg16(
         return success;
 }
 
+/*!
+ * @brief 16-bit register value to configuration structure
+ *
+ * This function takes a 16-bit register value and converts it to the
+ * corresponding `as5600_configuration_t` structure object
+ *
+ * @param       p_reg                       Pointer to the register value to
+ *                                          convert from
+ *
+ * @param       p_config                    Pointer to a configuration object
+ *                                          where to store the resulting
+ *                                          structure
+ *
+ * @return      as5600_error_t              Result of the operation
+ * @retval      AS5600_ERROR_SUCCESS        If everything went well
+ * @retval      AS5600_ERROR_BAD_PARAMETER  Pointer invalid
+ */
 static as5600_error_t as5600_reg16_to_cfg(
-                                        uint16_t const * const reg,
+                                        uint16_t const * const p_reg,
                                         as5600_configuration_t * const p_config)
 {
         as5600_error_t success = AS5600_ERROR_SUCCESS;
@@ -1803,16 +2118,14 @@ static as5600_error_t as5600_reg16_to_cfg(
         uint8_t ff_threshold;
         uint8_t watchdog;
 
-        if ((NULL == reg) || (NULL == p_config)) {
+        if ((NULL == p_reg) || (NULL == p_config)) {
                 success = AS5600_ERROR_BAD_PARAMETER;
         }
 
         if (AS5600_ERROR_SUCCESS == success) {
-                reg_buffer[0] = (uint8_t)(*reg >> 8);
-                reg_buffer[1] = (uint8_t)(*reg & 0x00FF);
-        }
+                reg_buffer[0] = (uint8_t)(*p_reg >> 8);
+                reg_buffer[1] = (uint8_t)(*p_reg & 0x00FF);
 
-        if (AS5600_ERROR_SUCCESS == success) {
                 success = as5600_reg_get_bit_field_value(&power_mode,
                                                          AS5600_BIT_FIELD_PM,
                                                          reg_buffer[1]);
@@ -1867,6 +2180,19 @@ static as5600_error_t as5600_reg16_to_cfg(
         return success;
 }
 
+/*!
+ * @brief Check if configuration is valid
+ *
+ * This function takes a pointer to a `as5600_configuration_t` object and checks
+ * if the values of its members make sense
+ *
+ * @param       p_config                    Pointer to the configuration object
+ *                                          to be checked
+ *
+ * @return      bool                        Result of the operation
+ *                                          True: valid configuration
+ *                                          False: invalid configuration
+ */
 static bool as5600_is_valid_configuration(
                                   as5600_configuration_t const * const p_config)
 {
@@ -1879,10 +2205,22 @@ static bool as5600_is_valid_configuration(
                 (AS5600_FF_THRESHOLD_COUNT > p_config->ff_threshold));
 }
 
-static as5600_error_t as5600_is_register_valid(as5600_register_t const reg)
+/*!
+ * @brief Check if register is valid
+ *
+ * This function takes a `as5600_register_t` object and checks
+ * if its value exists.
+ *
+ * @param       reg                         Register object to be checked
+ *
+ * @return      bool                        Result of the operation
+ *                                          True: valid register
+ *                                          False: invalid register
+ */
+static bool as5600_is_register_valid(as5600_register_t const reg)
 {
-        as5600_error_t result;
-
+        bool is_valid;
+ 
         switch (reg) {
         case AS5600_REGISTER_ZMCO:
         case AS5600_REGISTER_ZPOS_H:
@@ -1902,13 +2240,13 @@ static as5600_error_t as5600_is_register_valid(as5600_register_t const reg)
         case AS5600_REGISTER_MAGNITUDE_H:
         case AS5600_REGISTER_MAGNITUDE_L:
         case AS5600_REGISTER_BURN:
-                result = AS5600_ERROR_SUCCESS;
+                is_valid = true;
                 break;
         default:
-                result = AS5600_ERROR_BAD_PARAMETER;
+                is_valid = false;
                 break;
         }
-        return result;
+        return is_valid;
 }
 
 /*
