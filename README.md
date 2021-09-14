@@ -203,7 +203,7 @@ See the [open issues](https://github.com/raulgotor/ams_as5600/issues) for a list
 <!-- LICENSE -->
 ## License
 
-Distributed under the MIT License (GPL). See `LICENSE` for more information.
+Distributed under the MIT License. See `LICENSE` for more information.
 
 
 
