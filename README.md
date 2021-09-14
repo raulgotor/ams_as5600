@@ -33,7 +33,7 @@
 <br />
 <p align="center">
   <a href="https://github.com/raulgotor/ams_as5600">
-    <img src="images/logo.png" alt="Logo" width="80" height="80">
+    <!img src="images/logo.png" alt="Logo" width="80" height="80">
   </a>
 
 <h3 align="center">AMS AS5600 Driver</h3>
@@ -203,7 +203,7 @@ See the [open issues](https://github.com/raulgotor/ams_as5600/issues) for a list
 <!-- LICENSE -->
 ## License
 
-Distributed under the GNU General Public License (GPL). See `LICENSE` for more information.
+Distributed under the MIT License (GPL). See `LICENSE` for more information.
 
 
 
@@ -219,20 +219,20 @@ Project Link: [https://github.com/raulgotor/ams_as5600](https://github.com/raulg
 <!-- ACKNOWLEDGEMENTS -->
 ## Acknowledgements
 
-* []()
+* [Best README tempalte](https://github.com/othneildrew/Best-README-Template)
 
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/raulgotor/repo.svg?style=for-the-badge
+[contributors-shield]: https://img.shields.io/github/contributors/raulgotor/ams_as5600.svg?style=for-the-badge
 [contributors-url]: https://github.com/raulgotor/ams_as5600/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/raulgotor/repo.svg?style=for-the-badge
+[forks-shield]: https://img.shields.io/github/forks/raulgotor/ams_as5600.svg?style=for-the-badge
 [forks-url]: https://github.com/raulgotor/ams_as5600/network/members
-[stars-shield]: https://img.shields.io/github/stars/raulgotor/repo.svg?style=for-the-badge
+[stars-shield]: https://img.shields.io/github/stars/raulgotor/ams_as5600.svg?style=for-the-badge
 [stars-url]: https://github.com/raulgotor/ams_as5600/stargazers
-[issues-shield]: https://img.shields.io/github/issues/raulgotor/repo.svg?style=for-the-badge
+[issues-shield]: https://img.shields.io/github/issues/raulgotor/ams_as5600.svg?style=for-the-badge
 [issues-url]: https://github.com/raulgotor/ams_as5600/issues
-[license-shield]: https://img.shields.io/github/license/raulgotor/repo.svg?style=for-the-badge
+[license-shield]: https://img.shields.io/github/license/raulgotor/ams_as5600.svg?style=for-the-badge
 [license-url]: https://github.com/raulgotor/ams_as5600/blob/master/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/raulgotor
