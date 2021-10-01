@@ -363,14 +363,14 @@ as5600_error_t as5600_init(pf_i2c_xfer_as5600_t const pf_transfer_func)
  * MPOS with a BURN_ANGLE command. ZMCO shows how many times ZPOS and MPOS have
  * been permanently written.
  *
- * @param           p_write_counter         Pointer were to return the number of
+ * @param[out]          p_write_counter     Pointer were to return the number of
  *                                          write operations to the OTP register
  *
- * @return          as5600_error_t          Result of the operation
- * @retval          AS5600_ERROR_SUCCESS    If everything went well
- * @retval          AS5600_ERROR_BAD_PARAMETER Invalid pointer
+ * @return              as5600_error_t          Result of the operation
+ * @retval              AS5600_ERROR_SUCCESS    If everything went well
+ * @retval              AS5600_ERROR_BAD_PARAMETER Invalid pointer
  */
-as5600_error_t as5600_get_otp_write_counter(uint8_t * p_write_counter)
+as5600_error_t as5600_get_otp_write_counter(uint8_t * const p_write_counter)
 {
         as5600_bit_field_t const field = AS5600_BIT_FIELD_ZMCO;
         as5600_register_t const reg = m_bitfields[field].reg;
@@ -612,15 +612,16 @@ as5600_error_t as5600_get_maximum_angle(uint16_t * const p_max_angle)
  *      `as5600_set_hysteresis`, `as5600_set_output_stage`,
  *      `as5600_set_pwm_frequency`
  *
- * @param       p_config                    Pointer to a configuration structure
+ * @param[in]       p_config                Pointer to a configuration structure
  *
- * @return      as5600_error_t              Result of the operation
- * @retval      AS5600_ERROR_SUCCESS        If everything went well
- * @retval      AS5600_ERROR_BAD_PARAMETER  Pointer or configuration invalid
- * @retval      *                           Any other errors returned by the
- *                                          sub-callees
+ * @return          as5600_error_t              Result of the operation
+ * @retval          AS5600_ERROR_SUCCESS        If everything went well
+ * @retval          AS5600_ERROR_BAD_PARAMETER  Pointer or configuration invalid
+ * @retval          *                           Any other errors returned by the
+ *                                              sub-callees
  */
-as5600_error_t as5600_set_configuration(as5600_configuration_t const * const p_config)
+as5600_error_t as5600_set_configuration(
+                                  as5600_configuration_t const * const p_config)
 {
         as5600_register_t const reg = AS5600_REGISTER_CONF_H;
         as5600_error_t success = AS5600_ERROR_SUCCESS;
@@ -751,18 +752,19 @@ as5600_error_t as5600_set_slow_filter(as5600_slow_filter_t const slow_filter,
  * @note this function only reads the `as5600_configuration_t` object and
  *       performs no I2C read operation
  *
- * @param       p_slow_filter               current step response delay
+ * @param[out]      p_slow_filter           Current step response delay
  *                                          `as5600_slow_filter_t` type
  *
- * @param       p_config                    Pointer to `as5600_configuration_t`
+ * @param[in]       p_config                Pointer to `as5600_configuration_t`
  *                                          object to be read
  *
- * @return      as5600_error_t              Result of the operation
- * @retval      AS5600_ERROR_SUCCESS        If everything went well
- * @retval      AS5600_ERROR_BAD_PARAMETER  Invalid pointer
+ * @return          as5600_error_t              Result of the operation
+ * @retval          AS5600_ERROR_SUCCESS        If everything went well
+ * @retval          AS5600_ERROR_BAD_PARAMETER  Invalid pointer
  */
-as5600_error_t as5600_get_slow_filter(as5600_slow_filter_t * const p_slow_filter,
-                                      as5600_configuration_t * const p_config)
+as5600_error_t as5600_get_slow_filter(
+                                  as5600_slow_filter_t * const p_slow_filter,
+                                  as5600_configuration_t const * const p_config)
 {
         as5600_error_t success = AS5600_ERROR_SUCCESS;
 
@@ -841,8 +843,9 @@ as5600_error_t as5600_set_ff_threshold(as5600_ff_threshold_t const ff_threshold,
  * @retval          AS5600_ERROR_SUCCESS        If everything went well
  * @retval          AS5600_ERROR_BAD_PARAMETER  Invalid pointer
  */
-as5600_error_t as5600_get_ff_threshold(as5600_ff_threshold_t * const p_ff_threshold,
-                                       as5600_configuration_t * const p_config)
+as5600_error_t as5600_get_ff_threshold(
+                                  as5600_ff_threshold_t * const p_ff_threshold,
+                                  as5600_configuration_t const * const p_config)
 {
         as5600_error_t success = AS5600_ERROR_SUCCESS;
 
@@ -880,8 +883,9 @@ as5600_error_t as5600_get_ff_threshold(as5600_ff_threshold_t * const p_ff_thresh
  * @retval          AS5600_ERROR_SUCCESS        If everything went well
  * @retval          AS5600_ERROR_BAD_PARAMETER  Pointer invalid
  */
-as5600_error_t as5600_set_watchdog_enabled(bool const enabled,
-                                           as5600_configuration_t * const p_config)
+as5600_error_t as5600_set_watchdog_enabled(
+                                        bool const enabled,
+                                        as5600_configuration_t * const p_config)
 {
         as5600_error_t success = AS5600_ERROR_SUCCESS;
 
@@ -919,8 +923,9 @@ as5600_error_t as5600_set_watchdog_enabled(bool const enabled,
  * @retval          AS5600_ERROR_SUCCESS        If everything went well
  * @retval          AS5600_ERROR_BAD_PARAMETER  Invalid pointer
  */
-as5600_error_t as5600_is_watchdog_enabled(bool * const p_enabled,
-                                          as5600_configuration_t * const p_config)
+as5600_error_t as5600_is_watchdog_enabled(
+                                  bool * const p_enabled,
+                                  as5600_configuration_t const * const p_config)
 {
         as5600_error_t success = AS5600_ERROR_SUCCESS;
 
@@ -1003,8 +1008,9 @@ as5600_error_t as5600_set_power_mode(as5600_power_mode_t const power_mode,
  * @retval          AS5600_ERROR_SUCCESS        If everything went well
  * @retval          AS5600_ERROR_BAD_PARAMETER  Pointer invalid
  */
-as5600_error_t as5600_get_power_mode(as5600_power_mode_t * const p_power_mode,
-                                     as5600_configuration_t * const p_config)
+as5600_error_t as5600_get_power_mode(
+                                  as5600_power_mode_t * const p_power_mode,
+                                  as5600_configuration_t const * const p_config)
 {
         as5600_error_t success = AS5600_ERROR_SUCCESS;
 
@@ -1079,8 +1085,9 @@ as5600_error_t as5600_set_hysteresis(as5600_hysteresis_t const hysteresis,
  * @retval          AS5600_ERROR_SUCCESS        If everything went well
  * @retval          AS5600_ERROR_BAD_PARAMETER  Pointer invalid
  */
-as5600_error_t as5600_get_hysteresis(as5600_hysteresis_t * const p_hysteresis,
-                                     as5600_configuration_t * const p_config)
+as5600_error_t as5600_get_hysteresis(
+                                  as5600_hysteresis_t * const p_hysteresis,
+                                  as5600_configuration_t const * const p_config)
 {
         as5600_error_t success = AS5600_ERROR_SUCCESS;
 
@@ -1157,8 +1164,9 @@ as5600_error_t as5600_set_output_stage(as5600_output_stage_t const output_stage,
  * @retval          AS5600_ERROR_SUCCESS        If everything went well
  * @retval          AS5600_ERROR_BAD_PARAMETER  Pointer invalid
  */
-as5600_error_t as5600_get_output_stage(as5600_output_stage_t * const p_output_stage,
-                                       as5600_configuration_t * const p_config)
+as5600_error_t as5600_get_output_stage(
+                                  as5600_output_stage_t * const p_output_stage,
+                                  as5600_configuration_t const * const p_config)
 {
         as5600_error_t success = AS5600_ERROR_SUCCESS;
 
@@ -1204,8 +1212,9 @@ as5600_error_t as5600_get_output_stage(as5600_output_stage_t * const p_output_st
  * @retval          AS5600_ERROR_SUCCESS        If everything went well
  * @retval          AS5600_ERROR_BAD_PARAMETER  Pointer or value invalid
  */
-as5600_error_t as5600_set_pwm_frequency(as5600_pwm_frequency_t const pwm_frequency,
-                                        as5600_configuration_t * const p_config)
+as5600_error_t as5600_set_pwm_frequency(
+                                     as5600_pwm_frequency_t const pwm_frequency,
+                                     as5600_configuration_t * const p_config)
 {
         as5600_error_t success = AS5600_ERROR_SUCCESS;
         as5600_pwm_frequency_t const fence = AS5600_PWM_FREQUENCY_COUNT;
@@ -1242,8 +1251,9 @@ as5600_error_t as5600_set_pwm_frequency(as5600_pwm_frequency_t const pwm_frequen
  * @retval          AS5600_ERROR_SUCCESS        If everything went well
  * @retval          AS5600_ERROR_BAD_PARAMETER  Pointer invalid
  */
-as5600_error_t as5600_get_pwm_frequency(as5600_pwm_frequency_t * const p_pwm_frequency,
-                                        as5600_configuration_t * const p_config)
+as5600_error_t as5600_get_pwm_frequency(
+                                 as5600_pwm_frequency_t * const p_pwm_frequency,
+                                 as5600_configuration_t const * const p_config)
 {
         as5600_error_t success = AS5600_ERROR_SUCCESS;
 
@@ -1904,9 +1914,10 @@ static as5600_error_t as5600_read_n_consecutive_bytes(
  * @retval          *                           Any other errors returned by the
  *                                              sub-callees
  */
-static as5600_error_t as5600_write_n_consecutive_bytes(as5600_register_t const reg,
-                                                       uint8_t const * const p_tx_buffer,
-                                                       size_t const bytes_count)
+static as5600_error_t as5600_write_n_consecutive_bytes(
+                                              as5600_register_t const reg,
+                                              uint8_t const * const p_tx_buffer,
+                                              size_t const bytes_count)
 {
         as5600_error_t result = AS5600_ERROR_SUCCESS;
         uint8_t buffer[bytes_count + 1];
@@ -1958,9 +1969,10 @@ static as5600_error_t as5600_write_n_consecutive_bytes(as5600_register_t const r
  * @retval          AS5600_ERROR_SUCCESS        If everything went well
  * @retval          AS5600_ERROR_BAD_PARAMETER  Pointer invalid
  */
-static as5600_error_t as5600_reg_set_bit_field_value(uint8_t const value,
-                                                     as5600_bit_field_t const bit_field,
-                                                     uint8_t * const p_reg_value)
+static as5600_error_t as5600_reg_set_bit_field_value(
+                                             uint8_t const value,
+                                             as5600_bit_field_t const bit_field,
+                                             uint8_t * const p_reg_value)
 {
         as5600_bit_field_specs_t const specs = m_bitfields[bit_field];
         uint8_t const bit_field_lsb = specs.lsbit_pos;
@@ -2008,9 +2020,10 @@ static as5600_error_t as5600_reg_set_bit_field_value(uint8_t const value,
  * @retval          AS5600_ERROR_SUCCESS        If everything went well
  * @retval          AS5600_ERROR_BAD_PARAMETER  Pointer invalid
  */
- static as5600_error_t as5600_reg_get_bit_field_value(uint8_t * const p_value,
-                                                     as5600_bit_field_t const bit_field,
-                                                     uint8_t const reg_value)
+ static as5600_error_t as5600_reg_get_bit_field_value(
+                                             uint8_t * const p_value,
+                                             as5600_bit_field_t const bit_field,
+                                             uint8_t const reg_value)
 {
         as5600_bit_field_specs_t const specs = m_bitfields[bit_field];
         uint8_t const bit_field_width = specs.width;
