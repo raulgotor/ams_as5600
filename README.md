@@ -59,12 +59,6 @@
   <summary><h2 style="display: inline-block">Table of Contents</h2></summary>
   <ol>
     <li>
-      <a href="#about-the-project">About The Project</a>
-      <ul>
-        <li><a href="#built-with">Built With</a></li>
-      </ul>
-    </li>
-    <li>
       <a href="#getting-started">Getting Started</a>
       <ul>
         <li><a href="#prerequisites">Prerequisites</a></li>
@@ -113,7 +107,7 @@ To get a local copy up and running follow these simple steps.
    ```sh
    git clone https://github.com/raulgotor/ams_as5600.git
    ```
-3. Write a transfer function. See next section
+3. Write a transfer function (see next section)
 
 
 <!-- USAGE EXAMPLES -->
@@ -219,7 +213,7 @@ Project Link: [https://github.com/raulgotor/ams_as5600](https://github.com/raulg
 <!-- ACKNOWLEDGEMENTS -->
 ## Acknowledgements
 
-* [Best README tempalte](https://github.com/othneildrew/Best-README-Template)
+* [Best README template](https://github.com/othneildrew/Best-README-Template)
 
 
 <!-- MARKDOWN LINKS & IMAGES -->
