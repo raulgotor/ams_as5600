@@ -237,59 +237,70 @@ as5600_bit_field_specs_t m_bitfields[] = {
  *******************************************************************************
  */
 
+//! @brief Read n consecutive bytes from a register
 static as5600_error_t as5600_read_n_consecutive_bytes(
                                                     as5600_register_t const reg,
                                                     uint8_t * const p_rx_buffer,
                                                     size_t const bytes_count);
-
+//! @brief Write n consecutive bytes to a register
 static as5600_error_t as5600_write_n_consecutive_bytes(
                                               as5600_register_t const reg,
                                               uint8_t const * const p_tx_buffer,
                                               size_t const bytes_count);
-
+//! @brief Read 16-bit register
 static as5600_error_t as5600_read_16register(as5600_register_t const reg,
                                              uint16_t * const p_rx_buffer);
-
+//! @brief Write 16-bit register
 static as5600_error_t as5600_write_16register(as5600_register_t const reg,
                                               uint16_t const tx_buffer);
 
+//! @brief Write 8-bit register
 static as5600_error_t as5600_write_8register(as5600_register_t const reg,
                                              uint8_t const tx_buffer);
 
 
+//! @brief Read 8-bit register
 static as5600_error_t as5600_read_8register(as5600_register_t const reg,
                                             uint8_t * const p_tx_buffer);
 
+//! @brief
 static as5600_error_t as5600_set_conf_bit_field(uint8_t const start_bit,
                                                 uint8_t const width,
                                                 uint8_t const value);
 
+//! @brief
 static as5600_error_t as5600_get_conf_bitfield(uint8_t const instance,
                                                uint8_t const start_bit,
                                                uint8_t const width,
                                                uint8_t * const value);
 
+//! @brief Set bit field value from a given register
 static as5600_error_t as5600_reg_set_bit_field_value(
                                              uint8_t const value,
                                              as5600_bit_field_t const bit_field,
                                              uint8_t * const p_reg_value);
 
+//! @brief Get value from bit field
 static as5600_error_t as5600_reg_get_bit_field_value(
                                              uint8_t * const p_value,
                                              as5600_bit_field_t const bit_field,
                                              uint8_t const reg_value);
 
+//! @brief Configuration structure to 16-bit register value
 static as5600_error_t as5600_cfg_to_reg16(
                                   as5600_configuration_t const * const p_config,
                                   uint16_t * const reg);
 
+//! @brief 16-bit register value to configuration structure
 static as5600_error_t as5600_reg16_to_cfg(
                                        uint16_t const * const p_reg,
                                        as5600_configuration_t * const p_config);
 
+//! @brief Check if configuration is valid
 static bool as5600_is_valid_configuration(
                                  as5600_configuration_t const * const p_config);
 
+//! @brief Check if register is valid
 static bool as5600_is_register_valid(as5600_register_t const reg);
 
 /*
@@ -320,9 +331,9 @@ static bool as5600_is_register_valid(as5600_register_t const reg);
  *                                          to a data transfer function
  *
  * @return          as5600_error_t          Result of the operation
- * @return          AS5600_ERROR_SUCCESS    If everything went well
- * @return          AS5600_ERROR_RUNTIME_ERROR Module already initialized
- * @return          AS5600_ERROR_BAD_PARAMETER Invalid transfer function pointer
+ * @retval          AS5600_ERROR_SUCCESS    If everything went well
+ * @retval          AS5600_ERROR_RUNTIME_ERROR Module already initialized
+ * @retval          AS5600_ERROR_BAD_PARAMETER Invalid transfer function pointer
  */
 as5600_error_t as5600_init(pf_i2c_xfer_as5600_t const pf_transfer_func)
 {
@@ -342,6 +353,23 @@ as5600_error_t as5600_init(pf_i2c_xfer_as5600_t const pf_transfer_func)
         return result;
 }
 
+/*!
+ * @brief Get the counter of already write operations to the OTP
+ *
+ * Gets the counter of performed writing operations to the one time programable
+ * (OTP) register ZMCO
+ *
+ * The host microcontroller can perform a permanent programming of ZPOS and
+ * MPOS with a BURN_ANGLE command. ZMCO shows how many times ZPOS and MPOS have
+ * been permanently written.
+ *
+ * @param           p_write_counter         Pointer were to return the number of
+ *                                          write operations to the OTP register
+ *
+ * @return          as5600_error_t          Result of the operation
+ * @retval          AS5600_ERROR_SUCCESS    If everything went well
+ * @retval          AS5600_ERROR_BAD_PARAMETER Invalid pointer
+ */
 as5600_error_t as5600_get_otp_write_counter(uint8_t * p_write_counter)
 {
         as5600_bit_field_t const field = AS5600_BIT_FIELD_ZMCO;
@@ -2186,12 +2214,12 @@ static as5600_error_t as5600_reg16_to_cfg(
  * This function takes a pointer to a `as5600_configuration_t` object and checks
  * if the values of its members make sense
  *
- * @param       p_config                    Pointer to the configuration object
+ * @param           p_config                Pointer to the configuration object
  *                                          to be checked
  *
- * @return      bool                        Result of the operation
- *                                          True: valid configuration
- *                                          False: invalid configuration
+ * @return          bool                    Result of the operation
+ * @retval          True                    Valid configuration
+ * @retval          False                   Invalid configuration
  */
 static bool as5600_is_valid_configuration(
                                   as5600_configuration_t const * const p_config)
@@ -2211,11 +2239,11 @@ static bool as5600_is_valid_configuration(
  * This function takes a `as5600_register_t` object and checks
  * if its value exists.
  *
- * @param       reg                         Register object to be checked
+ * @param           reg                     Register object to be checked
  *
- * @return      bool                        Result of the operation
- *                                          True: valid register
- *                                          False: invalid register
+ * @return          bool                    Result of the operation
+ * @retval          True                    Valid register
+ * @retval          False                   Invalid register
  */
 static bool as5600_is_register_valid(as5600_register_t const reg)
 {
