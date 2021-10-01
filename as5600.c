@@ -263,17 +263,6 @@ static as5600_error_t as5600_write_8register(as5600_register_t const reg,
 static as5600_error_t as5600_read_8register(as5600_register_t const reg,
                                             uint8_t * const p_tx_buffer);
 
-//! @brief
-static as5600_error_t as5600_set_conf_bit_field(uint8_t const start_bit,
-                                                uint8_t const width,
-                                                uint8_t const value);
-
-//! @brief
-static as5600_error_t as5600_get_conf_bitfield(uint8_t const instance,
-                                               uint8_t const start_bit,
-                                               uint8_t const width,
-                                               uint8_t * const value);
-
 //! @brief Set bit field value from a given register
 static as5600_error_t as5600_reg_set_bit_field_value(
                                              uint8_t const value,
@@ -1665,38 +1654,6 @@ as5600_error_t as5600_burn_command(as5600_burn_mode_t const mode)
  * Private Function Bodies                                                     *
  *******************************************************************************
  */
-
-
-static as5600_error_t as5600_set_conf_bit_field(uint8_t const start_bit,
-                                                uint8_t const width,
-                                                uint8_t const value)
-{
-        uint8_t const start_register = AS5600_REGISTER_CONF_H;
-        uint16_t const reserved_mask = 0x3FFFU;
-
-        uint16_t cfg;
-        as5600_error_t result = AS5600_ERROR_SUCCESS;
-        uint8_t bit_field_mask = (1 << width);
-        bit_field_mask = bit_field_mask << start_bit;
-
-        if (value != (bit_field_mask | value)) {
-                result = AS5600_ERROR_BAD_PARAMETER;
-        }
-
-        if (AS5600_ERROR_SUCCESS == result) {
-                result = as5600_read_16register(start_register, &cfg);
-        }
-
-        if (AS5600_ERROR_SUCCESS == result) {
-                cfg &= reserved_mask;
-                cfg &= bit_field_mask;
-                cfg |= ((((uint16_t)value) << start_bit) & bit_field_mask);
-                result = as5600_write_16register(start_register, cfg);
-        }
-
-        return result;
-
-}
 
 /*!
  * @brief Read 8-bit register
