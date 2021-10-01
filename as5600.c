@@ -327,13 +327,13 @@ static bool as5600_is_register_valid(as5600_register_t const reg);
  * This function initializes the module for operation. The module can only
  * be initialized once.
  *
- * @param           pf_transfer_func        Object containing the pointer
+ * @param[in]           pf_transfer_func    Object containing the pointer
  *                                          to a data transfer function
  *
- * @return          as5600_error_t          Result of the operation
- * @retval          AS5600_ERROR_SUCCESS    If everything went well
- * @retval          AS5600_ERROR_RUNTIME_ERROR Module already initialized
- * @retval          AS5600_ERROR_BAD_PARAMETER Invalid transfer function pointer
+ * @return              as5600_error_t          Result of the operation
+ * @retval              AS5600_ERROR_SUCCESS    If everything went well
+ * @retval              AS5600_ERROR_RUNTIME_ERROR Module already initialized
+ * @retval              AS5600_ERROR_BAD_PARAMETER Invalid transfer function pointer
  */
 as5600_error_t as5600_init(pf_i2c_xfer_as5600_t const pf_transfer_func)
 {
@@ -403,11 +403,11 @@ as5600_error_t as5600_get_otp_write_counter(uint8_t * p_write_counter)
  * angular range, the resolution is not scaled to narrowed range
  * (e.g. 0° to 360°(full-turn) → 4096 dec; 0° to 180° → 2048 dec).
  *
- * @param       start_position              start position value [0 - 4095]
+ * @param[in]       start_position          start position value [0 - 4095]
  *
- * @return      as5600_error_t              Result of the operation
- * @retval      AS5600_ERROR_SUCCESS        If everything went well
- * @retval      AS5600_ERROR_BAD_PARAMETER  Parameter OOR
+ * @return          as5600_error_t              Result of the operation
+ * @retval          AS5600_ERROR_SUCCESS        If everything went well
+ * @retval          AS5600_ERROR_BAD_PARAMETER  Parameter OOR
  */
 as5600_error_t as5600_set_start_position(uint16_t const start_position)
 {
@@ -433,12 +433,12 @@ as5600_error_t as5600_set_start_position(uint16_t const start_position)
  *
  * @see `as5600_set_start_position`
  *
- * @param       p_start_position            pointer to memory where to write
+ * @param[out]      p_start_position        Pointer to memory where to write
  *                                          the start position to [0 - 4095]
  *
- * @return      as5600_error_t              Result of the operation
- * @retval      AS5600_ERROR_SUCCESS        If everything went well
- * @retval      AS5600_ERROR_BAD_PARAMETER  Invalid pointer
+ * @return          as5600_error_t              Result of the operation
+ * @retval          AS5600_ERROR_SUCCESS        If everything went well
+ * @retval          AS5600_ERROR_BAD_PARAMETER  Invalid pointer
  */
 as5600_error_t as5600_get_start_position(uint16_t * const p_start_position)
 {
@@ -471,11 +471,11 @@ as5600_error_t as5600_get_start_position(uint16_t * const p_start_position)
  * angular range, the resolution is not scaled to narrowed range
  * (e.g. 0° to 360°(full-turn) → 4096 dec; 0° to 180° → 2048 dec).
  *
- * @param       stop_position               stop position value [0 - 4095]
+ * @param[in]       stop_position           Stop position value [0 - 4095]
  *
- * @return      as5600_error_t              Result of the operation
- * @retval      AS5600_ERROR_SUCCESS        If everything went well
- * @retval      AS5600_ERROR_BAD_PARAMETER  Parameter OOR
+ * @return          as5600_error_t              Result of the operation
+ * @retval          AS5600_ERROR_SUCCESS        If everything went well
+ * @retval          AS5600_ERROR_BAD_PARAMETER  Parameter OOR
  */
 as5600_error_t as5600_set_stop_position(uint16_t const stop_position)
 {
@@ -502,12 +502,12 @@ as5600_error_t as5600_set_stop_position(uint16_t const stop_position)
  *
  * @see `as5600_set_stop_position`
  *
- * @param       p_stop_position            pointer to memory where to write
+ * @param[out]      p_stop_position         Pointer to memory where to write
  *                                          the stop position to [0 - 4095]
  *
- * @return      as5600_error_t              Result of the operation
- * @retval      AS5600_ERROR_SUCCESS        If everything went well
- * @retval      AS5600_ERROR_BAD_PARAMETER  Invalid pointer
+ * @return          as5600_error_t              Result of the operation
+ * @retval          AS5600_ERROR_SUCCESS        If everything went well
+ * @retval          AS5600_ERROR_BAD_PARAMETER  Invalid pointer
  */
 as5600_error_t as5600_get_stop_position(uint16_t * const p_stop_position)
 {
@@ -539,11 +539,11 @@ as5600_error_t as5600_get_stop_position(uint16_t * const p_stop_position)
  * angular range, the resolution is not scaled to narrowed range
  * (e.g. 0° to 360°(full-turn) → 4096 dec; 0° to 180° → 2048 dec).
  *
- * @param       max_angle                   maximum allowed angle [0 - 4095]
+ * @param[in]       max_angle               Maximum allowed angle [0 - 4095]
  *
- * @return      as5600_error_t              Result of the operation
- * @retval      AS5600_ERROR_SUCCESS        If everything went well
- * @retval      AS5600_ERROR_BAD_PARAMETER  Parameter OOR
+ * @return          as5600_error_t              Result of the operation
+ * @retval          AS5600_ERROR_SUCCESS        If everything went well
+ * @retval          AS5600_ERROR_BAD_PARAMETER  Parameter OOR
  */
 as5600_error_t as5600_set_maximum_angle(uint16_t const max_angle)
 {
@@ -570,12 +570,12 @@ as5600_error_t as5600_set_maximum_angle(uint16_t const max_angle)
  *
  * @see `as5600_set_maximum_angle`
  *
- * @param       p_max_angle                 pointer to memory where to write
+ * @param[out]      p_max_angle             Pointer to memory where to write
  *                                          the maximum angle to [0 - 4095]
  *
- * @return      as5600_error_t              Result of the operation
- * @retval      AS5600_ERROR_SUCCESS        If everything went well
- * @retval      AS5600_ERROR_BAD_PARAMETER  Invalid pointer
+ * @return          as5600_error_t              Result of the operation
+ * @retval          AS5600_ERROR_SUCCESS        If everything went well
+ * @retval          AS5600_ERROR_BAD_PARAMETER  Invalid pointer
  */
 as5600_error_t as5600_get_maximum_angle(uint16_t * const p_max_angle)
 {
@@ -659,14 +659,14 @@ as5600_error_t as5600_set_configuration(as5600_configuration_t const * const p_c
  *      `as5600_get_hysteresis`, `as5600_get_output_state`,
  *      `as5600_get_pwm_frequency`
  *
- * @param       p_config                    Pointer to a configuration structure
+ * @param[out]      p_config                Pointer to a configuration structure
  *                                          of type `as5600_configuration_t`
  *
- * @return      as5600_error_t              Result of the operation
- * @retval      AS5600_ERROR_SUCCESS        If everything went well
- * @retval      AS5600_ERROR_BAD_PARAMETER  Pointer invalid
- * @retval      *                           Any other errors returned by the
- *                                          sub-callees
+ * @return          as5600_error_t              Result of the operation
+ * @retval          AS5600_ERROR_SUCCESS        If everything went well
+ * @retval          AS5600_ERROR_BAD_PARAMETER  Pointer invalid
+ * @retval          *                           Any other errors returned by the
+ *                                              sub-callees
  */
 as5600_error_t as5600_get_configuration(as5600_configuration_t * const p_config)
 {
@@ -712,16 +712,16 @@ as5600_error_t as5600_get_configuration(as5600_configuration_t * const p_config)
  * @note this function only modifies the `as5600_configuration_t` object and
  *       performs no I2C write operation
  *
- * @param       slow_filter                 step response delay to set,
+ * @param[in]       slow_filter             Step response delay to set,
  *                                          multiples of 0.143 ms
  *                                          `as5600_slow_filter_t` type
  *
- * @param       p_config                    Pointer to `as5600_configuration_t`
+ * @param[in/out]   p_config                Pointer to `as5600_configuration_t`
  *                                          object to be modified
  *
- * @return      as5600_error_t              Result of the operation
- * @retval      AS5600_ERROR_SUCCESS        If everything went well
- * @retval      AS5600_ERROR_BAD_PARAMETER  Pointer or parameter value invalid
+ * @return          as5600_error_t              Result of the operation
+ * @retval          AS5600_ERROR_SUCCESS        If everything went well
+ * @retval          AS5600_ERROR_BAD_PARAMETER  Pointer/parameter value invalid
  */
 as5600_error_t as5600_set_slow_filter(as5600_slow_filter_t const slow_filter,
                                       as5600_configuration_t * const p_config)
@@ -792,16 +792,16 @@ as5600_error_t as5600_get_slow_filter(as5600_slow_filter_t * const p_slow_filter
  * @note this function only modifies the `as5600_configuration_t` object and
  *       performs no I2C write operation
  *
- * @param       ff_threshold                slow to fast filter threshold (LSB),
+ * @param[in]       ff_threshold            Slow to fast filter threshold (LSB),
  *                                          to be set, `as5600_ff_threshold_t`
  *                                          type
  *
- * @param       p_config                    Pointer to `as5600_configuration_t`
+ * @param[in/out]   p_config                Pointer to `as5600_configuration_t`
  *                                          object to be modified
  *
- * @return      as5600_error_t              Result of the operation
- * @retval      AS5600_ERROR_SUCCESS        If everything went well
- * @retval      AS5600_ERROR_BAD_PARAMETER  Pointer or parameter value invalid
+ * @return          as5600_error_t              Result of the operation
+ * @retval          AS5600_ERROR_SUCCESS        If everything went well
+ * @retval          AS5600_ERROR_BAD_PARAMETER  Pointer/parameter value invalid
  */
 as5600_error_t as5600_set_ff_threshold(as5600_ff_threshold_t const ff_threshold,
                                        as5600_configuration_t * const p_config)
@@ -831,15 +831,15 @@ as5600_error_t as5600_set_ff_threshold(as5600_ff_threshold_t const ff_threshold,
  * @note this function only reads the `as5600_configuration_t` object and
  *       performs no I2C read operation
  *
- * @param       p_ff_threshold              current slow to fast filter
+ * @param[out]      p_ff_threshold          Current slow to fast filter
  *                                          threshold
  *
- * @param       p_config                    Pointer to `as5600_configuration_t`
+ * @param[in]       p_config                Pointer to `as5600_configuration_t`
  *                                          object to be read
  *
- * @return      as5600_error_t              Result of the operation
- * @retval      AS5600_ERROR_SUCCESS        If everything went well
- * @retval      AS5600_ERROR_BAD_PARAMETER  Invalid pointer
+ * @return          as5600_error_t              Result of the operation
+ * @retval          AS5600_ERROR_SUCCESS        If everything went well
+ * @retval          AS5600_ERROR_BAD_PARAMETER  Invalid pointer
  */
 as5600_error_t as5600_get_ff_threshold(as5600_ff_threshold_t * const p_ff_threshold,
                                        as5600_configuration_t * const p_config)
@@ -870,15 +870,15 @@ as5600_error_t as5600_get_ff_threshold(as5600_ff_threshold_t * const p_ff_thresh
  * @note this function only modifies the `as5600_configuration_t` object and
  *       performs no I2C write operation
  *
- * @param       enabled                     True: enable watchdog
+ * @param[in]       enabled                 True: enable watchdog
  *                                          False: disable watchdog
  *
- * @param       p_config                    Pointer to `as5600_configuration_t`
+ * @param[in/out]   p_config                Pointer to `as5600_configuration_t`
  *                                          object to be modified
  *
- * @return      as5600_error_t              Result of the operation
- * @retval      AS5600_ERROR_SUCCESS        If everything went well
- * @retval      AS5600_ERROR_BAD_PARAMETER  Pointer invalid
+ * @return          as5600_error_t              Result of the operation
+ * @retval          AS5600_ERROR_SUCCESS        If everything went well
+ * @retval          AS5600_ERROR_BAD_PARAMETER  Pointer invalid
  */
 as5600_error_t as5600_set_watchdog_enabled(bool const enabled,
                                            as5600_configuration_t * const p_config)
@@ -907,17 +907,17 @@ as5600_error_t as5600_set_watchdog_enabled(bool const enabled,
  * @note this function only reads the `as5600_configuration_t` object and
  *       performs no I2C read operation
  *
- * @param       p_enabled                   Pointer to save the status of the
+ * @param[out]      p_enabled               Pointer to save the status of the
  *                                          watchdog at.
  *                                          True: watchdog is enabled
  *                                          False: watchdog is disabled
  *
- * @param       p_config                    Pointer to `as5600_configuration_t`
+ * @param[in]       p_config                Pointer to `as5600_configuration_t`
  *                                          object to be read
  *
- * @return      as5600_error_t              Result of the operation
- * @retval      AS5600_ERROR_SUCCESS        If everything went well
- * @retval      AS5600_ERROR_BAD_PARAMETER  Invalid pointer
+ * @return          as5600_error_t              Result of the operation
+ * @retval          AS5600_ERROR_SUCCESS        If everything went well
+ * @retval          AS5600_ERROR_BAD_PARAMETER  Invalid pointer
  */
 as5600_error_t as5600_is_watchdog_enabled(bool * const p_enabled,
                                           as5600_configuration_t * const p_config)
@@ -956,14 +956,14 @@ as5600_error_t as5600_is_watchdog_enabled(bool * const p_enabled,
  * @note this function only modifies the `as5600_configuration_t` object and
  *       performs no I2C write operation
  *
- * @param       power_mode                  value of type `as5600_power_mode_t`
+ * @param[in]       power_mode              Value of type `as5600_power_mode_t`
  *
- * @param       p_config                    Pointer to `as5600_configuration_t`
+ * @param[in/out]   p_config                Pointer to `as5600_configuration_t`
  *                                          object to be modified
  *
- * @return      as5600_error_t              Result of the operation
- * @retval      AS5600_ERROR_SUCCESS        If everything went well
- * @retval      AS5600_ERROR_BAD_PARAMETER  Pointer invalid
+ * @return          as5600_error_t              Result of the operation
+ * @retval          AS5600_ERROR_SUCCESS        If everything went well
+ * @retval          AS5600_ERROR_BAD_PARAMETER  Pointer invalid
  */
 as5600_error_t as5600_set_power_mode(as5600_power_mode_t const power_mode,
                                      as5600_configuration_t * const p_config)
@@ -993,15 +993,15 @@ as5600_error_t as5600_set_power_mode(as5600_power_mode_t const power_mode,
  * @note this function only modifies the `as5600_configuration_t` object and
  *       performs no I2C read operation
  *
- * @param       p_power_mode                Pointer to object to save the power
+ * @param[out]      p_power_mode            Pointer to object to save the power
  *                                          mode value at
  *
- * @param       p_config                    Pointer to `as5600_configuration_t`
+ * @param[in]       p_config                Pointer to `as5600_configuration_t`
  *                                          object to be read
  *
- * @return      as5600_error_t              Result of the operation
- * @retval      AS5600_ERROR_SUCCESS        If everything went well
- * @retval      AS5600_ERROR_BAD_PARAMETER  Pointer invalid
+ * @return          as5600_error_t              Result of the operation
+ * @retval          AS5600_ERROR_SUCCESS        If everything went well
+ * @retval          AS5600_ERROR_BAD_PARAMETER  Pointer invalid
  */
 as5600_error_t as5600_get_power_mode(as5600_power_mode_t * const p_power_mode,
                                      as5600_configuration_t * const p_config)
@@ -1032,14 +1032,14 @@ as5600_error_t as5600_get_power_mode(as5600_power_mode_t * const p_power_mode,
  * @note this function only modifies the `as5600_configuration_t` object and
  *       performs no I2C write operation
  *
- * @param       hysteresis                  value of type `as5600_hysteresis_t`
+ * @param[in]       hysteresis              Value of type `as5600_hysteresis_t`
  *
- * @param       p_config                    Pointer to `as5600_configuration_t`
+ * @param[in/out]   p_config                Pointer to `as5600_configuration_t`
  *                                          object to be modified
  *
- * @return      as5600_error_t              Result of the operation
- * @retval      AS5600_ERROR_SUCCESS        If everything went well
- * @retval      AS5600_ERROR_BAD_PARAMETER  Pointer invalid
+ * @return          as5600_error_t              Result of the operation
+ * @retval          AS5600_ERROR_SUCCESS        If everything went well
+ * @retval          AS5600_ERROR_BAD_PARAMETER  Pointer invalid
  */
 as5600_error_t as5600_set_hysteresis(as5600_hysteresis_t const hysteresis,
                                      as5600_configuration_t * const p_config)
@@ -1069,15 +1069,15 @@ as5600_error_t as5600_set_hysteresis(as5600_hysteresis_t const hysteresis,
  * @note this function only modifies the `as5600_configuration_t` object and
  *       performs no I2C read operation
  *
- * @param       p_hysteresis                Pointer to object to save the
+ * @param[out]      p_hysteresis            Pointer to object to save the
  *                                          hysteresis value at
  *
- * @param       p_config                    Pointer to `as5600_configuration_t`
+ * @param[in]       p_config                Pointer to `as5600_configuration_t`
  *                                          object to be read
  *
- * @return      as5600_error_t              Result of the operation
- * @retval      AS5600_ERROR_SUCCESS        If everything went well
- * @retval      AS5600_ERROR_BAD_PARAMETER  Pointer invalid
+ * @return          as5600_error_t              Result of the operation
+ * @retval          AS5600_ERROR_SUCCESS        If everything went well
+ * @retval          AS5600_ERROR_BAD_PARAMETER  Pointer invalid
  */
 as5600_error_t as5600_get_hysteresis(as5600_hysteresis_t * const p_hysteresis,
                                      as5600_configuration_t * const p_config)
@@ -1110,14 +1110,14 @@ as5600_error_t as5600_get_hysteresis(as5600_hysteresis_t * const p_hysteresis,
  * @note this function only modifies the `as5600_configuration_t` object and
  *       performs no I2C write operation
  *
- * @param       output_stage                Value of type `as5600_output_stage_t`
+ * @param[in]       output_stage            Value of type `as5600_output_stage_t`
  *
- * @param       p_config                    Pointer to `as5600_configuration_t`
+ * @param[in/out]   p_config                Pointer to `as5600_configuration_t`
  *                                          object to be modified
  *
- * @return      as5600_error_t              Result of the operation
- * @retval      AS5600_ERROR_SUCCESS        If everything went well
- * @retval      AS5600_ERROR_BAD_PARAMETER  Pointer or value invalid
+ * @return          as5600_error_t              Result of the operation
+ * @retval          AS5600_ERROR_SUCCESS        If everything went well
+ * @retval          AS5600_ERROR_BAD_PARAMETER  Pointer or value invalid
  */
 as5600_error_t as5600_set_output_stage(as5600_output_stage_t const output_stage,
                                        as5600_configuration_t * const p_config)
@@ -1147,15 +1147,15 @@ as5600_error_t as5600_set_output_stage(as5600_output_stage_t const output_stage,
  * @note this function only modifies the `as5600_configuration_t` object and
  *       performs no I2C read operation
  *
- * @param       p_output_stage              Pointer to object to save the
+ * @param[out]      p_output_stage          Pointer to object to save the
  *                                          output stage value at
  *
- * @param       p_config                    Pointer to `as5600_configuration_t`
+ * @param[in]       p_config                Pointer to `as5600_configuration_t`
  *                                          object to be read
  *
- * @return      as5600_error_t              Result of the operation
- * @retval      AS5600_ERROR_SUCCESS        If everything went well
- * @retval      AS5600_ERROR_BAD_PARAMETER  Pointer invalid
+ * @return          as5600_error_t              Result of the operation
+ * @retval          AS5600_ERROR_SUCCESS        If everything went well
+ * @retval          AS5600_ERROR_BAD_PARAMETER  Pointer invalid
  */
 as5600_error_t as5600_get_output_stage(as5600_output_stage_t * const p_output_stage,
                                        as5600_configuration_t * const p_config)
@@ -1195,14 +1195,14 @@ as5600_error_t as5600_get_output_stage(as5600_output_stage_t * const p_output_st
  * @note this function only modifies the `as5600_configuration_t` object and
  *       performs no I2C write operation
  *
- * @param       pwm_frequency               Value of type `as5600_pwm_frequency_t`
+ * @param[in]       pwm_frequency           Value of type `as5600_pwm_frequency_t`
  *
- * @param       p_config                    Pointer to `as5600_configuration_t`
+ * @param[in/out]   p_config                Pointer to `as5600_configuration_t`
  *                                          object to be modified
  *
- * @return      as5600_error_t              Result of the operation
- * @retval      AS5600_ERROR_SUCCESS        If everything went well
- * @retval      AS5600_ERROR_BAD_PARAMETER  Pointer or value invalid
+ * @return          as5600_error_t              Result of the operation
+ * @retval          AS5600_ERROR_SUCCESS        If everything went well
+ * @retval          AS5600_ERROR_BAD_PARAMETER  Pointer or value invalid
  */
 as5600_error_t as5600_set_pwm_frequency(as5600_pwm_frequency_t const pwm_frequency,
                                         as5600_configuration_t * const p_config)
@@ -1232,15 +1232,15 @@ as5600_error_t as5600_set_pwm_frequency(as5600_pwm_frequency_t const pwm_frequen
  * @note this function only modifies the `as5600_configuration_t` object and
  *       performs no I2C read operation
  *
- * @param       p_output_stage              Pointer to object to save the pwm
+ * @param[out]      p_output_stage          Pointer to object to save the pwm
  *                                          frequency value at
  *
- * @param       p_config                    Pointer to `as5600_configuration_t`
+ * @param[in]       p_config                Pointer to `as5600_configuration_t`
  *                                          object to be read
  *
- * @return      as5600_error_t              Result of the operation
- * @retval      AS5600_ERROR_SUCCESS        If everything went well
- * @retval      AS5600_ERROR_BAD_PARAMETER  Pointer invalid
+ * @return          as5600_error_t              Result of the operation
+ * @retval          AS5600_ERROR_SUCCESS        If everything went well
+ * @retval          AS5600_ERROR_BAD_PARAMETER  Pointer invalid
  */
 as5600_error_t as5600_get_pwm_frequency(as5600_pwm_frequency_t * const p_pwm_frequency,
                                         as5600_configuration_t * const p_config)
@@ -1271,14 +1271,14 @@ as5600_error_t as5600_get_pwm_frequency(as5600_pwm_frequency_t * const p_pwm_fre
  *       degree range to avoid discontinuity points or toggling of the output
  *       within one rotation.
  *
- * @param       p_raw_angle                 Pointer to object to save the raw
+ * @param[out]      p_raw_angle             Pointer to object to save the raw
  *                                          angle value at
  *
- * @return      as5600_error_t              Result of the operation
- * @retval      AS5600_ERROR_SUCCESS        If everything went well
- * @retval      AS5600_ERROR_BAD_PARAMETER  Pointer invalid
- * @retval      *                           Any other errors returned by the
- *                                          sub-callees
+ * @return          as5600_error_t              Result of the operation
+ * @retval          AS5600_ERROR_SUCCESS        If everything went well
+ * @retval          AS5600_ERROR_BAD_PARAMETER  Pointer invalid
+ * @retval          *                           Any other errors returned by the
+ *                                              sub-callees
  */
 as5600_error_t as5600_get_raw_angle(uint16_t * const p_raw_angle)
 {
@@ -1311,14 +1311,14 @@ as5600_error_t as5600_get_raw_angle(uint16_t * const p_raw_angle)
  *       degree range to avoid discontinuity points or toggling of the output
  *       within one rotation.
  *
- * @param       p_angle                     Pointer to object to save the
+ * @param[out]      p_angle                 Pointer to object to save the
  *                                          angle value at
  *
- * @return      as5600_error_t              Result of the operation
- * @retval      AS5600_ERROR_SUCCESS        If everything went well
- * @retval      AS5600_ERROR_BAD_PARAMETER  Pointer invalid
- * @retval      *                           Any other errors returned by the
- *                                          sub-callees
+ * @return          as5600_error_t              Result of the operation
+ * @retval          AS5600_ERROR_SUCCESS        If everything went well
+ * @retval          AS5600_ERROR_BAD_PARAMETER  Pointer invalid
+ * @retval          *                           Any other errors returned by the
+ *                                              sub-callees
  */
 as5600_error_t as5600_get_angle(uint16_t * const p_angle)
 {
@@ -1350,14 +1350,14 @@ as5600_error_t as5600_get_angle(uint16_t * const p_angle)
  * - ML, AGC maximum gain overflow, magnet too weak
  * - MD, Magnet was detected
  *
- * @param       p_status                    Pointer to object to save the
- *                                          status value at
+ * @param[out]       p_status                Pointer to object to save the
+ *                                           status value at
  *
- * @return      as5600_error_t              Result of the operation
- * @retval      AS5600_ERROR_SUCCESS        If everything went well
- * @retval      AS5600_ERROR_BAD_PARAMETER  Pointer invalid
- * @retval      *                           Any other errors returned by the
- *                                          sub-callees
+ * @return          as5600_error_t              Result of the operation
+ * @retval          AS5600_ERROR_SUCCESS        If everything went well
+ * @retval          AS5600_ERROR_BAD_PARAMETER  Pointer invalid
+ * @retval          *                           Any other errors returned by the
+ *                                              sub-callees
  */
 as5600_error_t as5600_get_status(as5600_status_t * const p_status)
 {
@@ -1399,14 +1399,14 @@ as5600_error_t as5600_get_status(as5600_status_t * const p_status)
  * In 5V operation, the AGC range is 0-255 counts. The AGC range is reduced
  * to 0-128 counts in 3.3V mode.
  *
- * @param       p_agc                       Pointer to object to save the
+ * @param[out]      p_agc                   Pointer to object to save the
  *                                          agc value at [0 - 255]
  *
- * @return      as5600_error_t              Result of the operation
- * @retval      AS5600_ERROR_SUCCESS        If everything went well
- * @retval      AS5600_ERROR_BAD_PARAMETER  Pointer invalid
- * @retval      *                           Any other errors returned by the
- *                                          sub-callees
+ * @return          as5600_error_t              Result of the operation
+ * @retval          AS5600_ERROR_SUCCESS        If everything went well
+ * @retval          AS5600_ERROR_BAD_PARAMETER  Pointer invalid
+ * @retval          *                           Any other errors returned by the
+ *                                              sub-callees
  */
 as5600_error_t as5600_get_automatic_gain_control(uint8_t * const p_agc)
 {
@@ -1443,14 +1443,14 @@ as5600_error_t as5600_get_automatic_gain_control(uint8_t * const p_agc)
  * and magnetic field variations.
  * The angle value provided by the CORDIC algorithm is used by the output stage
  *
- * @param       p_magnitude                 Pointer to object to save the
- *                                          cordic value at
+ * @param[out]      p_magnitude                 Pointer to object to save the
+ *                                              cordic value at
  *
- * @return      as5600_error_t              Result of the operation
- * @retval      AS5600_ERROR_SUCCESS        If everything went well
- * @retval      AS5600_ERROR_BAD_PARAMETER  Pointer invalid
- * @retval      *                           Any other errors returned by the
- *                                          sub-callees
+ * @return          as5600_error_t              Result of the operation
+ * @retval          AS5600_ERROR_SUCCESS        If everything went well
+ * @retval          AS5600_ERROR_BAD_PARAMETER  Pointer invalid
+ * @retval          *                           Any other errors returned by the
+ *                                              sub-callees
  */
 as5600_error_t as5600_get_cordic_magnitude(uint16_t * const p_magnitude)
 {
@@ -1529,13 +1529,13 @@ as5600_error_t as5600_get_cordic_magnitude(uint16_t * const p_magnitude)
  *
  * @see `as5600_get_otp_write_counter`
  *
- * @param       mode                        Burn command to execute
+ * @param[in]       mode                    Burn command to execute
  *
- * @return      as5600_error_t              Result of the operation
- * @retval      AS5600_ERROR_SUCCESS        If everything went well
- * @retval      AS5600_ERROR_BAD_PARAMETER  Pointer invalid
- * @retval      *                           Any other errors returned by the
- *                                          sub-callees
+ * @return          as5600_error_t              Result of the operation
+ * @retval          AS5600_ERROR_SUCCESS        If everything went well
+ * @retval          AS5600_ERROR_BAD_PARAMETER  Pointer invalid
+ * @retval          *                           Any other errors returned by the
+ *                                              sub-callees
  */
 as5600_error_t as5600_burn_command(as5600_burn_mode_t const mode)
 {
@@ -1693,15 +1693,15 @@ static as5600_error_t as5600_set_conf_bit_field(uint8_t const start_bit,
  *
  * Read 8-bit register of given address in a given buffer
  *
- * @param       reg                         Address of the register to read from
- * @param       p_rx_buffer                 Pointer to buffer to save the
+ * @param[in]       reg                     Address of the register to read from
+ * @param[out]      p_rx_buffer             Pointer to buffer to save the
  *                                          register value at
  *
- * @return      as5600_error_t              Result of the operation
- * @retval      AS5600_ERROR_SUCCESS        If everything went well
- * @retval      AS5600_ERROR_BAD_PARAMETER  Pointer invalid
- * @retval      *                           Any other errors returned by the
- *                                          sub-callees
+ * @return          as5600_error_t              Result of the operation
+ * @retval          AS5600_ERROR_SUCCESS        If everything went well
+ * @retval          AS5600_ERROR_BAD_PARAMETER  Pointer invalid
+ * @retval          *                           Any other errors returned by the
+ *                                              sub-callees
  */
 static as5600_error_t as5600_read_8register(as5600_register_t const reg,
                                             uint8_t * const p_rx_buffer)
@@ -1727,13 +1727,13 @@ static as5600_error_t as5600_read_8register(as5600_register_t const reg,
  *
  * Write a given buffer to a 8-bit register of a given address
  *
- * @param       reg                         Address of the register to write to
- * @param       tx_buffer                   Buffer with data to write to the
+ * @param[in]       reg                     Address of the register to write to
+ * @param[in]       tx_buffer               Buffer with data to write to the
  *                                          register
  *
- * @return      as5600_error_t              Result of the operation
- * @retval      AS5600_ERROR_SUCCESS        If everything went well
- * @retval      *                           Any other errors returned by the
+ * @return          as5600_error_t          Result of the operation
+ * @retval          AS5600_ERROR_SUCCESS    If everything went well
+ * @retval          *                       Any other errors returned by the
  *                                          sub-callees
  */
 static as5600_error_t as5600_write_8register(as5600_register_t const reg,
@@ -1757,18 +1757,18 @@ static as5600_error_t as5600_write_8register(as5600_register_t const reg,
  *
  * Read 16-bit register of given address in a given buffer
  *
- * @param       reg                         Lowest byte address of the register
+ * @param[in]       reg                     Lowest byte address of the register
  *                                          to read from
- * @param       p_rx_buffer                 Pointer to buffer to save the
+ * @param[out]      p_rx_buffer             Pointer to buffer to save the
  *                                          register value at.
  *
  * @note User should make sure that the buffer is of the right size
  *
- * @return      as5600_error_t              Result of the operation
- * @retval      AS5600_ERROR_SUCCESS        If everything went well
- * @retval      AS5600_ERROR_BAD_PARAMETER  Pointer invalid
- * @retval      *                           Any other errors returned by the
- *                                          sub-callees
+ * @return          as5600_error_t              Result of the operation
+ * @retval          AS5600_ERROR_SUCCESS        If everything went well
+ * @retval          AS5600_ERROR_BAD_PARAMETER  Pointer invalid
+ * @retval          *                           Any other errors returned by the
+ *                                              sub-callees
  */
 static as5600_error_t as5600_read_16register(as5600_register_t const reg,
                                              uint16_t * const p_rx_buffer)
@@ -1800,14 +1800,14 @@ static as5600_error_t as5600_read_16register(as5600_register_t const reg,
  *
  * Write a given buffer to a 16-bit register of a given address
  *
- * @param       reg                         Address of the register to write to
- * @param       tx_buffer                   Buffer with data to write to the
+ * @param[in]       reg                     Address of the register to write to
+ * @param[in]       tx_buffer               Buffer with data to write to the
  *                                          register
  *
- * @return      as5600_error_t              Result of the operation
- * @retval      AS5600_ERROR_SUCCESS        If everything went well
- * @retval      *                           Any other errors returned by the
- *                                          sub-callees
+ * @return          as5600_error_t              Result of the operation
+ * @retval          AS5600_ERROR_SUCCESS        If everything went well
+ * @retval          *                           Any other errors returned by the
+ *                                              sub-callees
  */
 static as5600_error_t as5600_write_16register(as5600_register_t const reg,
                                               uint16_t const tx_buffer)
@@ -1832,22 +1832,22 @@ static as5600_error_t as5600_write_16register(as5600_register_t const reg,
  *
  * Read n consecutive bytes from a register of a given address
  *
- * @param       reg                         Lowest byte address of the register
+ * @param[in]       reg                     Lowest byte address of the register
  *                                          to read from
- * @param       p_rx_buffer                 Pointer to buffer to save the
+ * @param[out]      p_rx_buffer             Pointer to buffer to save the
  *                                          register value at.
- * @param       bytes_count                 Number of bytes to read from the
+ * @param[in]       bytes_count             Number of bytes to read from the
  *                                          register.
  *
  * @note User should make sure that the buffer is of the right size
  *
- * @return      as5600_error_t              Result of the operation
- * @retval      AS5600_ERROR_SUCCESS        If everything went well
- * @retval      AS5600_ERROR_BAD_PARAMETER  Pointer or register invalid
- * @retval      AS5600_ERROR_GENERAL_ERROR  If transfer function pointer is null
- * @retval      AS5600_ERROR_NOT_INITIALIZED If module wasn't initialized
- * @retval      *                           Any other errors returned by the
- *                                          sub-callees
+ * @return          as5600_error_t              Result of the operation
+ * @retval          AS5600_ERROR_SUCCESS        If everything went well
+ * @retval          AS5600_ERROR_BAD_PARAMETER  Pointer or register invalid
+ * @retval          AS5600_ERROR_GENERAL_ERROR  If transfer function pointer is null
+ * @retval          AS5600_ERROR_NOT_INITIALIZED If module wasn't initialized
+ * @retval          *                           Any other errors returned by the
+ *                                              sub-callees
  */
 static as5600_error_t as5600_read_n_consecutive_bytes(
                                                     as5600_register_t const reg,
@@ -1887,22 +1887,22 @@ static as5600_error_t as5600_read_n_consecutive_bytes(
  *
  * Write n consecutive bytes to a register of a given address
  *
- * @param       reg                         Lowest byte address of the register
+ * @param[in]       reg                     Lowest byte address of the register
  *                                          to write to
- * @param       p_tx_buffer                 Pointer to buffer to read the data
+ * @param[out]      p_tx_buffer             Pointer to buffer to read the data
  *                                          from
- * @param       bytes_count                 Number of bytes to write from the
+ * @param[in]       bytes_count             Number of bytes to write from the
  *                                          register.
  *
  * @note User should make sure that the buffer is of the right size
  *
- * @return      as5600_error_t              Result of the operation
- * @retval      AS5600_ERROR_SUCCESS        If everything went well
- * @retval      AS5600_ERROR_BAD_PARAMETER  Pointer or register invalid
- * @retval      AS5600_ERROR_GENERAL_ERROR  If transfer function pointer is null
- * @retval      AS5600_ERROR_NOT_INITIALIZED If module wasn't initialized
- * @retval      *                           Any other errors returned by the
- *                                          sub-callees
+ * @return          as5600_error_t              Result of the operation
+ * @retval          AS5600_ERROR_SUCCESS        If everything went well
+ * @retval          AS5600_ERROR_BAD_PARAMETER  Pointer or register invalid
+ * @retval          AS5600_ERROR_GENERAL_ERROR  If transfer function pointer is null
+ * @retval          AS5600_ERROR_NOT_INITIALIZED If module wasn't initialized
+ * @retval          *                           Any other errors returned by the
+ *                                              sub-callees
  */
 static as5600_error_t as5600_write_n_consecutive_bytes(as5600_register_t const reg,
                                                        uint8_t const * const p_tx_buffer,
@@ -1947,16 +1947,16 @@ static as5600_error_t as5600_write_n_consecutive_bytes(as5600_register_t const r
  *
  * Set a value to the given bit field of a given register
  *
- * @param       value                       Value to set
+ * @param[in]       value                   Value to set
  *
- * @param       bit_field                   Bit field to modify
+ * @param[in]       bit_field               Bit field to modify
  *
- * @param       p_reg_value                 Pointer to the register value to
+ * @param[in/out]   p_reg_value             Pointer to the register value to
  *                                          modify.
  *
- * @return      as5600_error_t              Result of the operation
- * @retval      AS5600_ERROR_SUCCESS        If everything went well
- * @retval      AS5600_ERROR_BAD_PARAMETER  Pointer invalid
+ * @return          as5600_error_t              Result of the operation
+ * @retval          AS5600_ERROR_SUCCESS        If everything went well
+ * @retval          AS5600_ERROR_BAD_PARAMETER  Pointer invalid
  */
 static as5600_error_t as5600_reg_set_bit_field_value(uint8_t const value,
                                                      as5600_bit_field_t const bit_field,
@@ -1997,16 +1997,16 @@ static as5600_error_t as5600_reg_set_bit_field_value(uint8_t const value,
  *
  * Get the value from a given register and bit field
  *
- * @param       p_value                     Pointer to object where to store the
+ * @param[out]      p_value                 Pointer to object where to store the
  *                                          value to
  *
- * @param       bit_field                   Bit field to read
+ * @param[in]       bit_field               Bit field to read
  *
- * @param       p_reg_value                 Register value to read from
+ * @param[in]       p_reg_value             Register value to read from
  *
- * @return      as5600_error_t              Result of the operation
- * @retval      AS5600_ERROR_SUCCESS        If everything went well
- * @retval      AS5600_ERROR_BAD_PARAMETER  Pointer invalid
+ * @return          as5600_error_t              Result of the operation
+ * @retval          AS5600_ERROR_SUCCESS        If everything went well
+ * @retval          AS5600_ERROR_BAD_PARAMETER  Pointer invalid
  */
  static as5600_error_t as5600_reg_get_bit_field_value(uint8_t * const p_value,
                                                      as5600_bit_field_t const bit_field,
@@ -2040,15 +2040,15 @@ static as5600_error_t as5600_reg_set_bit_field_value(uint8_t const value,
  * This function takes a `as5600_configuration_t` structure object and converts
  * it to the corresponding 16-bit register value
  *
- * @param       p_config                    Pointer to the configuration object
+ * @param[in]       p_config                Pointer to the configuration object
  *                                          to read from for the conversion
  *
- * @param       value                       Pointer to object where to save the
+ * @param[out]      value                   Pointer to object where to save the
  *                                          the resulting register value
  *
- * @return      as5600_error_t              Result of the operation
- * @retval      AS5600_ERROR_SUCCESS        If everything went well
- * @retval      AS5600_ERROR_BAD_PARAMETER  Pointer or configuration invalid
+ * @return          as5600_error_t              Result of the operation
+ * @retval          AS5600_ERROR_SUCCESS        If everything went well
+ * @retval          AS5600_ERROR_BAD_PARAMETER  Pointer or configuration invalid
  */
 static as5600_error_t as5600_cfg_to_reg16(
                                   as5600_configuration_t const * const p_config,
@@ -2120,16 +2120,16 @@ static as5600_error_t as5600_cfg_to_reg16(
  * This function takes a 16-bit register value and converts it to the
  * corresponding `as5600_configuration_t` structure object
  *
- * @param       p_reg                       Pointer to the register value to
+ * @param[in]       p_reg                   Pointer to the register value to
  *                                          convert from
  *
- * @param       p_config                    Pointer to a configuration object
+ * @param[out]      p_config                Pointer to a configuration object
  *                                          where to store the resulting
  *                                          structure
  *
- * @return      as5600_error_t              Result of the operation
- * @retval      AS5600_ERROR_SUCCESS        If everything went well
- * @retval      AS5600_ERROR_BAD_PARAMETER  Pointer invalid
+ * @return          as5600_error_t              Result of the operation
+ * @retval          AS5600_ERROR_SUCCESS        If everything went well
+ * @retval          AS5600_ERROR_BAD_PARAMETER  Pointer invalid
  */
 static as5600_error_t as5600_reg16_to_cfg(
                                         uint16_t const * const p_reg,
@@ -2214,12 +2214,12 @@ static as5600_error_t as5600_reg16_to_cfg(
  * This function takes a pointer to a `as5600_configuration_t` object and checks
  * if the values of its members make sense
  *
- * @param           p_config                Pointer to the configuration object
+ * @param[in]           p_config            Pointer to the configuration object
  *                                          to be checked
  *
- * @return          bool                    Result of the operation
- * @retval          True                    Valid configuration
- * @retval          False                   Invalid configuration
+ * @return              bool                Result of the operation
+ * @retval              True                Valid configuration
+ * @retval              False               Invalid configuration
  */
 static bool as5600_is_valid_configuration(
                                   as5600_configuration_t const * const p_config)
@@ -2239,11 +2239,11 @@ static bool as5600_is_valid_configuration(
  * This function takes a `as5600_register_t` object and checks
  * if its value exists.
  *
- * @param           reg                     Register object to be checked
+ * @param[in]           reg                 Register object to be checked
  *
- * @return          bool                    Result of the operation
- * @retval          True                    Valid register
- * @retval          False                   Invalid register
+ * @return              bool                Result of the operation
+ * @retval              True                Valid register
+ * @retval              False               Invalid register
  */
 static bool as5600_is_register_valid(as5600_register_t const reg)
 {
