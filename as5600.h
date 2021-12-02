@@ -188,78 +188,118 @@ typedef enum
  *******************************************************************************
  */
 
+//! @brief Initialize the module
 as5600_error_t as5600_init(pf_i2c_xfer_as5600_t const pf_transfer_func);
 
-as5600_error_t as5600_get_otp_write_counter(uint8_t * p_write_counter);
+//! @brief Get the counter of already write operations to the OTP
+as5600_error_t as5600_get_otp_write_counter(uint8_t * const p_write_counter);
 
+//! @brief Set start position angle (ZPOS)
 as5600_error_t as5600_set_start_position(uint16_t const start_position);
 
+//! @brief Get start position angle (ZPOS)
 as5600_error_t as5600_get_start_position(uint16_t * const p_start_position);
 
+//! @brief Set stop position angle (MPOS)
 as5600_error_t as5600_set_stop_position(uint16_t const stop_position);
 
+//! @brief Get stop position angle (MPOS)
 as5600_error_t as5600_get_stop_position(uint16_t * const p_stop_position);
 
+//! @brief Set maximum angle (MANG)
 as5600_error_t as5600_set_maximum_angle(uint16_t const maximum_angle);
 
+//! @brief Get maximum angle (MANG)
 as5600_error_t as5600_get_maximum_angle(uint16_t * const p_maximum_angle);
 
-as5600_error_t as5600_set_configuration(as5600_configuration_t const * const p_config);
+//! @brief Set configuration of the AS5600
+as5600_error_t as5600_set_configuration(
+                                 as5600_configuration_t const * const p_config);
 
+//! @brief Get configuration of the AS5600
 as5600_error_t as5600_get_configuration(as5600_configuration_t * const p_config);
 
+//! @brief Set slow filter
 as5600_error_t as5600_set_slow_filter(as5600_slow_filter_t const slow_filter,
                                       as5600_configuration_t * const p_config);
 
-as5600_error_t as5600_get_slow_filter(as5600_slow_filter_t * const p_slow_filter,
-                                      as5600_configuration_t * const p_config);
+//! @brief Get slow filter
+as5600_error_t as5600_get_slow_filter(
+                                 as5600_slow_filter_t * const p_slow_filter,
+                                 as5600_configuration_t const * const p_config);
 
+//! @brief Set fast filter threshold
 as5600_error_t as5600_set_ff_threshold(as5600_ff_threshold_t const ff_threshold,
                                        as5600_configuration_t * const p_config);
 
-as5600_error_t as5600_get_ff_threshold(as5600_ff_threshold_t * const p_ff_threshold,
+//! @brief Get fast filter threshold
+as5600_error_t as5600_get_ff_threshold(
+                                 as5600_ff_threshold_t * const p_ff_threshold,
+                                 as5600_configuration_t const * const p_config);
+
+//! @brief Set watchdog status
+as5600_error_t as5600_set_watchdog_enabled(
+                                       bool const enabled,
                                        as5600_configuration_t * const p_config);
 
-as5600_error_t as5600_set_watchdog_enabled(bool const enabled,
-                                           as5600_configuration_t * const p_config);
+//! @brief Get status of the watchdog
+as5600_error_t as5600_is_watchdog_enabled(
+                                 bool * const p_enabled,
+                                 as5600_configuration_t const * const p_config);
 
-as5600_error_t as5600_is_watchdog_enabled(bool * const p_enabled,
-                                          as5600_configuration_t * const p_config);
-
+//! @brief Set power mode
 as5600_error_t as5600_set_power_mode(as5600_power_mode_t const power_mode,
                                      as5600_configuration_t * const p_config);
 
-as5600_error_t as5600_get_power_mode(as5600_power_mode_t * const p_power_mode,
-                                     as5600_configuration_t * const p_config);
+//! @brief Get power mode
+as5600_error_t as5600_get_power_mode(
+                                 as5600_power_mode_t * const p_power_mode,
+                                 as5600_configuration_t const * const p_config);
 
+//! @brief Set hysteresis sensitivity
 as5600_error_t as5600_set_hysteresis(as5600_hysteresis_t const hysteresis,
                                      as5600_configuration_t * const p_config);
 
-as5600_error_t as5600_get_hysteresis(as5600_hysteresis_t * const p_hysteresis,
-                                     as5600_configuration_t * const p_config);
+//! @brief Get hysteresis sensitivity
+as5600_error_t as5600_get_hysteresis(
+                                 as5600_hysteresis_t * const p_hysteresis,
+                                 as5600_configuration_t const * const p_config);
 
+//! @brief Set output stage
 as5600_error_t as5600_set_output_stage(as5600_output_stage_t const output_stage,
                                        as5600_configuration_t * const p_config);
 
-as5600_error_t as5600_get_output_stage(as5600_output_stage_t * const p_output_stage,
-                                       as5600_configuration_t * const p_config);
+//! @brief Get output stage
+as5600_error_t as5600_get_output_stage(
+                                 as5600_output_stage_t * const p_output_stage,
+                                 as5600_configuration_t const * const p_config);
 
-as5600_error_t as5600_set_pwm_frequency(as5600_pwm_frequency_t const pwm_frequency,
-                                        as5600_configuration_t * const p_config);
+//! @brief Set PWM frequency
+as5600_error_t as5600_set_pwm_frequency(
+                                     as5600_pwm_frequency_t const pwm_frequency,
+                                     as5600_configuration_t * const p_config);
 
-as5600_error_t as5600_get_pwm_frequency(as5600_pwm_frequency_t * const p_pwm_frequency,
-                                        as5600_configuration_t * const p_config);
+//! @brief Get PWM frequency
+as5600_error_t as5600_get_pwm_frequency(
+                                 as5600_pwm_frequency_t * const p_pwm_frequency,
+                                 as5600_configuration_t const * const p_config);
 
+//! @brief Get RAW angle
 as5600_error_t as5600_get_raw_angle(uint16_t * const p_raw_angle);
 
+//! @brief Get angle
 as5600_error_t as5600_get_angle(uint16_t * const p_angle);
 
+//! @brief Get status of the device
 as5600_error_t as5600_get_status(as5600_status_t * const p_status);
 
+//! @brief Get automatic gain control value
 as5600_error_t as5600_get_automatic_gain_control(uint8_t * const p_agc);
 
+//! @brief Get cordic magnitude
 as5600_error_t as5600_get_cordic_magnitude(uint16_t * const p_magnitude);
 
+//! @brief Send burn command to the device
 as5600_error_t as5600_burn_command(as5600_burn_mode_t const mode);
 
 #endif //AS5600_H
