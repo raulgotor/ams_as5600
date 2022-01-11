@@ -69,6 +69,17 @@ static uint16_t const m_oor_h_maximum_angle = 4096;
 
 static uint16_t const m_oor_start_position = 4096;
 
+static as5600_configuration_t const m_valid_configuration =
+                {
+                        .power_mode = AS5600_POWER_MODE_LPM2,
+                        .hysteresis = AS5600_HYSTERESIS_2LSB,
+                        .output_stage = AS5600_OUTPUT_STAGE_ANALOG_FR,
+                        .pwm_frequency = AS5600_PWM_FREQUENCY_115HZ,
+                        .slow_filter = AS5600_SLOW_FILTER_8X,
+                        .ff_threshold = AS5600_FF_THRESHOLD_10LSB,
+                        .watchdog = true
+                };
+
 /*
  *******************************************************************************
  * Public Function Bodies                                                      *
@@ -328,4 +339,116 @@ TEST(as5600, get_maximum_angle_correct){
 
         LONGS_EQUAL(m_valid_maximum_angle, maximum_angle);
         ENUMS_EQUAL_INT(AS5600_ERROR_SUCCESS, result);
+}
+
+TEST(as5600, set_configuration_null_pointer)
+{
+        as5600_error_t result = as5600_set_configuration(NULL);
+
+        ENUMS_EQUAL_INT(AS5600_ERROR_BAD_PARAMETER, result);
+
+}
+
+TEST(as5600, set_configuration_valid)
+{
+        as5600_error_t result = as5600_set_configuration(&m_valid_configuration);
+
+        ENUMS_EQUAL_INT(AS5600_ERROR_SUCCESS, result);
+}
+
+TEST(as5600, set_configuration_power_mode_invalid)
+{
+        as5600_error_t result;
+        as5600_configuration_t invalid_configuration = m_valid_configuration;
+
+        invalid_configuration.power_mode = AS5600_POWER_MODE_COUNT;
+
+        result = as5600_set_configuration(&invalid_configuration);
+
+        ENUMS_EQUAL_INT(AS5600_ERROR_BAD_PARAMETER, result);
+}
+
+TEST(as5600, set_configuration_hysteresis_invalid)
+{
+        as5600_error_t result;
+        as5600_configuration_t invalid_configuration = m_valid_configuration;
+
+        invalid_configuration.hysteresis = AS5600_HYSTERESIS_COUNT;
+
+        result = as5600_set_configuration(&invalid_configuration);
+
+        ENUMS_EQUAL_INT(AS5600_ERROR_BAD_PARAMETER, result);
+}
+
+TEST(as5600, set_configuration_output_stage_invalid)
+{
+        as5600_error_t result;
+        as5600_configuration_t invalid_configuration = m_valid_configuration;
+
+        invalid_configuration.output_stage = AS5600_OUTPUT_STAGE_COUNT;
+
+        result = as5600_set_configuration(&invalid_configuration);
+
+        ENUMS_EQUAL_INT(AS5600_ERROR_BAD_PARAMETER, result);
+}
+
+TEST(as5600, set_configuration_pwm_frequency_invalid)
+{
+        as5600_error_t result;
+        as5600_configuration_t invalid_configuration = m_valid_configuration;
+
+        invalid_configuration.pwm_frequency = AS5600_PWM_FREQUENCY_COUNT;
+
+        result = as5600_set_configuration(&invalid_configuration);
+
+        ENUMS_EQUAL_INT(AS5600_ERROR_BAD_PARAMETER, result);
+}
+
+TEST(as5600, set_configuration_slow_filter_invalid)
+{
+        as5600_error_t result;
+        as5600_configuration_t invalid_configuration = m_valid_configuration;
+
+        invalid_configuration.slow_filter = AS5600_SLOW_FILTER_COUNT;
+
+        result = as5600_set_configuration(&invalid_configuration);
+
+        ENUMS_EQUAL_INT(AS5600_ERROR_BAD_PARAMETER, result);
+}
+
+TEST(as5600, set_configuration_ff_threshold_invalid)
+{
+        as5600_error_t result;
+        as5600_configuration_t invalid_configuration = m_valid_configuration;
+
+        invalid_configuration.ff_threshold = AS5600_FF_THRESHOLD_COUNT;
+
+        result = as5600_set_configuration(&invalid_configuration);
+
+        ENUMS_EQUAL_INT(AS5600_ERROR_BAD_PARAMETER, result);
+}
+
+TEST(as5600, get_configuration_valid)
+{
+        as5600_error_t result;
+        as5600_configuration_t read_configuration;
+
+        (void)as5600_set_configuration(&m_valid_configuration);
+        as5600_get_configuration(&read_configuration);
+
+        ENUMS_EQUAL_INT(m_valid_configuration.power_mode,       read_configuration.power_mode);
+        ENUMS_EQUAL_INT(m_valid_configuration.hysteresis,       read_configuration.hysteresis);
+        ENUMS_EQUAL_INT(m_valid_configuration.output_stage,     read_configuration.output_stage);
+        ENUMS_EQUAL_INT(m_valid_configuration.pwm_frequency,    read_configuration.pwm_frequency);
+        ENUMS_EQUAL_INT(m_valid_configuration.slow_filter,      read_configuration.slow_filter);
+        ENUMS_EQUAL_INT(m_valid_configuration.ff_threshold,     read_configuration.ff_threshold);
+        ENUMS_EQUAL_INT(m_valid_configuration.watchdog,         read_configuration.watchdog);
+        ENUMS_EQUAL_INT(AS5600_ERROR_SUCCESS, result);
+}
+
+TEST(as5600, get_configuration_null_pointer)
+{
+        as5600_error_t result = as5600_get_configuration(NULL);
+
+        ENUMS_EQUAL_INT(AS5600_ERROR_BAD_PARAMETER, result);
 }

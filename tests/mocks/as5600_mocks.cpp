@@ -75,7 +75,7 @@ static access_t m_registers_access[] =
                 {
                         [0x00] = ACCESS_READ,
                         [0x01 ... 0x08] = ACCESS_READ_WRITE_PROGRAM,
-                        [0x09 ... 0x0B] = ACCES_NO_ACCESS,
+                        [0x09 ... 0x0A] = ACCES_NO_ACCESS,
                         [0x0B ... 0x0F] = ACCESS_READ,
                         [0x10 ... 0x19] = ACCES_NO_ACCESS,
                         [0x1A ... 0x1C] = ACCESS_READ,
