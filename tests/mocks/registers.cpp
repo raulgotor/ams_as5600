@@ -1,6 +1,6 @@
 /*!
  *******************************************************************************
- * @file memory.cpp
+ * @file registers.cpp
  *
  * @brief 
  *
@@ -55,71 +55,74 @@
 /*!
  * @brief Class simulating and performing some operations on a register memory
  */
-class memory
+class registers
 {
 
 public:
         static size_t const size = 0xFF;
-        uint8_t memory[size];
-        uint8_t expected_memory[size];
-
-        uint8_t io_block_addr;
+        uint8_t registers[size];
+        uint8_t expected_registers[size];
 
         /*!
-         * @brief Set all memory to 0x00
+         * @brief Set all registers to 0x00
          */
-        void clear_memory() {
-                memset(memory, 0, size);
-                memset(expected_memory, 0, size);
-                io_block_addr = 0;
+        void clear_registers() {
+                memset(registers, 0, size);
+                memset(expected_registers, 0, size);
         }
 
         /*!
-         * @brief Get memory
+         * @brief Get registers
          *
-         * @param           address         Address of the memory to get
+         * @param           address         Address of the registers to get
          *
-         * @return          uint8_t *       Pointer to the specified memory
+         * @return          uint8_t *       Pointer to the specified registers address
          */
-        uint8_t * get_memory(uint16_t address = 0) {
-                return &memory[address];
+        uint8_t * get_registers(uint16_t address = 0) {
+                return &registers[address];
         }
 
         /*!
-         * @brief Set memory to the data in a specified buffer
+         * @brief Set registers to the data in a specified buffer
          *
          * @param           p_buffer        Pointer to buffer to be set
-         * @param           address         Address where to set the memory
+         * @param           address         Registers address where to set the data
          * @param           size            Number of bytes to set
          *
          * @return          -               -
          */
-        void set_memory(uint8_t const * const p_buffer, uint16_t const address, size_t const size) {
-                memcpy(&memory[address], p_buffer, size);
+        void set_memory(uint8_t const * const p_buffer,
+                        uint16_t const address,
+                        size_t const size) {
+
+                memcpy(&registers[address], p_buffer, size);
         }
 
         /*!
-         * @brief Get expected memory
+         * @brief Get expected registers value
          *
          * @param           -               -
          *
-         * @return          uint8_t *       Pointer to the specified memory
+         * @return          uint8_t *       Pointer to the specified register data
          */
-        uint8_t * get_expected_memory(void) {
-                return expected_memory;
+        uint8_t * get_expected_registers(void) {
+                return expected_registers;
         }
 
         /*!
-         * @brief Set expected memory to the data in a specified buffer
+         * @brief Set expected registers value to the data in a specified buffer
          *
          * @param           p_buffer        Pointer to buffer to be set
-         * @param           address         Address where to set the memory
+         * @param           address         Address where to set the data
          * @param           size            Number of bytes to set
          *
          * @return          -               -
          */
-        void set_expected_memory(uint8_t const * const p_buffer, uint16_t const address, size_t const size) {
-                memcpy(&expected_memory[address], p_buffer, size);
+        void set_expected_registers_value(uint8_t const * const p_buffer,
+                                          uint16_t const address,
+                                          size_t const size) {
+
+                memcpy(&expected_registers[address], p_buffer, size);
         }
 };
 

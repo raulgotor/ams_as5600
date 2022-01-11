@@ -22,7 +22,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <cstdio>
-#include "memory.cpp"
+#include "registers.cpp"
 #include "as5600_mocks.h"
 
 /*
@@ -69,7 +69,7 @@ typedef enum {
  *******************************************************************************
  */
 
-static memory m_memory;
+static registers m_memory;
 
 static access_t m_registers_access[] =
                 {
@@ -140,7 +140,7 @@ uint32_t i2c_io_stub(uint8_t const i2c_slave_address,
                      (ACCESS_READ_WRITE_PROGRAM == access_type))) {
 
                         for (i = 0; (i < tx_buffer_size); ++i) {
-                                m_memory.memory[register_addr + i] = p_tx_buffer[i + tx_data_offset];
+                                m_memory.registers[register_addr + i] = p_tx_buffer[i + tx_data_offset];
                         }
 
                 } else if ((is_rx_operation) &&
@@ -148,7 +148,7 @@ uint32_t i2c_io_stub(uint8_t const i2c_slave_address,
                             (ACCESS_READ_WRITE_PROGRAM == access_type))) {
 
                         for (i = 0; (i < rx_buffer_size); ++i) {
-                                p_rx_buffer[i] = m_memory.memory[register_addr + i];
+                                p_rx_buffer[i] = m_memory.registers[register_addr + i];
                         }
 
                 } else {

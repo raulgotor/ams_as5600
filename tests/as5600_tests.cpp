@@ -173,10 +173,10 @@ TEST_GROUP(as5600)
                                uint16_t const expected_value)
         {
                 uint8_t const actual_value_reg_h =
-                                *(m_memory.get_memory(reg_h));
+                                *(m_memory.get_registers(reg_h));
 
                 uint8_t const actual_value_reg_l =
-                                *(m_memory.get_memory(reg_h + 1));
+                                *(m_memory.get_registers(reg_h + 1));
 
                 BITS_EQUAL(expected_value >> 8, actual_value_reg_h, 0xFF);
                 BITS_EQUAL(expected_value, actual_value_reg_l, 0x0F);
@@ -185,7 +185,7 @@ TEST_GROUP(as5600)
         void setup()
         {
                 (void)as5600_init(i2c_io_stub);
-                m_memory.clear_memory();
+                m_memory.clear_registers();
         }
 
         void teardown()
@@ -232,7 +232,7 @@ TEST(as5600, set_start_position_correct){
 
         as5600_error_t result;
 
-        m_memory.clear_memory();
+        m_memory.clear_registers();
         result = as5600_set_start_position(m_valid_start_stop_position);
 
         check_register_12(AS5600_REGISTER_ZPOS_H, m_valid_start_stop_position);
