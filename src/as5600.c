@@ -342,6 +342,20 @@ as5600_error_t as5600_init(pf_i2c_xfer_as5600_t const pf_transfer_func)
         return result;
 }
 
+as5600_error_t as5600_deinit(void)
+{
+        as5600_error_t result = AS5600_ERROR_SUCCESS;
+
+        if (!m_is_initialized) {
+                result = AS5600_ERROR_RUNTIME_ERROR;
+        } else {
+                m_is_initialized = false;
+                m_as5600_xfer_func = NULL;
+        }
+
+        return result;
+}
+
 /*!
  * @brief Get the counter of already write operations to the OTP
  *
@@ -2166,12 +2180,12 @@ static as5600_error_t as5600_reg16_to_cfg(
         }
 
         if (AS5600_ERROR_SUCCESS == success) {
-                p_config->power_mode = (uint8_t) power_mode;
-                p_config->hysteresis = (uint8_t) hysteresis;
-                p_config->output_stage = (uint8_t) output_stage;
-                p_config->pwm_frequency = (uint8_t) pwm_frequency;
-                p_config->slow_filter = (uint8_t) slow_filter;
-                p_config->ff_threshold = (uint8_t) ff_threshold;
+                p_config->power_mode = (as5600_power_mode_t) power_mode;
+                p_config->hysteresis = (as5600_hysteresis_t) hysteresis;
+                p_config->output_stage = (as5600_output_stage_t) output_stage;
+                p_config->pwm_frequency = (as5600_pwm_frequency_t) pwm_frequency;
+                p_config->slow_filter = (as5600_slow_filter_t) slow_filter;
+                p_config->ff_threshold = (as5600_ff_threshold_t) ff_threshold;
                 p_config->watchdog = (bool) watchdog;
         }
 

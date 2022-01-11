@@ -191,6 +191,9 @@ typedef enum
 //! @brief Initialize the module
 as5600_error_t as5600_init(pf_i2c_xfer_as5600_t const pf_transfer_func);
 
+//! @brief Deinitialize the module
+as5600_error_t as5600_deinit(void);
+
 //! @brief Get the counter of already write operations to the OTP
 as5600_error_t as5600_get_otp_write_counter(uint8_t * const p_write_counter);
 
