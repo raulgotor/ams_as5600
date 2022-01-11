@@ -571,7 +571,7 @@ as5600_error_t as5600_set_maximum_angle(uint16_t const max_angle)
 
         as5600_error_t success = AS5600_ERROR_SUCCESS;
 
-        if (reg_mask < reg_value) {
+        if ((reg_mask < reg_value) || (m_min_angle_steps > max_angle)) {
                 success = AS5600_ERROR_BAD_PARAMETER;
         }
 
