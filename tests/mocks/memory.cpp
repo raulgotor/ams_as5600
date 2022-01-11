@@ -4,11 +4,11 @@
  *
  * @brief 
  *
- * @author Raúl Gotor (raul.gotor@midge-medical.com)
+ * @author Raúl Gotor (raulgotor@gmail.com)
  * @date 09.01.22
  *
  * @par
- * COPYRIGHT NOTICE: (c) 2021 Midge Medical GmbH
+ * COPYRIGHT NOTICE: (c) Raúl Gotor
  * All rights reserved.
  *******************************************************************************
  */
