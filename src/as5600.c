@@ -271,7 +271,7 @@ static as5600_error_t as5600_write_8register(as5600_register_t const reg,
 
 //! @brief Read 8-bit register
 static as5600_error_t as5600_read_8register(as5600_register_t const reg,
-                                            uint8_t * const p_tx_buffer);
+                                            uint8_t * const p_rx_buffer);
 
 //! @brief Set bit field value from a given register
 static as5600_error_t as5600_reg_set_bit_field_value(
@@ -389,19 +389,24 @@ as5600_error_t as5600_get_otp_write_counter(uint8_t * const p_write_counter)
         as5600_register_t const reg = m_bitfields[field].reg;
 
         as5600_error_t success = AS5600_ERROR_SUCCESS;
-        uint8_t field_value;
+        uint8_t bit_field_value;
+        uint8_t reg_value;
 
         if (NULL == p_write_counter) {
                 success = AS5600_ERROR_BAD_PARAMETER;
         }
 
         if (AS5600_ERROR_SUCCESS == success) {
-                success = as5600_reg_get_bit_field_value(&field_value,
-                                                         field, reg);
+                success = as5600_read_8register(reg, &reg_value);
         }
 
         if (AS5600_ERROR_SUCCESS == success) {
-                *p_write_counter = field_value;
+                success = as5600_reg_get_bit_field_value(&bit_field_value,
+                                                         field, reg_value);
+        }
+
+        if (AS5600_ERROR_SUCCESS == success) {
+                *p_write_counter = bit_field_value;
         }
 
         return success;
