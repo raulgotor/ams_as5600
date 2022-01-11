@@ -87,6 +87,16 @@ static uint8_t const m_as5600_i2c_addr = 0x36U;
 static bool m_is_initialized = false;
 
 /*!
+ * @brief Minimum angular range in steps that can be configured at MANG register
+ *
+ *      m_min_angle_deg   = 18;
+ *
+ *      m_min_angle_steps = ceil(4095 * m_min_angle_deg / 359);
+ */
+static uint32_t const m_min_angle_steps = 206;
+
+
+/*!
  * @brief List of the different specification for each bitfield, ordered by
  *        address and lsb
  */
@@ -1553,7 +1563,6 @@ as5600_error_t as5600_get_cordic_magnitude(uint16_t * const p_magnitude)
 as5600_error_t as5600_burn_command(as5600_burn_mode_t const mode)
 {
         as5600_register_t const reg = AS5600_REGISTER_BURN;
-        uint32_t const min_angle_in_steps = 4095 * 18 / 359;
         uint8_t const burn_setting_max_writes = 1;
         uint8_t const burn_angle_max_writes = 3;
         uint8_t load_sequence[] = {0x01U, 0x11U, 0x10U};
@@ -1606,8 +1615,8 @@ as5600_error_t as5600_burn_command(as5600_burn_mode_t const mode)
                                 stop_pos  ^= start_pos;
                         }
 
-                        min_angle_ok = (min_angle_in_steps <=
-                                       (stop_pos - start_pos));
+                        min_angle_ok = (m_min_angle_steps <=
+                                        (stop_pos - start_pos));
                 }
 
                 break;
@@ -1625,7 +1634,7 @@ as5600_error_t as5600_burn_command(as5600_burn_mode_t const mode)
                 }
 
                 if (AS5600_ERROR_SUCCESS == success) {
-                        min_angle_ok = (min_angle_ok <= max_angle);
+                        min_angle_ok = (m_min_angle_steps <= max_angle);
                 }
 
                 break;
