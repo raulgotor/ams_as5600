@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Function methods for setting and reading all registers present in the AMS
   AS5600 datasheet
 * In code documentation
+* Integration with Cpputest test framework
 
 [Unreleased]: https://github.com/raulgotor/ams_as5600
 
