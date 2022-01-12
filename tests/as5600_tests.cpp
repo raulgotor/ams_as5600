@@ -59,16 +59,25 @@
  *******************************************************************************
  */
 
-static uint16_t const m_valid_start_stop_position = 0xABF;
+//! @brief A valid value for ZPOS and MPOS registers
+static uint16_t const m_valid_start_stop_position = 1100;
 
-static uint16_t const m_valid_maximum_angle = 0xABF;
+//! @brief A valid value for MANG register
+static uint16_t const m_valid_maximum_angle = 1000;
 
+//! @brief A valid value for RAW_ANGLE register
+static uint16_t const m_valid_raw_angle = 900;
+
+//! @brief First out of bounds value for ZPOS and MPOS registers
+static uint16_t const m_oor_start_stop_position = 4096;
+
+//! @brief First out of bounds value for MANG on the low end
 static uint16_t const m_oor_l_maximum_angle = 205;
 
+//! @brief First out of bounds value for MANG register on the high end
 static uint16_t const m_oor_h_maximum_angle = 4096;
 
-static uint16_t const m_oor_start_position = 4096;
-
+//! @brief A valid configuration for CONF register
 static as5600_configuration_t const m_valid_configuration =
                 {
                         .power_mode = AS5600_POWER_MODE_LPM2,
@@ -177,9 +186,38 @@ TEST(as5600_no_init, get_maximum_angle_not_initialized_fails){
         ENUMS_EQUAL_INT(AS5600_ERROR_NOT_INITIALIZED, result);
 }
 
+TEST(as5600_no_init, get_raw_angle_not_initialized_fails)
+{
+        uint16_t raw_angle;
+        as5600_error_t result = as5600_get_raw_angle(&raw_angle);
+
+        ENUMS_EQUAL_INT(AS5600_ERROR_NOT_INITIALIZED, result);
+}
+
+TEST(as5600_no_init, get_angle_not_initialized_fails)
+{
+        uint16_t angle;
+        as5600_error_t result = as5600_get_raw_angle(&angle);
+
+        ENUMS_EQUAL_INT(AS5600_ERROR_NOT_INITIALIZED, result);
+}
+
 TEST_GROUP(as5600)
 {
 
+        /*!
+         * @brief Check a 12 bit value with the contents of a given register
+         *
+         * The function fail the test if the provided value and the value
+         * at the given register don't match
+         *
+         * @param           reg_h           Register address holding the 4 MSB
+         *                                  of the value
+         *
+         * @param           value           Value to compare with the register
+         *
+         * @return          -               -
+         */
         void check_register_12(as5600_register_t const reg_h,
                                uint16_t const expected_value)
         {
@@ -191,6 +229,29 @@ TEST_GROUP(as5600)
 
                 BITS_EQUAL(expected_value >> 8, actual_value_reg_h, 0xFF);
                 BITS_EQUAL(expected_value, actual_value_reg_l, 0x0F);
+        }
+
+        /*!
+         * @brief Set a 12 bit value at the given registers
+         *
+         * @param           reg_h           Register address holding the 4 MSB
+         *                                  of the value
+         *
+         * @param           value           Value to set at the register
+         *
+         * @return          -               -
+         */
+        void set_register_12(as5600_register_t const reg_h,
+                             uint16_t const value)
+        {
+                uint8_t buffer[2] =
+                                {
+                                                (value >> 8) & 0x0F,
+                                        (value & 0xFF)
+                                };
+
+                m_memory.set_memory(buffer, reg_h, 2);
+
         }
 
         void setup()
@@ -234,7 +295,7 @@ TEST(as5600, get_otp_write_counter_correct)
 
 TEST(as5600, set_start_position_oor_high_fails){
 
-        as5600_error_t result = as5600_set_start_position(m_oor_start_position);
+        as5600_error_t result = as5600_set_start_position(m_oor_start_stop_position);
 
         ENUMS_EQUAL_INT(AS5600_ERROR_BAD_PARAMETER, result);
 }
@@ -270,7 +331,7 @@ TEST(as5600, get_start_position_correct){
 
 TEST(as5600, set_stop_position_oor_high_fails){
 
-        as5600_error_t result = as5600_set_stop_position(m_oor_start_position);
+        as5600_error_t result = as5600_set_stop_position(m_oor_start_stop_position);
 
         ENUMS_EQUAL_INT(AS5600_ERROR_BAD_PARAMETER, result);
 }
@@ -317,7 +378,7 @@ TEST(as5600, set_maximum_angle_oor_high_fails){
 
 TEST(as5600, set_maximum_angle_correct)
 {
-        as5600_error_t result = as5600_set_maximum_angle(m_valid_start_stop_position);
+        as5600_error_t result = as5600_set_maximum_angle(m_valid_maximum_angle);
 
         check_register_12(AS5600_REGISTER_MANG_H, m_valid_maximum_angle);
         ENUMS_EQUAL_INT(AS5600_ERROR_SUCCESS, result);
@@ -434,7 +495,7 @@ TEST(as5600, get_configuration_valid)
         as5600_configuration_t read_configuration;
 
         (void)as5600_set_configuration(&m_valid_configuration);
-        as5600_get_configuration(&read_configuration);
+        result = as5600_get_configuration(&read_configuration);
 
         ENUMS_EQUAL_INT(m_valid_configuration.power_mode,       read_configuration.power_mode);
         ENUMS_EQUAL_INT(m_valid_configuration.hysteresis,       read_configuration.hysteresis);
@@ -452,3 +513,42 @@ TEST(as5600, get_configuration_null_pointer)
 
         ENUMS_EQUAL_INT(AS5600_ERROR_BAD_PARAMETER, result);
 }
+
+TEST(as5600, get_raw_angle_null_pointer)
+{
+        as5600_error_t result = as5600_get_raw_angle(NULL);
+
+        ENUMS_EQUAL_INT(AS5600_ERROR_BAD_PARAMETER, result);
+}
+
+TEST(as5600, get_raw_angle_valid)
+{
+        uint16_t raw_angle;
+        as5600_error_t result;
+
+        set_register_12(AS5600_REGISTER_RAWANGLE_H, m_valid_raw_angle);
+        result = as5600_get_raw_angle(&raw_angle);
+
+        check_register_12(AS5600_REGISTER_RAWANGLE_H, m_valid_raw_angle);
+        ENUMS_EQUAL_INT(AS5600_ERROR_SUCCESS, result);
+}
+
+TEST(as5600, get_angle_null_pointer)
+{
+        as5600_error_t result = as5600_get_angle(NULL);
+
+        ENUMS_EQUAL_INT(AS5600_ERROR_BAD_PARAMETER, result);
+}
+
+TEST(as5600, get_angle_valid)
+{
+        uint16_t angle;
+        as5600_error_t result;
+
+        set_register_12(AS5600_REGISTER_ANGLE_H, m_valid_raw_angle);
+        result = as5600_get_angle(&angle);
+
+        check_register_12(AS5600_REGISTER_ANGLE_H, m_valid_raw_angle);
+        ENUMS_EQUAL_INT(AS5600_ERROR_SUCCESS, result);
+}
+

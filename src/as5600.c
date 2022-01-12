@@ -671,7 +671,7 @@ as5600_error_t as5600_set_configuration(
  * operation. The values can be accessed directly from the structure or via
  * the other getter methods.
  *
- * @see  `as5600_set_configuration`
+ * @see `as5600_set_configuration`
  *
  * @see `as5600_get_slow_filter`, `as5600_get_ff_threshold`,
  *      `as5600_is_watchdog_enabled`, `as5600_get_power_mode`,
