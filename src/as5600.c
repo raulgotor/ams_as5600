@@ -87,6 +87,16 @@ static uint8_t const m_as5600_i2c_addr = 0x36U;
 static bool m_is_initialized = false;
 
 /*!
+ * @brief Minimum angular range in steps that can be configured at MANG register
+ *
+ *      m_min_angle_deg   = 18;
+ *
+ *      m_min_angle_steps = ceil(4095 * m_min_angle_deg / 359);
+ */
+static uint32_t const m_min_angle_steps = 206;
+
+
+/*!
  * @brief List of the different specification for each bitfield, ordered by
  *        address and lsb
  */
@@ -261,7 +271,7 @@ static as5600_error_t as5600_write_8register(as5600_register_t const reg,
 
 //! @brief Read 8-bit register
 static as5600_error_t as5600_read_8register(as5600_register_t const reg,
-                                            uint8_t * const p_tx_buffer);
+                                            uint8_t * const p_rx_buffer);
 
 //! @brief Set bit field value from a given register
 static as5600_error_t as5600_reg_set_bit_field_value(
@@ -379,19 +389,24 @@ as5600_error_t as5600_get_otp_write_counter(uint8_t * const p_write_counter)
         as5600_register_t const reg = m_bitfields[field].reg;
 
         as5600_error_t success = AS5600_ERROR_SUCCESS;
-        uint8_t field_value;
+        uint8_t bit_field_value;
+        uint8_t reg_value;
 
         if (NULL == p_write_counter) {
                 success = AS5600_ERROR_BAD_PARAMETER;
         }
 
         if (AS5600_ERROR_SUCCESS == success) {
-                success = as5600_reg_get_bit_field_value(&field_value,
-                                                         field, reg);
+                success = as5600_read_8register(reg, &reg_value);
         }
 
         if (AS5600_ERROR_SUCCESS == success) {
-                *p_write_counter = field_value;
+                success = as5600_reg_get_bit_field_value(&bit_field_value,
+                                                         field, reg_value);
+        }
+
+        if (AS5600_ERROR_SUCCESS == success) {
+                *p_write_counter = bit_field_value;
         }
 
         return success;
@@ -556,7 +571,7 @@ as5600_error_t as5600_set_maximum_angle(uint16_t const max_angle)
 
         as5600_error_t success = AS5600_ERROR_SUCCESS;
 
-        if (reg_mask < reg_value) {
+        if ((reg_mask < reg_value) || (m_min_angle_steps > max_angle)) {
                 success = AS5600_ERROR_BAD_PARAMETER;
         }
 
@@ -656,7 +671,7 @@ as5600_error_t as5600_set_configuration(
  * operation. The values can be accessed directly from the structure or via
  * the other getter methods.
  *
- * @see  `as5600_set_configuration`
+ * @see `as5600_set_configuration`
  *
  * @see `as5600_get_slow_filter`, `as5600_get_ff_threshold`,
  *      `as5600_is_watchdog_enabled`, `as5600_get_power_mode`,
@@ -1553,7 +1568,6 @@ as5600_error_t as5600_get_cordic_magnitude(uint16_t * const p_magnitude)
 as5600_error_t as5600_burn_command(as5600_burn_mode_t const mode)
 {
         as5600_register_t const reg = AS5600_REGISTER_BURN;
-        uint32_t const min_angle_in_steps = 4095 * 18 / 359;
         uint8_t const burn_setting_max_writes = 1;
         uint8_t const burn_angle_max_writes = 3;
         uint8_t load_sequence[] = {0x01U, 0x11U, 0x10U};
@@ -1606,8 +1620,8 @@ as5600_error_t as5600_burn_command(as5600_burn_mode_t const mode)
                                 stop_pos  ^= start_pos;
                         }
 
-                        min_angle_ok = (min_angle_in_steps <=
-                                       (stop_pos - start_pos));
+                        min_angle_ok = (m_min_angle_steps <=
+                                        (stop_pos - start_pos));
                 }
 
                 break;
@@ -1625,7 +1639,7 @@ as5600_error_t as5600_burn_command(as5600_burn_mode_t const mode)
                 }
 
                 if (AS5600_ERROR_SUCCESS == success) {
-                        min_angle_ok = (min_angle_ok <= max_angle);
+                        min_angle_ok = (m_min_angle_steps <= max_angle);
                 }
 
                 break;
@@ -2041,6 +2055,7 @@ static as5600_error_t as5600_cfg_to_reg16(
         as5600_error_t success = AS5600_ERROR_SUCCESS;
 
         uint8_t buffer[2] = {0};
+        uint8_t field_val;
 
         if ((NULL == p_config) || (NULL == reg) ||
             (!as5600_is_valid_configuration(p_config))) {
@@ -2048,43 +2063,57 @@ static as5600_error_t as5600_cfg_to_reg16(
         }
 
         if (AS5600_ERROR_SUCCESS == success) {
-                success = as5600_reg_set_bit_field_value(p_config->power_mode,
+
+                field_val = (uint8_t)(p_config->power_mode);
+                success = as5600_reg_set_bit_field_value(field_val,
                                                          AS5600_BIT_FIELD_PM,
                                                          &buffer[1]);
         }
 
         if (AS5600_ERROR_SUCCESS == success) {
-                success = as5600_reg_set_bit_field_value(p_config->hysteresis,
+
+                field_val = (uint8_t)(p_config->hysteresis);
+                success = as5600_reg_set_bit_field_value(field_val,
                                                          AS5600_BIT_FIELD_HYST,
                                                          &buffer[1]);
         }
 
         if (AS5600_ERROR_SUCCESS == success) {
-                success = as5600_reg_set_bit_field_value(p_config->output_stage,
+
+                field_val = (uint8_t)(p_config->output_stage);
+                success = as5600_reg_set_bit_field_value(field_val,
                                                          AS5600_BIT_FIELD_OUTS,
                                                          &buffer[1]);
         }
 
         if (AS5600_ERROR_SUCCESS == success) {
-                success = as5600_reg_set_bit_field_value(p_config->pwm_frequency,
+
+                field_val = (uint8_t)(p_config->pwm_frequency);
+                success = as5600_reg_set_bit_field_value(field_val,
                                                          AS5600_BIT_FIELD_PWMF,
                                                          &buffer[1]);
         }
 
         if (AS5600_ERROR_SUCCESS == success) {
-                success = as5600_reg_set_bit_field_value(p_config->slow_filter,
+
+                field_val = (uint8_t)(p_config->slow_filter);
+                success = as5600_reg_set_bit_field_value(field_val,
                                                          AS5600_BIT_FIELD_SF,
                                                          &buffer[0]);
         }
 
         if (AS5600_ERROR_SUCCESS == success) {
-                success = as5600_reg_set_bit_field_value(p_config->ff_threshold,
+
+                field_val = (uint8_t)(p_config->ff_threshold);
+                success = as5600_reg_set_bit_field_value(field_val,
                                                          AS5600_BIT_FIELD_FTH,
                                                          &buffer[0]);
         }
 
         if (AS5600_ERROR_SUCCESS == success) {
-                success = as5600_reg_set_bit_field_value(p_config->watchdog,
+
+                field_val = (p_config->watchdog ? 0x01 : 0x00);
+                success = as5600_reg_set_bit_field_value(field_val,
                                                          AS5600_BIT_FIELD_WD,
                                                          &buffer[0]);
         }
