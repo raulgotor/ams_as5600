@@ -168,13 +168,19 @@ typedef enum
         // @brief AGC maximum gain overflow, magnet too weak
         AS5600_STATUS_ML = 0x10U,
         // @brief Magnet was detected
-        AS5600_STATUS_MD = 0x04U,
+        AS5600_STATUS_MD = 0x20U,
+        // @brief Magnet detected with AGC minimum gain overflow, magnet too strong
+        AS5600_STATUS_MH_MD = 0x28U,
+        // @brief Magnet detected with AGC maximum gain overflow, magnet too weak
+        AS5600_STATUS_ML_MD = 0x30U,
+
 } as5600_status_t;
 
 typedef enum
 {
         AS5600_BURN_MODE_BURN_SETTING = 0x40U,
-        AS5600_BURN_MODE_BURN_ANGLE = 0x80U
+        AS5600_BURN_MODE_BURN_ANGLE = 0x80U,
+        AS5600_BURN_MODE_COUNT,
 } as5600_burn_mode_t;
 
 /*

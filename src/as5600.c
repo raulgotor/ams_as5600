@@ -1762,17 +1762,13 @@ static as5600_error_t as5600_read_8register(as5600_register_t const reg,
 static as5600_error_t as5600_write_8register(as5600_register_t const reg,
                                              uint8_t const tx_buffer)
 {
-        as5600_error_t success = AS5600_ERROR_SUCCESS;
+        as5600_error_t success;
         uint8_t const buffer = tx_buffer;
         size_t const count = sizeof(uint8_t);
 
-        if (AS5600_ERROR_SUCCESS == success) {
-                success = as5600_write_n_consecutive_bytes(reg,
-                                                           &buffer, count);
-        }
+        success = as5600_write_n_consecutive_bytes(reg, &buffer, count);
 
         return success;
-
 }
 
 /*!
@@ -1837,15 +1833,13 @@ static as5600_error_t as5600_write_16register(as5600_register_t const reg,
 {
         uint16_t const first_byte_mask = 0x00FF;
         size_t const count = sizeof(uint16_t);
-        as5600_error_t success = AS5600_ERROR_SUCCESS;
+        as5600_error_t success;
         uint8_t buffer[2];
 
-        if (AS5600_ERROR_SUCCESS == success) {
-                buffer[0] = (uint8_t)((tx_buffer >> 8) & first_byte_mask);
-                buffer[1] = (uint8_t)(tx_buffer & first_byte_mask);
+        buffer[0] = (uint8_t)((tx_buffer >> 8) & first_byte_mask);
+        buffer[1] = (uint8_t)(tx_buffer & first_byte_mask);
 
-                success = as5600_write_n_consecutive_bytes(reg, buffer, count);
-        }
+        success = as5600_write_n_consecutive_bytes(reg, buffer, count);
 
         return success;
 }
@@ -1879,7 +1873,7 @@ static as5600_error_t as5600_read_n_consecutive_bytes(
 {
         as5600_error_t result = AS5600_ERROR_SUCCESS;
         uint8_t const reg_addr = (uint8_t)reg;
-        uint8_t xfer_func_result = 0;
+        uint8_t xfer_func_result;
 
         if ((NULL == p_rx_buffer) || (!as5600_is_register_valid(reg))) {
                 result = AS5600_ERROR_BAD_PARAMETER;
@@ -1934,7 +1928,7 @@ static as5600_error_t as5600_write_n_consecutive_bytes(
 {
         as5600_error_t result = AS5600_ERROR_SUCCESS;
         uint8_t buffer[bytes_count + 1];
-        uint8_t xfer_func_result = 0;
+        uint8_t xfer_func_result;
         uint8_t const reg_addr = (uint8_t)reg;
         uint8_t i;
 
