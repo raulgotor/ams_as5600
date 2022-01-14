@@ -681,3 +681,83 @@ TEST(as5600, as5600_get_cordic_magnitude_valid)
         ENUMS_EQUAL_INT(AS5600_ERROR_SUCCESS, result);
 }
 
+TEST(as5600, as5600_burn_command_invalid)
+{
+        as5600_error_t result = as5600_burn_command(AS5600_BURN_MODE_COUNT);
+
+        ENUMS_EQUAL_INT(AS5600_ERROR_BAD_PARAMETER, result);
+}
+
+TEST(as5600, as5600_burn_command_no_magnet_detected)
+{
+        as5600_error_t result;
+
+        result = as5600_burn_command(AS5600_BURN_MODE_BURN_ANGLE);
+
+        ENUMS_EQUAL_INT(AS5600_ERROR_MAGNET_NOT_DETECTED, result);
+}
+
+TEST(as5600, as5600_burn_command_invalid_angle_in_start_stop_registers)
+{
+        as5600_error_t result;
+        set_register_8(AS5600_REGISTER_STATUS, AS5600_STATUS_MD);
+        check_register_8(AS5600_REGISTER_STATUS, AS5600_STATUS_MD);
+
+        /* set the start and stop angle registers (ZPOS and MPOS respectively)
+         * to hold values whose difference is >= than the minimum valid ange
+         */
+        set_register_12(AS5600_REGISTER_ZPOS_H, m_valid_start_stop_position);
+        set_register_12(AS5600_REGISTER_MPOS_H,
+                        m_valid_start_stop_position +
+                        m_lowest_valid_maximum_angle);
+
+        result = as5600_burn_command(AS5600_BURN_MODE_BURN_ANGLE);
+
+        ENUMS_EQUAL_INT(AS5600_ERROR_SUCCESS, result);
+}
+
+TEST(as5600, as5600_burn_command_valid_angle_in_start_stop_registers)
+{
+        as5600_error_t result;
+        set_register_8(AS5600_REGISTER_STATUS, AS5600_STATUS_MD);
+        check_register_8(AS5600_REGISTER_STATUS, AS5600_STATUS_MD);
+
+        /* set the start and stop angle registers (ZPOS and MPOS respectively)
+         * to hold values whose difference is lower than the minimum valid ange
+         */
+        set_register_12(AS5600_REGISTER_ZPOS_H, m_valid_start_stop_position);
+        set_register_12(AS5600_REGISTER_MPOS_H,
+                        m_valid_start_stop_position + m_oor_l_maximum_angle);
+
+        result = as5600_burn_command(AS5600_BURN_MODE_BURN_ANGLE);
+
+        ENUMS_EQUAL_INT(AS5600_ERROR_MIN_ANGLE_TOO_SMALL, result);
+}
+
+TEST(as5600, as5600_burn_command_valid_angle_in_max_angle_register)
+{
+        as5600_error_t result;
+        set_register_8(AS5600_REGISTER_STATUS, AS5600_STATUS_MD);
+        check_register_8(AS5600_REGISTER_STATUS, AS5600_STATUS_MD);
+
+        // set the max angle registers (MANG) to hold a minimum valid range angle
+        set_register_12(AS5600_REGISTER_MANG_H, m_lowest_valid_maximum_angle);
+
+        result = as5600_burn_command(AS5600_BURN_MODE_BURN_SETTING);
+
+        ENUMS_EQUAL_INT(AS5600_ERROR_SUCCESS, result);
+}
+
+TEST(as5600, as5600_burn_command_invalid_angle_in_max_angle_register)
+{
+        as5600_error_t result;
+        set_register_8(AS5600_REGISTER_STATUS, AS5600_STATUS_MD);
+        check_register_8(AS5600_REGISTER_STATUS, AS5600_STATUS_MD);
+
+        // set the max angle registers (MANG) to hold an invalid minimum range angle
+        set_register_12(AS5600_REGISTER_MANG_H, m_oor_l_maximum_angle);
+
+        result = as5600_burn_command(AS5600_BURN_MODE_BURN_SETTING);
+
+        ENUMS_EQUAL_INT(AS5600_ERROR_MIN_ANGLE_TOO_SMALL, result);
+}
