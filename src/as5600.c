@@ -1602,7 +1602,13 @@ as5600_error_t as5600_burn_command(as5600_burn_mode_t const mode)
         uint16_t max_angle;
         bool min_angle_ok;
 
-        success = as5600_get_otp_write_counter(&counter);
+        if (AS5600_BURN_MODE_COUNT <= mode) {
+                success = AS5600_ERROR_BAD_PARAMETER;
+        }
+
+        if (AS5600_ERROR_SUCCESS == success) {
+                success = as5600_get_otp_write_counter(&counter);
+        }
 
         if (AS5600_ERROR_SUCCESS == success) {
                 success = as5600_get_status(&status);
