@@ -65,8 +65,17 @@ static uint16_t const m_valid_start_stop_position = 1100;
 //! @brief A valid value for MANG register
 static uint16_t const m_valid_maximum_angle = 1000;
 
+//! @brief First valid value for MANG register
+static uint16_t const m_lowest_valid_maximum_angle = 206;
+
 //! @brief A valid value for RAW_ANGLE register
 static uint16_t const m_valid_raw_angle = 900;
+
+//! @brief A valid value for AGC register
+static uint8_t m_valid_agc_value = 128;
+
+//! @brief A valid value for MAGNITUDE register
+static uint16_t m_valid_magnitude = 128;
 
 //! @brief First out of bounds value for ZPOS and MPOS registers
 static uint16_t const m_oor_start_stop_position = 4096;
@@ -202,6 +211,30 @@ TEST(as5600_no_init, get_angle_not_initialized_fails)
         ENUMS_EQUAL_INT(AS5600_ERROR_NOT_INITIALIZED, result);
 }
 
+TEST(as5600_no_init, get_status_not_initialized_fails)
+{
+        as5600_status_t status;
+        as5600_error_t result = as5600_get_status(&status);
+
+        ENUMS_EQUAL_INT(AS5600_ERROR_NOT_INITIALIZED, result);
+}
+
+TEST(as5600_no_init, get_agc_not_initialized_fails)
+{
+        uint8_t agc;
+        as5600_error_t result = as5600_get_automatic_gain_control(&agc);
+
+        ENUMS_EQUAL_INT(AS5600_ERROR_NOT_INITIALIZED, result);
+}
+
+TEST(as5600_no_init, get_get_cordic_magnitude_not_initialized_fails)
+{
+        uint16_t magnitude;
+        as5600_error_t result = as5600_get_cordic_magnitude(&magnitude);
+
+        ENUMS_EQUAL_INT(AS5600_ERROR_NOT_INITIALIZED, result);
+}
+
 TEST_GROUP(as5600)
 {
 
@@ -253,6 +286,41 @@ TEST_GROUP(as5600)
                 m_memory.set_memory(buffer, reg_h, 2);
 
         }
+
+        /*!
+         * @brief Check a 8 bit value with the contents of a given register
+         *
+         * The function fail the test if the provided value and the value
+         * at the given register don't match
+         *
+         * @param           reg             Register address
+         *
+         * @param           value           Value to compare with the register
+         *
+         * @return          -               -
+         */
+        void check_register_8(as5600_register_t const reg,
+                              uint8_t const expected_value)
+        {
+                uint8_t const actual_value_reg = *(m_memory.get_registers(reg));
+
+                BITS_EQUAL(expected_value, actual_value_reg, 0xFF);
+        }
+
+        /*!
+         * @brief Set a 8 bit value at the given registers
+         *
+         * @param           reg             Register address
+         *
+         * @param           value           Value to set at the register
+         *
+         * @return          -               -
+         */
+        void set_register_8(as5600_register_t const reg, uint8_t const value)
+        {
+                m_memory.set_memory(&value, reg, 1);
+        }
+
 
         void setup()
         {
@@ -549,6 +617,67 @@ TEST(as5600, get_angle_valid)
         result = as5600_get_angle(&angle);
 
         check_register_12(AS5600_REGISTER_ANGLE_H, m_valid_raw_angle);
+        ENUMS_EQUAL_INT(AS5600_ERROR_SUCCESS, result);
+}
+
+TEST(as5600, get_status_null_pointer)
+{
+        as5600_error_t result = as5600_get_status(NULL);
+
+        ENUMS_EQUAL_INT(AS5600_ERROR_BAD_PARAMETER, result);
+}
+
+TEST(as5600, get_status_valid)
+{
+        as5600_status_t status;
+        as5600_error_t result;
+
+        set_register_8(AS5600_REGISTER_STATUS, AS5600_STATUS_MD);
+
+        result = as5600_get_status(&status);
+
+        check_register_8(AS5600_REGISTER_STATUS, status);
+
+        ENUMS_EQUAL_INT(AS5600_ERROR_SUCCESS, result);
+}
+
+TEST(as5600, get_agc_null_pointer)
+{
+        as5600_error_t result = as5600_get_automatic_gain_control(NULL);
+
+        ENUMS_EQUAL_INT(AS5600_ERROR_BAD_PARAMETER, result);
+}
+
+TEST(as5600, get_agc_valid)
+{
+        uint8_t agc;
+        as5600_error_t result;
+
+        set_register_8(AS5600_REGISTER_AGC, m_valid_agc_value);
+
+        result = as5600_get_automatic_gain_control(&agc);
+
+        check_register_8(AS5600_REGISTER_AGC, m_valid_agc_value);
+
+        ENUMS_EQUAL_INT(AS5600_ERROR_SUCCESS, result);
+}
+
+TEST(as5600, as5600_get_cordic_magnitude_null_pointer)
+{
+        as5600_error_t result = as5600_get_cordic_magnitude(NULL);
+
+        ENUMS_EQUAL_INT(AS5600_ERROR_BAD_PARAMETER, result);
+}
+
+TEST(as5600, as5600_get_cordic_magnitude_valid)
+{
+        uint16_t raw_angle;
+        as5600_error_t result;
+
+        set_register_12(AS5600_REGISTER_MAGNITUDE_H, m_valid_magnitude);
+        result = as5600_get_cordic_magnitude(&raw_angle);
+
+        check_register_12(AS5600_REGISTER_MAGNITUDE_H, m_valid_magnitude);
         ENUMS_EQUAL_INT(AS5600_ERROR_SUCCESS, result);
 }
 

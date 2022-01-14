@@ -123,7 +123,6 @@ uint32_t i2c_io_stub(uint8_t const i2c_slave_address,
         (void)i2c_slave_address;
 
         if ((NULL == p_tx_buffer) || (0 == tx_buffer_size)) {
-                printf("aa1\n");
                 result = 1;
         }
 
