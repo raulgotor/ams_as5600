@@ -241,6 +241,20 @@ as5600_bit_field_specs_t m_bitfields[] = {
         }
 };
 
+//! @brief Available status readouts for STATUS register
+static as5600_status_t const m_available_status[] =
+                {
+                        AS5600_STATUS_NO_MANGET,
+                        AS5600_STATUS_MH,
+                        AS5600_STATUS_ML,
+                        AS5600_STATUS_MD,
+                        AS5600_STATUS_MH_MD,
+                        AS5600_STATUS_ML_MD,
+                };
+
+//! @brief Number of available status readouts for STATUS register
+static uint8_t const m_available_status_len = sizeof(m_available_status) /
+                                              sizeof(m_available_status[0]);
 /*
  *******************************************************************************
  * Private Function Prototypes                                                 *
@@ -1390,10 +1404,10 @@ as5600_error_t as5600_get_angle(uint16_t * const p_angle)
 as5600_error_t as5600_get_status(as5600_status_t * const p_status)
 {
         as5600_register_t const reg = AS5600_REGISTER_STATUS;
-        as5600_bit_field_t const bit_field = AS5600_BIT_FIELD_STATUS;
         as5600_error_t success = AS5600_ERROR_SUCCESS;
+        bool found = false;
         uint8_t reg_value;
-        uint8_t bit_field_value;
+        uint8_t i;
 
         if (NULL == p_status) {
                 success = AS5600_ERROR_BAD_PARAMETER;
@@ -1404,12 +1418,20 @@ as5600_error_t as5600_get_status(as5600_status_t * const p_status)
         }
 
         if (AS5600_ERROR_SUCCESS == success) {
-                success = as5600_reg_get_bit_field_value(&bit_field_value,
-                                                         bit_field, reg_value);
+
+                for (i = 0; (m_available_status_len > i) && (!found); ++i) {
+                        if (m_available_status[i] == reg_value) {
+                                found = true;
+                        }
+                }
+
+                if (!found) {
+                        success = AS5600_ERROR_RUNTIME_ERROR;
+                }
         }
 
         if (AS5600_ERROR_SUCCESS == success) {
-                *p_status = (as5600_status_t)bit_field_value;
+                *p_status = (as5600_status_t)reg_value;
         }
 
         return success;
