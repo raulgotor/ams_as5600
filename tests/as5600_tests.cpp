@@ -685,11 +685,9 @@ TEST(as5600, get_agc_valid)
         as5600_error_t result;
 
         set_register_8(AS5600_REGISTER_AGC, m_valid_agc_value);
-
         result = as5600_get_automatic_gain_control(&agc);
 
         check_register_8(AS5600_REGISTER_AGC, m_valid_agc_value);
-
         ENUMS_EQUAL_INT(AS5600_ERROR_SUCCESS, result);
 }
 
@@ -719,20 +717,38 @@ TEST(as5600, as5600_burn_command_invalid)
         ENUMS_EQUAL_INT(AS5600_ERROR_BAD_PARAMETER, result);
 }
 
-TEST(as5600, as5600_burn_command_no_magnet_detected)
+/*!
+ * @brief Test that `as5600_burn_command` without a magnet being detected fails
+ *
+ * The test ensures an `AS5600_STATUS_NO_MANGET` value at the specific register
+ * and then tries to execute `as5600_burn_command`
+ */
+ TEST(as5600, as5600_burn_command_no_magnet_detected)
 {
         as5600_error_t result;
 
+        set_register_8(AS5600_REGISTER_STATUS, AS5600_STATUS_NO_MANGET);
         result = as5600_burn_command(AS5600_BURN_MODE_BURN_ANGLE);
 
         ENUMS_EQUAL_INT(AS5600_ERROR_MAGNET_NOT_DETECTED, result);
 }
 
+/*!
+ * @brief Test that `as5600_burn_command` returns successful error code when
+ *        start and stop angles difference is equal or bigger than the minimum
+ *        allowed angle
+ *
+ * The test sets the status register to have a magnet detected, and the start
+ * and stop (ZPOS and MPOS) registers to have values whose difference is equal
+ * or bigger than the minimum allowed angle. Then executes the burn command with
+ * `AS5600_BURN_MODE_BURN_ANGLE` as a parameter and reads the return value of
+ * the function.
+ */
 TEST(as5600, as5600_burn_command_valid_angle_in_start_stop_registers)
 {
         as5600_error_t result;
+
         set_register_8(AS5600_REGISTER_STATUS, AS5600_STATUS_MD);
-        check_register_8(AS5600_REGISTER_STATUS, AS5600_STATUS_MD);
 
         /* set the start and stop angle registers (ZPOS and MPOS respectively)
          * to hold values whose difference is >= than the minimum valid ange
@@ -747,11 +763,22 @@ TEST(as5600, as5600_burn_command_valid_angle_in_start_stop_registers)
         ENUMS_EQUAL_INT(AS5600_ERROR_SUCCESS, result);
 }
 
-TEST(as5600, as5600_burn_command_invalid_angle_in_start_stop_registers)
+/*!
+ * @brief Test that `as5600_burn_command` returns failure error code when
+ *        start and stop angles difference is lower than the minimum allowed
+ *        angle
+ *
+ * The test sets the status register to have a magnet detected, and the start
+ * and stop (ZPOS and MPOS) registers to have values whose difference is lower
+ * than the minimum allowed angle. Then executes the burn command with
+ * `AS5600_BURN_MODE_BURN_ANGLE` as a parameter and reads the return value of
+ * the function.
+ */
+ TEST(as5600, as5600_burn_command_invalid_angle_in_start_stop_registers)
 {
         as5600_error_t result;
+
         set_register_8(AS5600_REGISTER_STATUS, AS5600_STATUS_MD);
-        check_register_8(AS5600_REGISTER_STATUS, AS5600_STATUS_MD);
 
         /* set the start and stop angle registers (ZPOS and MPOS respectively)
          * to hold values whose difference is lower than the minimum valid ange
@@ -765,12 +792,23 @@ TEST(as5600, as5600_burn_command_invalid_angle_in_start_stop_registers)
         ENUMS_EQUAL_INT(AS5600_ERROR_MIN_ANGLE_TOO_SMALL, result);
 }
 
+/*!
+ * @brief Test that `as5600_burn_command` returns failure error code when
+ *        maximum allowed writing cycles has ben reached for BURN_ANGLE cmd
+ *
+ * The test sets the status register to have a magnet detected, the ZMCO
+ * register to maximum number of writes allowed, and the start and stop
+ * (ZPOS and MPOS) registers to have values whose difference is lower
+ * than the minimum allowed angle. Then executes the burn command with
+ * `AS5600_BURN_MODE_BURN_ANGLE` as a parameter and reads the return value of
+ * the function.
+ */
 TEST(as5600, as5600_burn_command_valid_angle_in_start_stop_registers_invalid_zmco)
 {
         as5600_error_t result;
+
         set_register_8(AS5600_REGISTER_STATUS, AS5600_STATUS_MD);
         set_register_8(AS5600_REGISTER_ZMCO, m_max_burn_angle_count);
-        check_register_8(AS5600_REGISTER_STATUS, AS5600_STATUS_MD);
 
         /* set the start and stop angle registers (ZPOS and MPOS respectively)
          * to hold values whose difference is >= than the minimum valid ange
