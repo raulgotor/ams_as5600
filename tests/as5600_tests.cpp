@@ -392,7 +392,8 @@ TEST(as5600, get_otp_write_counter_correct)
 
 TEST(as5600, set_start_position_oor_high_fails){
 
-        as5600_error_t result = as5600_set_start_position(m_oor_start_stop_position);
+        as5600_error_t result = as5600_set_start_position(
+                        m_oor_start_stop_position);
 
         ENUMS_EQUAL_INT(AS5600_ERROR_BAD_PARAMETER, result);
 }
@@ -428,14 +429,16 @@ TEST(as5600, get_start_position_correct){
 
 TEST(as5600, set_stop_position_oor_high_fails){
 
-        as5600_error_t result = as5600_set_stop_position(m_oor_start_stop_position);
+        as5600_error_t result = as5600_set_stop_position(
+                        m_oor_start_stop_position);
 
         ENUMS_EQUAL_INT(AS5600_ERROR_BAD_PARAMETER, result);
 }
 
 TEST(as5600, set_stop_position_correct){
 
-        as5600_error_t result = as5600_set_stop_position(m_valid_start_stop_position);
+        as5600_error_t result = as5600_set_stop_position(
+                        m_valid_start_stop_position);
 
         check_register_12(AS5600_REGISTER_MPOS_H, m_valid_start_stop_position);
         ENUMS_EQUAL_INT(AS5600_ERROR_SUCCESS, result);
@@ -509,7 +512,8 @@ TEST(as5600, set_configuration_null_pointer)
 
 TEST(as5600, set_configuration_valid)
 {
-        as5600_error_t result = as5600_set_configuration(&m_valid_configuration);
+        as5600_error_t result = as5600_set_configuration(
+                        &m_valid_configuration);
 
         ENUMS_EQUAL_INT(AS5600_ERROR_SUCCESS, result);
 }
@@ -662,11 +666,9 @@ TEST(as5600, get_status_valid)
         as5600_error_t result;
 
         set_register_8(AS5600_REGISTER_STATUS, AS5600_STATUS_MD);
-
         result = as5600_get_status(&status);
 
         check_register_8(AS5600_REGISTER_STATUS, status);
-
         ENUMS_EQUAL_INT(AS5600_ERROR_SUCCESS, result);
 }
 
@@ -797,14 +799,25 @@ TEST(as5600, as5600_burn_command_valid_angle_in_max_angle_register)
         ENUMS_EQUAL_INT(AS5600_ERROR_SUCCESS, result);
 }
 
+/*!
+ * @brief Test that `as5600_burn_command` returns failure error code when
+ *        maximum allowed writing cycles has ben reached for `BURN_SETTINGS` cmd
+ *
+ * The test sets the status register to have a magnet detected, the ZMCO
+ * register to maximum number of writes allowed, and maximum angle register
+ * to have value bigger or equal than the minimum allowed angle.
+ * Then executes the burn command with `AS5600_BURN_MODE_BURN_SETTINGS` as a
+ * parameter and reads the return value of the function.
+ */
 TEST(as5600, as5600_burn_command_valid_angle_in_max_angle_register_invalid_counter_zmco)
 {
         as5600_error_t result;
+
         set_register_8(AS5600_REGISTER_STATUS, AS5600_STATUS_MD);
         set_register_8(AS5600_REGISTER_ZMCO, m_max_burn_settings_count);
         check_register_8(AS5600_REGISTER_STATUS, AS5600_STATUS_MD);
 
-        // set the max angle registers (MANG) to hold a minimum valid range angle
+        // set the max angle regs. (MANG) to hold a minimum valid range angle
         set_register_12(AS5600_REGISTER_MANG_H, m_lowest_valid_maximum_angle);
 
         result = as5600_burn_command(AS5600_BURN_MODE_BURN_SETTING);
@@ -812,13 +825,23 @@ TEST(as5600, as5600_burn_command_valid_angle_in_max_angle_register_invalid_count
         ENUMS_EQUAL_INT(AS5600_ERROR_MAX_WRITE_CYCLES_REACHED, result);
 }
 
+/*!
+ * @brief Test that `as5600_burn_command` returns failure error code when
+ *        maximum angle at MANG register is lower than allowed
+ *
+ * The test sets the status register to have a magnet detected, and maximum
+ * angle register to have value lower than the minimum allowed angle.
+ * Then executes the burn command with `AS5600_BURN_MODE_BURN_SETTINGS` as a
+ * parameter and reads the return value of the function.
+ */
 TEST(as5600, as5600_burn_command_invalid_angle_in_max_angle_register)
 {
         as5600_error_t result;
+
         set_register_8(AS5600_REGISTER_STATUS, AS5600_STATUS_MD);
         check_register_8(AS5600_REGISTER_STATUS, AS5600_STATUS_MD);
 
-        // set the max angle registers (MANG) to hold an invalid minimum range angle
+        // set the max angle regs. (MANG) to hold an invalid minimum range angle
         set_register_12(AS5600_REGISTER_MANG_H, m_oor_l_maximum_angle);
 
         result = as5600_burn_command(AS5600_BURN_MODE_BURN_SETTING);
