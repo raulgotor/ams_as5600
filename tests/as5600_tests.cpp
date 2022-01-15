@@ -220,6 +220,12 @@ static void set_register_8(as5600_register_t const reg, uint8_t const value)
  *******************************************************************************
  */
 
+/*!
+ * @brief Test group for tests requiring no initialization of the module
+ *
+ * This test group runs the tests without initializing the module. After each
+ * tests, the module is deinitialized.
+ */
 TEST_GROUP(as5600_no_init)
 {
         void setup()
@@ -232,6 +238,9 @@ TEST_GROUP(as5600_no_init)
         }
 };
 
+/*!
+ * @brief Test that `as5600_init` with a valid transfer function succeeds
+ */
 TEST(as5600_no_init, initialization)
 {
         as5600_error_t result = as5600_init(i2c_io_stub);
@@ -239,6 +248,9 @@ TEST(as5600_no_init, initialization)
         ENUMS_EQUAL_INT(AS5600_ERROR_SUCCESS, result);
 }
 
+/*!
+ * @brief Test that `as5600_deinit` without having initialized first fails
+ */
 TEST(as5600_no_init, deinitialization_was_not_initialized)
 {
         as5600_error_t result = as5600_deinit();
@@ -246,6 +258,9 @@ TEST(as5600_no_init, deinitialization_was_not_initialized)
         ENUMS_EQUAL_INT(AS5600_ERROR_RUNTIME_ERROR, result);
 }
 
+/*!
+ * @brief Test that `as5600_init` with an invalid transfer function fails
+ */
 TEST(as5600_no_init, initialization_wrong_transfer_function)
 {
         as5600_error_t result = as5600_init(NULL);
@@ -253,6 +268,10 @@ TEST(as5600_no_init, initialization_wrong_transfer_function)
         ENUMS_EQUAL_INT(AS5600_ERROR_BAD_PARAMETER, result);
 }
 
+/*!
+ * @brief Test that `as5600_set_start_position` without an initialized module
+ *        fails
+ */
 TEST(as5600_no_init, set_start_position_not_initialized_fails){
 
         as5600_error_t result = as5600_set_start_position(
@@ -261,6 +280,10 @@ TEST(as5600_no_init, set_start_position_not_initialized_fails){
         ENUMS_EQUAL_INT(AS5600_ERROR_NOT_INITIALIZED, result);
 }
 
+/*!
+ * @brief Test that `as5600_get_start_position` without an initialized module
+ *        fails
+ */
 TEST(as5600_no_init, get_start_position_not_initialized_fails){
 
         uint16_t start_position;
@@ -269,6 +292,10 @@ TEST(as5600_no_init, get_start_position_not_initialized_fails){
         ENUMS_EQUAL_INT(AS5600_ERROR_NOT_INITIALIZED, result);
 }
 
+/*!
+ * @brief Test that `as5600_set_stop_position` without an initialized module
+ *        fails
+ */
 TEST(as5600_no_init, start_stop_position_not_initialized_fails){
 
         as5600_error_t result = as5600_set_stop_position(
@@ -277,6 +304,10 @@ TEST(as5600_no_init, start_stop_position_not_initialized_fails){
         ENUMS_EQUAL_INT(AS5600_ERROR_NOT_INITIALIZED, result);
 }
 
+/*!
+ * @brief Test that `as5600_get_stop_position` without an initialized module
+ *        fails
+ */
 TEST(as5600_no_init, get_stop_position_not_initialized_fails){
 
         uint16_t stop_position;
@@ -286,6 +317,10 @@ TEST(as5600_no_init, get_stop_position_not_initialized_fails){
 }
 
 
+/*!
+ * @brief Test that `as5600_set_maximum_angle` without an initialized module
+ *        fails
+ */
 TEST(as5600_no_init, set_maximum_angle_not_initialized_fails){
 
         as5600_error_t result = as5600_set_maximum_angle(m_valid_maximum_angle);
@@ -293,6 +328,10 @@ TEST(as5600_no_init, set_maximum_angle_not_initialized_fails){
         ENUMS_EQUAL_INT(AS5600_ERROR_NOT_INITIALIZED, result);
 }
 
+/*!
+ * @brief Test that `as5600_get_maximum_angle` without an initialized module
+ *        fails
+ */
 TEST(as5600_no_init, get_maximum_angle_not_initialized_fails){
 
         uint16_t max_angle;
@@ -301,6 +340,9 @@ TEST(as5600_no_init, get_maximum_angle_not_initialized_fails){
         ENUMS_EQUAL_INT(AS5600_ERROR_NOT_INITIALIZED, result);
 }
 
+/*!
+ * @brief Test that `as5600_get_raw_angle` without an initialized module fails
+ */
 TEST(as5600_no_init, get_raw_angle_not_initialized_fails)
 {
         uint16_t raw_angle;
@@ -309,6 +351,9 @@ TEST(as5600_no_init, get_raw_angle_not_initialized_fails)
         ENUMS_EQUAL_INT(AS5600_ERROR_NOT_INITIALIZED, result);
 }
 
+/*!
+ * @brief Test that `as5600_get_raw_angle` without an initialized module fails
+ */
 TEST(as5600_no_init, get_angle_not_initialized_fails)
 {
         uint16_t angle;
@@ -317,6 +362,9 @@ TEST(as5600_no_init, get_angle_not_initialized_fails)
         ENUMS_EQUAL_INT(AS5600_ERROR_NOT_INITIALIZED, result);
 }
 
+/*!
+ * @brief Test that `as5600_get_status` without an initialized module fails
+ */
 TEST(as5600_no_init, get_status_not_initialized_fails)
 {
         as5600_status_t status;
@@ -325,6 +373,10 @@ TEST(as5600_no_init, get_status_not_initialized_fails)
         ENUMS_EQUAL_INT(AS5600_ERROR_NOT_INITIALIZED, result);
 }
 
+/*!
+ * @brief Test that `as5600_get_automatic_gain_control` without an initialized
+ *        module fails
+ */
 TEST(as5600_no_init, get_agc_not_initialized_fails)
 {
         uint8_t agc;
@@ -333,6 +385,10 @@ TEST(as5600_no_init, get_agc_not_initialized_fails)
         ENUMS_EQUAL_INT(AS5600_ERROR_NOT_INITIALIZED, result);
 }
 
+/*!
+ * @brief Test that `as5600_get_cordic_magnitude` without an initialized module
+ *        fails
+ */
 TEST(as5600_no_init, get_get_cordic_magnitude_not_initialized_fails)
 {
         uint16_t magnitude;
@@ -363,6 +419,9 @@ TEST_GROUP(as5600)
         }
 };
 
+/*!
+ * @brief Test that `as5600_init` fails when called twice
+ */
 TEST(as5600, double_initialization_fails)
 {
         as5600_error_t result = as5600_init(i2c_io_stub);
@@ -370,6 +429,9 @@ TEST(as5600, double_initialization_fails)
         ENUMS_EQUAL_INT(AS5600_ERROR_RUNTIME_ERROR, result);
 }
 
+/*!
+ * @brief Test that `as5600_get_otp_write_counter` with invalid parameters fails
+ */
 TEST(as5600, get_otp_write_counter_null_pointer)
 {
         as5600_error_t result = as5600_get_otp_write_counter(NULL);
@@ -377,7 +439,14 @@ TEST(as5600, get_otp_write_counter_null_pointer)
         ENUMS_EQUAL_INT(AS5600_ERROR_BAD_PARAMETER, result);
 }
 
-TEST(as5600, get_otp_write_counter_correct)
+/*!
+ * @brief Test that `as5600_get_otp_write_counter` passes back the value written
+ *        in the corresponding register with a success error code
+ *
+ * The test previously writes the value to be read back at the corresponding
+ * register address
+ */
+ TEST(as5600, get_otp_write_counter_correct)
 {
         uint8_t const otp_set_value = 2;
         uint8_t otp;
@@ -390,6 +459,10 @@ TEST(as5600, get_otp_write_counter_correct)
         ENUMS_EQUAL_INT(AS5600_ERROR_SUCCESS, result);
 }
 
+/*!
+ * @brief Test that `as5600_set_start_position` fails when trying to set an out
+ *        of range at the high end value
+ */
 TEST(as5600, set_start_position_oor_high_fails){
 
         as5600_error_t result = as5600_set_start_position(
@@ -398,6 +471,13 @@ TEST(as5600, set_start_position_oor_high_fails){
         ENUMS_EQUAL_INT(AS5600_ERROR_BAD_PARAMETER, result);
 }
 
+/*!
+ * @brief Test that `as5600_set_start_position` passes back the value written in
+ *        the corresponding register with a success error code
+ *
+ * The test previously writes the value to be read back at the corresponding
+ * register address
+ */
 TEST(as5600, set_start_position_correct){
 
         as5600_error_t result;
@@ -409,6 +489,9 @@ TEST(as5600, set_start_position_correct){
         ENUMS_EQUAL_INT(AS5600_ERROR_SUCCESS, result);
 }
 
+/*!
+ * @brief Test that `as5600_get_start_position` with invalid parameters fails
+ */
 TEST(as5600, get_start_position_null_pointer){
 
         as5600_error_t result = as5600_get_start_position(NULL);
@@ -416,7 +499,14 @@ TEST(as5600, get_start_position_null_pointer){
         ENUMS_EQUAL_INT(AS5600_ERROR_BAD_PARAMETER, result);
 }
 
-TEST(as5600, get_start_position_correct){
+/*!
+ * @brief Test that `as5600_get_start_position` passes back the value written in
+ *        the corresponding register with a success error code
+ *
+ * The test previously writes the value to be read back at the corresponding
+ * register address
+ */
+ TEST(as5600, get_start_position_correct){
 
         uint16_t start_position;
 
@@ -427,7 +517,11 @@ TEST(as5600, get_start_position_correct){
         ENUMS_EQUAL_INT(AS5600_ERROR_SUCCESS, result);
 }
 
-TEST(as5600, set_stop_position_oor_high_fails){
+/*!
+ * @brief Test that `as5600_set_stop_position` fails when trying to set an out
+ *        of range (at the high end) value
+ */
+ TEST(as5600, set_stop_position_oor_high_fails){
 
         as5600_error_t result = as5600_set_stop_position(
                         m_oor_start_stop_position);
@@ -435,6 +529,13 @@ TEST(as5600, set_stop_position_oor_high_fails){
         ENUMS_EQUAL_INT(AS5600_ERROR_BAD_PARAMETER, result);
 }
 
+/*!
+ * @brief Test that `as5600_set_stop_position` is able to set a valid value and
+ *        returns a success error code
+ *
+ * The test checks that the passed valid value is written at the expected
+ * address at the fake memory
+ */
 TEST(as5600, set_stop_position_correct){
 
         as5600_error_t result = as5600_set_stop_position(
@@ -444,6 +545,9 @@ TEST(as5600, set_stop_position_correct){
         ENUMS_EQUAL_INT(AS5600_ERROR_SUCCESS, result);
 }
 
+/*!
+ * @brief Test that `as5600_get_stop_position` with invalid parameters fails
+ */
 TEST(as5600, get_stop_position_null_pointer){
 
         as5600_error_t result = as5600_get_stop_position(NULL);
@@ -451,32 +555,55 @@ TEST(as5600, get_stop_position_null_pointer){
         ENUMS_EQUAL_INT(AS5600_ERROR_BAD_PARAMETER, result);
 }
 
-TEST(as5600, get_stop_position_correct){
+/*!
+ * @brief Test that `as5600_get_stop_position` passes back the value written in
+ *        the corresponding register with a success error code
+ *
+ * The test previously writes the value to be read back at the corresponding
+ * register address
+ */
+ TEST(as5600, get_stop_position_correct){
 
         uint16_t stop_position;
+        as5600_error_t result;
 
         (void)as5600_set_stop_position(m_valid_start_stop_position);
-        as5600_error_t result = as5600_get_stop_position(&stop_position);
+        result = as5600_get_stop_position(&stop_position);
 
         LONGS_EQUAL(m_valid_start_stop_position, stop_position);
         ENUMS_EQUAL_INT(AS5600_ERROR_SUCCESS, result);
 }
 
-TEST(as5600, set_maximum_angle_oor_low_fails){
+/*!
+ * @brief Test that `as5600_set_maximum_angle` fails when trying to set an out
+ *        of range (at the low end) value
+ */
+ TEST(as5600, set_maximum_angle_oor_low_fails){
 
         as5600_error_t result = as5600_set_maximum_angle(m_oor_l_maximum_angle);
 
         ENUMS_EQUAL_INT(AS5600_ERROR_BAD_PARAMETER, result);
 }
 
-TEST(as5600, set_maximum_angle_oor_high_fails){
+/*!
+ * @brief Test that `as5600_set_maximum_angle` fails when trying to set an out
+ *        of range (at the high end) value
+ */
+ TEST(as5600, set_maximum_angle_oor_high_fails){
 
         as5600_error_t result = as5600_set_maximum_angle(m_oor_h_maximum_angle);
 
         ENUMS_EQUAL_INT(AS5600_ERROR_BAD_PARAMETER, result);
 }
 
-TEST(as5600, set_maximum_angle_correct)
+/*!
+ * @brief Test that `as5600_set_maximum_angle` is able to set a valid value and
+ *        returns a success error code
+ *
+ * The test checks that the passed valid value is written at the expected
+ * address at the fake memory
+ */
+ TEST(as5600, set_maximum_angle_correct)
 {
         as5600_error_t result = as5600_set_maximum_angle(m_valid_maximum_angle);
 
@@ -484,6 +611,9 @@ TEST(as5600, set_maximum_angle_correct)
         ENUMS_EQUAL_INT(AS5600_ERROR_SUCCESS, result);
 }
 
+/*!
+ * @brief Test that `as5600_set_maximum_angle` with invalid parameters fails
+ */
 TEST(as5600, get_maximum_angle_null_pointer){
 
         as5600_error_t result = as5600_set_maximum_angle(NULL);
@@ -491,7 +621,14 @@ TEST(as5600, get_maximum_angle_null_pointer){
         ENUMS_EQUAL_INT(AS5600_ERROR_BAD_PARAMETER, result);
 }
 
-TEST(as5600, get_maximum_angle_correct){
+/*!
+ * @brief Test that `as5600_get_maximum_angle` passes back the value written in
+ *        the corresponding register with a success error code
+ *
+ * The test previously writes the value to be read back at the corresponding
+ * register address
+ */
+ TEST(as5600, get_maximum_angle_correct){
 
         uint16_t maximum_angle;
 
@@ -502,6 +639,9 @@ TEST(as5600, get_maximum_angle_correct){
         ENUMS_EQUAL_INT(AS5600_ERROR_SUCCESS, result);
 }
 
+/*!
+ * @brief Test that `as5600_set_configuration` with invalid parameters fails
+ */
 TEST(as5600, set_configuration_null_pointer)
 {
         as5600_error_t result = as5600_set_configuration(NULL);
@@ -510,6 +650,10 @@ TEST(as5600, set_configuration_null_pointer)
 
 }
 
+/*!
+ * @brief Test that `as5600_set_configuration` returns a success error code
+ *        when setting a valid configuration
+ */
 TEST(as5600, set_configuration_valid)
 {
         as5600_error_t result = as5600_set_configuration(
@@ -518,6 +662,10 @@ TEST(as5600, set_configuration_valid)
         ENUMS_EQUAL_INT(AS5600_ERROR_SUCCESS, result);
 }
 
+/*!
+ * @brief Test that `as5600_set_configuration` returns a failure error code
+ *        when setting a configuration with an invalid `power_mode` value
+ */
 TEST(as5600, set_configuration_power_mode_invalid)
 {
         as5600_error_t result;
@@ -530,6 +678,10 @@ TEST(as5600, set_configuration_power_mode_invalid)
         ENUMS_EQUAL_INT(AS5600_ERROR_BAD_PARAMETER, result);
 }
 
+/*!
+ * @brief Test that `as5600_set_configuration` returns a failure error code
+ *        when setting a configuration with an invalid `hysteresis` value
+ */
 TEST(as5600, set_configuration_hysteresis_invalid)
 {
         as5600_error_t result;
@@ -542,6 +694,10 @@ TEST(as5600, set_configuration_hysteresis_invalid)
         ENUMS_EQUAL_INT(AS5600_ERROR_BAD_PARAMETER, result);
 }
 
+/*!
+ * @brief Test that `as5600_set_configuration` returns a failure error code
+ *        when setting a configuration with an invalid `output_stage` value
+ */
 TEST(as5600, set_configuration_output_stage_invalid)
 {
         as5600_error_t result;
@@ -554,6 +710,10 @@ TEST(as5600, set_configuration_output_stage_invalid)
         ENUMS_EQUAL_INT(AS5600_ERROR_BAD_PARAMETER, result);
 }
 
+/*!
+ * @brief Test that `as5600_set_configuration` returns a failure error code
+ *        when setting a configuration with an invalid `pwm_frequency` value
+ */
 TEST(as5600, set_configuration_pwm_frequency_invalid)
 {
         as5600_error_t result;
@@ -566,6 +726,10 @@ TEST(as5600, set_configuration_pwm_frequency_invalid)
         ENUMS_EQUAL_INT(AS5600_ERROR_BAD_PARAMETER, result);
 }
 
+/*!
+ * @brief Test that `as5600_set_configuration` returns a failure error code
+ *        when setting a configuration with an invalid `slow_filter` value
+ */
 TEST(as5600, set_configuration_slow_filter_invalid)
 {
         as5600_error_t result;
@@ -578,6 +742,10 @@ TEST(as5600, set_configuration_slow_filter_invalid)
         ENUMS_EQUAL_INT(AS5600_ERROR_BAD_PARAMETER, result);
 }
 
+/*!
+ * @brief Test that `as5600_set_configuration` returns a failure error code
+ *        when setting a configuration with an invalid `ff_threshold` value
+ */
 TEST(as5600, set_configuration_ff_threshold_invalid)
 {
         as5600_error_t result;
@@ -590,6 +758,15 @@ TEST(as5600, set_configuration_ff_threshold_invalid)
         ENUMS_EQUAL_INT(AS5600_ERROR_BAD_PARAMETER, result);
 }
 
+/*!
+ * @brief Test that `as5600_get_configuration` is able to retrieve a
+ *        `as5600_configuration_t` from the corresponding registers with a
+ *        success error code
+ *
+ * The test previously writes a valid configuration to the memory, and then
+ * retrieves it back. Then each retrieved element of the configuration structure
+ * is compared with the original one.
+ */
 TEST(as5600, get_configuration_valid)
 {
         as5600_error_t result;
@@ -608,6 +785,9 @@ TEST(as5600, get_configuration_valid)
         ENUMS_EQUAL_INT(AS5600_ERROR_SUCCESS, result);
 }
 
+/*!
+ * @brief Test that `as5600_get_configuration` with invalid parameters fails
+ */
 TEST(as5600, get_configuration_null_pointer)
 {
         as5600_error_t result = as5600_get_configuration(NULL);
@@ -615,6 +795,9 @@ TEST(as5600, get_configuration_null_pointer)
         ENUMS_EQUAL_INT(AS5600_ERROR_BAD_PARAMETER, result);
 }
 
+/*!
+ * @brief Test that `as5600_get_raw_angle` with invalid parameters fails
+ */
 TEST(as5600, get_raw_angle_null_pointer)
 {
         as5600_error_t result = as5600_get_raw_angle(NULL);
@@ -622,7 +805,14 @@ TEST(as5600, get_raw_angle_null_pointer)
         ENUMS_EQUAL_INT(AS5600_ERROR_BAD_PARAMETER, result);
 }
 
-TEST(as5600, get_raw_angle_valid)
+/*!
+ * @brief Test that `as5600_get_raw_angle` passes back the value written in the
+ *        corresponding register with a success error code
+ *
+ * The test previously writes the value to be read back at the corresponding
+ * register address
+ */
+ TEST(as5600, get_raw_angle_valid)
 {
         uint16_t raw_angle;
         as5600_error_t result;
@@ -634,6 +824,9 @@ TEST(as5600, get_raw_angle_valid)
         ENUMS_EQUAL_INT(AS5600_ERROR_SUCCESS, result);
 }
 
+/*!
+ * @brief Test that `as5600_get_angle` with invalid parameters fails
+ */
 TEST(as5600, get_angle_null_pointer)
 {
         as5600_error_t result = as5600_get_angle(NULL);
@@ -641,7 +834,14 @@ TEST(as5600, get_angle_null_pointer)
         ENUMS_EQUAL_INT(AS5600_ERROR_BAD_PARAMETER, result);
 }
 
-TEST(as5600, get_angle_valid)
+/*!
+ * @brief Test that `as5600_get_angle` passes back the value written in the
+ *        corresponding register with a success error code
+ *
+ * The test previously writes the value to be read back at the corresponding
+ * register address
+ */
+ TEST(as5600, get_angle_valid)
 {
         uint16_t angle;
         as5600_error_t result;
@@ -653,6 +853,9 @@ TEST(as5600, get_angle_valid)
         ENUMS_EQUAL_INT(AS5600_ERROR_SUCCESS, result);
 }
 
+/*!
+ * @brief Test that `as5600_get_status` with invalid parameters fails
+ */
 TEST(as5600, get_status_null_pointer)
 {
         as5600_error_t result = as5600_get_status(NULL);
@@ -660,7 +863,14 @@ TEST(as5600, get_status_null_pointer)
         ENUMS_EQUAL_INT(AS5600_ERROR_BAD_PARAMETER, result);
 }
 
-TEST(as5600, get_status_valid)
+/*!
+ * @brief Test that `as5600_get_status` passes back the value written in the
+ *        corresponding register with a success error code
+ *
+ * The test previously writes the value to be read back at the corresponding
+ * register address
+ */
+ TEST(as5600, get_status_valid)
 {
         as5600_status_t status;
         as5600_error_t result;
@@ -672,6 +882,10 @@ TEST(as5600, get_status_valid)
         ENUMS_EQUAL_INT(AS5600_ERROR_SUCCESS, result);
 }
 
+/*!
+ * @brief Test that `as5600_get_automatic_gain_control` with invalid parameters
+ *        fails
+ */
 TEST(as5600, get_agc_null_pointer)
 {
         as5600_error_t result = as5600_get_automatic_gain_control(NULL);
@@ -679,7 +893,14 @@ TEST(as5600, get_agc_null_pointer)
         ENUMS_EQUAL_INT(AS5600_ERROR_BAD_PARAMETER, result);
 }
 
-TEST(as5600, get_agc_valid)
+/*!
+ * @brief Test that `as5600_get_automatic_gain_control` passes back the value
+ *        written in the corresponding register with a success error code
+ *
+ * The test previously writes the value to be read back at the corresponding
+ * register address
+ */
+ TEST(as5600, get_agc_valid)
 {
         uint8_t agc;
         as5600_error_t result;
@@ -691,6 +912,9 @@ TEST(as5600, get_agc_valid)
         ENUMS_EQUAL_INT(AS5600_ERROR_SUCCESS, result);
 }
 
+/*!
+ * @brief Test that `as5600_get_cordic_magnitude` with invalid parameters fails
+ */
 TEST(as5600, as5600_get_cordic_magnitude_null_pointer)
 {
         as5600_error_t result = as5600_get_cordic_magnitude(NULL);
@@ -698,7 +922,14 @@ TEST(as5600, as5600_get_cordic_magnitude_null_pointer)
         ENUMS_EQUAL_INT(AS5600_ERROR_BAD_PARAMETER, result);
 }
 
-TEST(as5600, as5600_get_cordic_magnitude_valid)
+/*!
+ * @brief Test that `as5600_get_cordic_magnitude` passes back the value written
+ *        in the corresponding register with a success error code
+ *
+ * The test previously writes the value to be read back at the corresponding
+ * register address
+ */
+ TEST(as5600, as5600_get_cordic_magnitude_valid)
 {
         uint16_t raw_angle;
         as5600_error_t result;
@@ -710,6 +941,9 @@ TEST(as5600, as5600_get_cordic_magnitude_valid)
         ENUMS_EQUAL_INT(AS5600_ERROR_SUCCESS, result);
 }
 
+/*!
+ * @brief Test that `as5600_burn_command` with invalid parameters fails
+ */
 TEST(as5600, as5600_burn_command_invalid)
 {
         as5600_error_t result = as5600_burn_command(AS5600_BURN_MODE_COUNT);
@@ -823,9 +1057,19 @@ TEST(as5600, as5600_burn_command_valid_angle_in_start_stop_registers_invalid_zmc
         ENUMS_EQUAL_INT(AS5600_ERROR_MAX_WRITE_CYCLES_REACHED, result);
 }
 
-TEST(as5600, as5600_burn_command_valid_angle_in_max_angle_register)
+/*!
+ * @brief Test that `as5600_burn_command` returns success error code when
+ *        with `BURN_SETTINGS` command and valid maximum angle value
+ *
+ * The test sets the status register to have a magnet detected, and maximum angle
+ * register to have value bigger or equal to the minimum allowed angle.
+ * Then executes the burn command with `AS5600_BURN_MODE_BURN_SETTINGS` as a
+ * parameter and reads the return value of the function.
+ */
+ TEST(as5600, as5600_burn_command_valid_angle_in_max_angle_register)
 {
         as5600_error_t result;
+
         set_register_8(AS5600_REGISTER_STATUS, AS5600_STATUS_MD);
         check_register_8(AS5600_REGISTER_STATUS, AS5600_STATUS_MD);
 
