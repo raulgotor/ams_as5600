@@ -241,6 +241,20 @@ as5600_bit_field_specs_t m_bitfields[] = {
         }
 };
 
+//! @brief Available status readouts for STATUS register
+static as5600_status_t const m_available_status[] =
+                {
+                        AS5600_STATUS_NO_MANGET,
+                        AS5600_STATUS_MH,
+                        AS5600_STATUS_ML,
+                        AS5600_STATUS_MD,
+                        AS5600_STATUS_MH_MD,
+                        AS5600_STATUS_ML_MD,
+                };
+
+//! @brief Number of available status readouts for STATUS register
+static uint8_t const m_available_status_len = sizeof(m_available_status) /
+                                              sizeof(m_available_status[0]);
 /*
  *******************************************************************************
  * Private Function Prototypes                                                 *
@@ -1390,10 +1404,10 @@ as5600_error_t as5600_get_angle(uint16_t * const p_angle)
 as5600_error_t as5600_get_status(as5600_status_t * const p_status)
 {
         as5600_register_t const reg = AS5600_REGISTER_STATUS;
-        as5600_bit_field_t const bit_field = AS5600_BIT_FIELD_STATUS;
         as5600_error_t success = AS5600_ERROR_SUCCESS;
+        bool found = false;
         uint8_t reg_value;
-        uint8_t bit_field_value;
+        uint8_t i;
 
         if (NULL == p_status) {
                 success = AS5600_ERROR_BAD_PARAMETER;
@@ -1404,12 +1418,20 @@ as5600_error_t as5600_get_status(as5600_status_t * const p_status)
         }
 
         if (AS5600_ERROR_SUCCESS == success) {
-                success = as5600_reg_get_bit_field_value(&bit_field_value,
-                                                         bit_field, reg_value);
+
+                for (i = 0; (m_available_status_len > i) && (!found); ++i) {
+                        if (m_available_status[i] == reg_value) {
+                                found = true;
+                        }
+                }
+
+                if (!found) {
+                        success = AS5600_ERROR_RUNTIME_ERROR;
+                }
         }
 
         if (AS5600_ERROR_SUCCESS == success) {
-                *p_status = (as5600_status_t)bit_field_value;
+                *p_status = (as5600_status_t)reg_value;
         }
 
         return success;
@@ -1580,7 +1602,13 @@ as5600_error_t as5600_burn_command(as5600_burn_mode_t const mode)
         uint16_t max_angle;
         bool min_angle_ok;
 
-        success = as5600_get_otp_write_counter(&counter);
+        if (AS5600_BURN_MODE_COUNT <= mode) {
+                success = AS5600_ERROR_BAD_PARAMETER;
+        }
+
+        if (AS5600_ERROR_SUCCESS == success) {
+                success = as5600_get_otp_write_counter(&counter);
+        }
 
         if (AS5600_ERROR_SUCCESS == success) {
                 success = as5600_get_status(&status);
@@ -1734,17 +1762,13 @@ static as5600_error_t as5600_read_8register(as5600_register_t const reg,
 static as5600_error_t as5600_write_8register(as5600_register_t const reg,
                                              uint8_t const tx_buffer)
 {
-        as5600_error_t success = AS5600_ERROR_SUCCESS;
+        as5600_error_t success;
         uint8_t const buffer = tx_buffer;
         size_t const count = sizeof(uint8_t);
 
-        if (AS5600_ERROR_SUCCESS == success) {
-                success = as5600_write_n_consecutive_bytes(reg,
-                                                           &buffer, count);
-        }
+        success = as5600_write_n_consecutive_bytes(reg, &buffer, count);
 
         return success;
-
 }
 
 /*!
@@ -1809,15 +1833,13 @@ static as5600_error_t as5600_write_16register(as5600_register_t const reg,
 {
         uint16_t const first_byte_mask = 0x00FF;
         size_t const count = sizeof(uint16_t);
-        as5600_error_t success = AS5600_ERROR_SUCCESS;
+        as5600_error_t success;
         uint8_t buffer[2];
 
-        if (AS5600_ERROR_SUCCESS == success) {
-                buffer[0] = (uint8_t)((tx_buffer >> 8) & first_byte_mask);
-                buffer[1] = (uint8_t)(tx_buffer & first_byte_mask);
+        buffer[0] = (uint8_t)((tx_buffer >> 8) & first_byte_mask);
+        buffer[1] = (uint8_t)(tx_buffer & first_byte_mask);
 
-                success = as5600_write_n_consecutive_bytes(reg, buffer, count);
-        }
+        success = as5600_write_n_consecutive_bytes(reg, buffer, count);
 
         return success;
 }
@@ -1851,7 +1873,7 @@ static as5600_error_t as5600_read_n_consecutive_bytes(
 {
         as5600_error_t result = AS5600_ERROR_SUCCESS;
         uint8_t const reg_addr = (uint8_t)reg;
-        uint8_t xfer_func_result = 0;
+        uint8_t xfer_func_result;
 
         if ((NULL == p_rx_buffer) || (!as5600_is_register_valid(reg))) {
                 result = AS5600_ERROR_BAD_PARAMETER;
@@ -1906,7 +1928,7 @@ static as5600_error_t as5600_write_n_consecutive_bytes(
 {
         as5600_error_t result = AS5600_ERROR_SUCCESS;
         uint8_t buffer[bytes_count + 1];
-        uint8_t xfer_func_result = 0;
+        uint8_t xfer_func_result;
         uint8_t const reg_addr = (uint8_t)reg;
         uint8_t i;
 

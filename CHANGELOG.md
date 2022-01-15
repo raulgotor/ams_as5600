@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   AS5600 datasheet
 * In code documentation
 * Integration with Cpputest test framework
+* API tests
 
 [Unreleased]: https://github.com/raulgotor/ams_as5600
 
