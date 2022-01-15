@@ -47,6 +47,21 @@
  *******************************************************************************
  */
 
+//! @brief Check a 12 bit value with the contents of a given register
+static void check_register_12(
+                as5600_register_t const reg_h, uint16_t const expected_value);
+
+//! @brief Set a 12 bit value at the given registers
+static void set_register_12(
+                as5600_register_t const reg_h, uint16_t const value);
+
+//! @brief Check a 8 bit value with the contents of a given register
+static void check_register_8(
+                as5600_register_t const reg, uint8_t const expected_value);
+
+//! @brief Set a 8 bit value at the given registers
+static void set_register_8(as5600_register_t const reg, uint8_t const value);
+
 /*
  *******************************************************************************
  * Public Data Declarations                                                    *
@@ -115,6 +130,89 @@ static as5600_configuration_t const m_valid_configuration =
  * Private Function Bodies                                                     *
  *******************************************************************************
  */
+
+/*!
+ * @brief Check a 12 bit value with the contents of a given register
+ *
+ * The function fail the test if the provided value and the value
+ * at the given register don't match
+ *
+ * @param           reg_h           Register address holding the 4 MSB
+ *                                  of the value
+ *
+ * @param           value           Value to compare with the register
+ *
+ * @return          -               -
+ */
+static void check_register_12(
+                as5600_register_t const reg_h, uint16_t const expected_value)
+{
+        uint8_t const actual_value_reg_h =
+                        *(m_memory.get_registers(reg_h));
+
+        uint8_t const actual_value_reg_l =
+                        *(m_memory.get_registers(reg_h + 1));
+
+        BITS_EQUAL(expected_value >> 8, actual_value_reg_h, 0xFF);
+        BITS_EQUAL(expected_value, actual_value_reg_l, 0x0F);
+}
+
+/*!
+ * @brief Set a 12 bit value at the given registers
+ *
+ * @param           reg_h           Register address holding the 4 MSB
+ *                                  of the value
+ *
+ * @param           value           Value to set at the register
+ *
+ * @return          -               -
+ */
+static void set_register_12(
+                as5600_register_t const reg_h, uint16_t const value)
+{
+        uint8_t buffer[2] =
+                        {
+                                        (value >> 8) & 0x0F,
+                                        (value & 0xFF)
+                        };
+
+        m_memory.set_memory(buffer, reg_h, 2);
+
+}
+
+/*!
+ * @brief Check a 8 bit value with the contents of a given register
+ *
+ * The function fail the test if the provided value and the value
+ * at the given register don't match
+ *
+ * @param           reg             Register address
+ *
+ * @param           value           Value to compare with the register
+ *
+ * @return          -               -
+ */
+static void check_register_8(
+                as5600_register_t const reg, uint8_t const expected_value)
+{
+        uint8_t const actual_value_reg = *(m_memory.get_registers(reg));
+
+        BITS_EQUAL(expected_value, actual_value_reg, 0xFF);
+}
+
+/*!
+ * @brief Set a 8 bit value at the given registers
+ *
+ * @param           reg             Register address
+ *
+ * @param           value           Value to set at the register
+ *
+ * @return          -               -
+ */
+static void set_register_8(as5600_register_t const reg, uint8_t const value)
+{
+        m_memory.set_memory(&value, reg, 1);
+}
 
 /*
  *******************************************************************************
