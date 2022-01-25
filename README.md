@@ -7,7 +7,7 @@
 ***
 ***
 *** To avoid retyping too much info. Do a search and replace for the following:
-*** raulgotor, ams_as5600, twitter_handle, raulgotor@gmail.com, AMS AS5600 Driver, C driver for the AMS AS5600 magnetic rotary position sensor
+*** raulgotor, ams_as5600, twitter_handle, AMS AS5600 Driver, C driver for the AMS AS5600 magnetic rotary position sensor
 -->
 
 
@@ -25,9 +25,6 @@
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
 [![MIT License][license-shield]][license-url]
-[![LinkedIn][linkedin-shield]][linkedin-url]
-
-
 
 <!-- PROJECT LOGO -->
 <br />
@@ -50,9 +47,6 @@
     ·
     <a href="https://github.com/raulgotor/ams_as5600/issues">Request Feature</a>
   </p>
-</p>
-
-
 
 <!-- TABLE OF CONTENTS -->
 <details open="open">
@@ -83,7 +77,7 @@
 
 Here's a blank template to get started:
 **To avoid retyping too much info. Do a search and replace with your text editor for the following:**
-`raulgotor`, `ams_as5600`, `twitter_handle`, `raulgotor@gmail.com`, `AMS AS5600 Driver`, `C driver for the AMS AS5600 magnetic rotary position sensor`
+`raulgotor`, `ams_as5600`, `twitter_handle`, `AMS AS5600 Driver`, `C driver for the AMS AS5600 magnetic rotary position sensor`
 
 
 ### Built With
@@ -204,7 +198,7 @@ Distributed under the MIT License. See `LICENSE` for more information.
 <!-- CONTACT -->
 ## Contact
 
-Raúl Gotor - raulgotor@gmail.com
+Raúl Gotor
 
 Project Link: [https://github.com/raulgotor/ams_as5600](https://github.com/raulgotor/ams_as5600)
 

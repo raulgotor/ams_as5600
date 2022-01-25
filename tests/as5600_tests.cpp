@@ -4,7 +4,7 @@
  *
  * @brief 
  *
- * @author Raúl Gotor (raulgotor@gmail.com)
+ * @author Raúl Gotor
  * @date 09.01.22
  *
  * @par
@@ -20,8 +20,10 @@
  */
 
 #include "CppUTest/TestHarness.h"
-#include "as5600.c"
-#include "as5600_mocks.cpp"
+#include "as5600.h"
+
+#include "mocks/registers.cpp"
+#include "as5600_mocks.h"
 
 /*
  *******************************************************************************
@@ -73,6 +75,9 @@ static void set_register_8(as5600_register_t const reg, uint8_t const value);
  * Static Data Declarations                                                    *
  *******************************************************************************
  */
+
+//! @brief Object where to perform the fake memory access operations
+static registers m_registers;
 
 //! @brief A valid value for ZPOS and MPOS registers
 static uint16_t const m_valid_start_stop_position = 1100;
@@ -148,10 +153,10 @@ static void check_register_12(
                 as5600_register_t const reg_h, uint16_t const expected_value)
 {
         uint8_t const actual_value_reg_h =
-                        *(m_memory.get_registers(reg_h));
+                        *(m_registers.get_registers(reg_h));
 
         uint8_t const actual_value_reg_l =
-                        *(m_memory.get_registers(reg_h + 1));
+                        *(m_registers.get_registers(reg_h + 1));
 
         BITS_EQUAL(expected_value >> 8, actual_value_reg_h, 0xFF);
         BITS_EQUAL(expected_value, actual_value_reg_l, 0x0F);
@@ -176,7 +181,7 @@ static void set_register_12(
                                         (value & 0xFF)
                         };
 
-        m_memory.set_memory(buffer, reg_h, 2);
+        m_registers.set_memory(buffer, reg_h, 2);
 
 }
 
@@ -195,7 +200,7 @@ static void set_register_12(
 static void check_register_8(
                 as5600_register_t const reg, uint8_t const expected_value)
 {
-        uint8_t const actual_value_reg = *(m_memory.get_registers(reg));
+        uint8_t const actual_value_reg = *(m_registers.get_registers(reg));
 
         BITS_EQUAL(expected_value, actual_value_reg, 0xFF);
 }
@@ -211,7 +216,7 @@ static void check_register_8(
  */
 static void set_register_8(as5600_register_t const reg, uint8_t const value)
 {
-        m_memory.set_memory(&value, reg, 1);
+        m_registers.set_memory(&value, reg, 1);
 }
 
 /*
@@ -409,8 +414,9 @@ TEST_GROUP(as5600)
 
         void setup()
         {
+                (void)as5600_mocks_init(&m_registers);
                 (void)as5600_init(i2c_io_stub);
-                m_memory.clear_registers();
+                m_registers.clear_registers();
         }
 
         void teardown()
@@ -452,7 +458,7 @@ TEST(as5600, get_otp_write_counter_null_pointer)
         uint8_t otp;
         as5600_error_t result;
 
-        m_memory.set_memory(&otp_set_value, AS5600_REGISTER_ZMCO, 1);
+        m_registers.set_memory(&otp_set_value, AS5600_REGISTER_ZMCO, 1);
         result = as5600_get_otp_write_counter(&otp);
 
         LONGS_EQUAL(otp_set_value, otp);
@@ -482,7 +488,7 @@ TEST(as5600, set_start_position_correct){
 
         as5600_error_t result;
 
-        m_memory.clear_registers();
+        m_registers.clear_registers();
         result = as5600_set_start_position(m_valid_start_stop_position);
 
         check_register_12(AS5600_REGISTER_ZPOS_H, m_valid_start_stop_position);

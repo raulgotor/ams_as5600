@@ -4,7 +4,7 @@
  *
  * @brief 
  *
- * @author Raúl Gotor (raulgotor@gmail.com)
+ * @author Raúl Gotor
  * @date 10.01.22
  *
  * @par
@@ -22,7 +22,6 @@
  *******************************************************************************
  */
 
-
 /*
  *******************************************************************************
  * Public Data Types                                                           *
@@ -35,13 +34,16 @@
  *******************************************************************************
  */
 
-
 /*
  *******************************************************************************
  * Public Function Prototypes                                                  *
  *******************************************************************************
  */
 
+//! @brief Initialize module
+bool as5600_mocks_init(registers * p_register);
+
+//! @brief I2C read stub function
 uint32_t i2c_io_stub(uint8_t const i2c_slave_address,
                      uint8_t const * const p_tx_buffer,
                      size_t const tx_buffer_size,

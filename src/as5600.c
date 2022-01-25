@@ -4,7 +4,7 @@
  *
  * @brief 
  *
- * @author Raúl Gotor (raulgotor@gmail.com)
+ * @author Raúl Gotor
  * @date 23.05.21
  *
  * @par

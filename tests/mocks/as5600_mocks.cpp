@@ -4,7 +4,7 @@
  *
  * @brief 
  *
- * @author Raúl Gotor (raulgotor@gmail.com)
+ * @author Raúl Gotor
  * @date 09.01.22
  *
  * @par
@@ -51,6 +51,12 @@ typedef enum {
  *******************************************************************************
  */
 
+//! @brief Pointer to the fake registers where to perform the access operations
+static registers * m_registers;
+
+//! @brief Whether module was initialized or not
+static bool m_is_initialized;
+
 /*
  *******************************************************************************
  * Private Function Prototypes                                                 *
@@ -69,8 +75,7 @@ typedef enum {
  *******************************************************************************
  */
 
-static registers m_memory;
-
+//! @brief Access type of the different registers
 static access_t m_registers_access[] =
                 {
                         [0x00] = ACCESS_READ,
@@ -89,6 +94,26 @@ static access_t m_registers_access[] =
  * Public Function Bodies                                                      *
  *******************************************************************************
  */
+
+/*!
+ * @brief Initialize module
+ *
+ * @param               p_register          registers object pointer where to
+ *                                          perform the access operations
+ *
+ * @return              bool                Result of the operation
+ */
+bool as5600_mocks_init(registers * p_register)
+{
+        bool success = (p_register != nullptr);
+
+        if (success) {
+                m_registers = p_register;
+                m_is_initialized = true;
+        }
+
+        return success;
+}
 
 /*!
  * @brief I2C read stub function
@@ -122,7 +147,7 @@ uint32_t i2c_io_stub(uint8_t const i2c_slave_address,
 
         (void)i2c_slave_address;
 
-        if ((NULL == p_tx_buffer) || (0 == tx_buffer_size)) {
+        if ((!m_is_initialized) || (NULL == p_tx_buffer) || (0 == tx_buffer_size)) {
                 result = 1;
         }
 
@@ -139,7 +164,7 @@ uint32_t i2c_io_stub(uint8_t const i2c_slave_address,
                      (ACCESS_READ_WRITE_PROGRAM == access_type))) {
 
                         for (i = 0; (i < tx_buffer_size); ++i) {
-                                m_memory.registers[register_addr + i] = p_tx_buffer[i + tx_data_offset];
+                                m_registers->registers[register_addr + i] = p_tx_buffer[i + tx_data_offset];
                         }
 
                 } else if ((is_rx_operation) &&
@@ -147,7 +172,7 @@ uint32_t i2c_io_stub(uint8_t const i2c_slave_address,
                             (ACCESS_READ_WRITE_PROGRAM == access_type))) {
 
                         for (i = 0; (i < rx_buffer_size); ++i) {
-                                p_rx_buffer[i] = m_memory.registers[register_addr + i];
+                                p_rx_buffer[i] = m_registers->registers[register_addr + i];
                         }
 
                 } else {
