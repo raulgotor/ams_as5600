@@ -4,7 +4,7 @@
  *
  * @brief 
  *
- * @author Raúl Gotor (raulgotor@gmail.com)
+ * @author Raúl Gotor
  * @date 09.01.22
  *
  * @par
@@ -19,8 +19,8 @@
  *******************************************************************************
  */
 
-#include "cstdint"
-#include "cstring"
+#include <cstdint>
+#include <cstring>
 
 /*
  *******************************************************************************
@@ -59,6 +59,7 @@ class registers
 {
 
 public:
+        //! @brief Size in bytes of the registers memory map
         static size_t const size = 0xFF;
         uint8_t registers[size];
         uint8_t expected_registers[size];

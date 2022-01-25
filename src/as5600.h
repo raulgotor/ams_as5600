@@ -4,7 +4,7 @@
  *
  * @brief 
  *
- * @author Raúl Gotor (raulgotor@gmail.com)
+ * @author Raúl Gotor
  * @date 23.05.21
  *
  * @par
@@ -15,6 +15,11 @@
 
 #ifndef AS5600_H
 #define AS5600_H
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif // defined (__cplusplus)
 
 /*
  *******************************************************************************
@@ -29,7 +34,9 @@
  *******************************************************************************
  */
 
-typedef enum as5600_error_e {
+//! @brief Return error codes for the module
+typedef enum as5600_error_e
+{
         AS5600_ERROR_SUCCESS = 0,
         AS5600_ERROR_BAD_PARAMETER,
         AS5600_ERROR_RUNTIME_ERROR,
@@ -42,42 +49,45 @@ typedef enum as5600_error_e {
         AS5600_ERROR_COUNT
 } as5600_error_t;
 
-typedef uint32_t (*pf_i2c_xfer_as5600_t)(
-        uint8_t const slave_addr,
-        uint8_t const * const p_tx_buffer,
-        size_t const tx_buffer_size,
-        uint8_t * const p_rx_buffer,
-        size_t const rx_buffer_size);
+//! @brief I2C transfer function pointer
+typedef uint32_t (* pf_i2c_xfer_as5600_t)(
+                uint8_t const slave_addr,
+                uint8_t const * const p_tx_buffer,
+                size_t const tx_buffer_size,
+                uint8_t * const p_rx_buffer,
+                size_t const rx_buffer_size);
 
 /*!
- * @brief BQ25611 Registers
+ * @brief AS5600 Register map
  *
- * | Address | Access| Acronym       | Register Name                            |
- * | ------: | :---: | :------------ | :--------------------------------------- |
- * |    0x00 |  R     | ZMCO          |  |
- * |    0x01 |  R/W/P | ZPOS (HI)     |  |
- * |    0x02 |  R/W/P | ZPOS (LO)     |  |
- * |    0x03 |  R/W/P | MPOS (HI)     |  |
- * |    0x04 |  R/W/P | MPOS (LO)     |  |
- * |    0x05 |  R/W/P | MANG (HI)     |  |
- * |    0x06 |  R/W/P | MANG (LO)     |  |
- * |    0x07 |  R/W/P | CONF (HI)     |  |
- * |    0x08 |  R/W/P | CONF (LO)     |  |
- * |    -    |  -     | -             |  |
- * |    0x0B |  R     | STATUS        |  |
- * |    0x0C |  R     | RAWANGLE (HI) |  |
- * |    0x0D |  R     | RAWANGLE (LO) |  |
- * |    0x0E |  R     | ANGLE (HI)    |  |
- * |    0x0F |  R     | ANGLE (LO)    |  |
- * |    -    |  -     | -             |  |
- * |    0x1A |  R     | AGC           |  |
- * |    0x1B |  R     | MAGNITUDE (HI)|  |
- * |    0x1C |  R     | MAGNITUDE (LO)|  |
- * |    -    |  -     | -             |  |
- * |    0xFF |  W     | BURN          |  |
+ * @warning Do not change the order of this enumeration
+ *
+ * | Addr | Access| Acronym       |
+ * |------|-------|---------------|
+ * | 0x00 | R     | ZMCO          |
+ * | 0x01 | R/W/P | ZPOS (HI)     |
+ * | 0x02 | R/W/P | ZPOS (LO)     |
+ * | 0x03 | R/W/P | MPOS (HI)     |
+ * | 0x04 | R/W/P | MPOS (LO)     |
+ * | 0x05 | R/W/P | MANG (HI)     |
+ * | 0x06 | R/W/P | MANG (LO)     |
+ * | 0x07 | R/W/P | CONF (HI)     |
+ * | 0x08 | R/W/P | CONF (LO)     |
+ * | -    | -     | -             |
+ * | 0x0B | R     | STATUS        |
+ * | 0x0C | R     | RAWANGLE (HI) |
+ * | 0x0D | R     | RAWANGLE (LO) |
+ * | 0x0E | R     | ANGLE (HI)    |
+ * | 0x0F | R     | ANGLE (LO)    |
+ * | -    | -     | -             |
+ * | 0x1A | R     | AGC           |
+ * | 0x1B | R     | MAGNITUDE (HI)|
+ * | 0x1C | R     | MAGNITUDE (LO)|
+ * | -    | -     | -             |
+ * | 0xFF | W     | BURN          |
  */
-
-typedef enum {
+typedef enum
+{
         AS5600_REGISTER_ZMCO = 0x00,
         AS5600_REGISTER_ZPOS_H,
         AS5600_REGISTER_ZPOS_L,
@@ -98,7 +108,9 @@ typedef enum {
         AS5600_REGISTER_BURN = 0xFF,
 } as5600_register_t;
 
-typedef enum {
+//! @brief Power modes for PM bitfield at the CONF register
+typedef enum
+{
         AS5600_POWER_MODE_NOM = 0,
         AS5600_POWER_MODE_LPM1,
         AS5600_POWER_MODE_LPM2,
@@ -106,59 +118,137 @@ typedef enum {
         AS5600_POWER_MODE_COUNT
 } as5600_power_mode_t;
 
-typedef enum {
+//! @brief Hysteresis lsb's for HYST bitfield at the CONF register
+typedef enum
+{
+        //! @brief No hysteresis
         AS5600_HYSTERESIS_OFF = 0,
+
+        //! @brief Least significant bit hysteresis
         AS5600_HYSTERESIS_1LSB,
+
+        //! @brief Two least significant bits hysteresis
         AS5600_HYSTERESIS_2LSB,
+
+        //! @brief Three least significant bits hysteresis
         AS5600_HYSTERESIS_3LSB,
+
+        //! @brief Fence member
         AS5600_HYSTERESIS_COUNT
 } as5600_hysteresis_t;
 
-typedef enum {
+//! @brief Output stage types for OUTS bitfield at the CONF register
+typedef enum
+{
+        //! @brief Output stage analog full range 0 - 100%
         AS5600_OUTPUT_STAGE_ANALOG_FR = 0,
+
+        //! @brief Output stage analog digital range 10 - 90%
         AS5600_OUTPUT_STAGE_ANALOG_RR,
+
+        //! @brief Output stage digital PWM
         AS5600_OUTPUT_STAGE_DIGITAL_PWM,
+
+        //! @brief Fence member
         AS5600_OUTPUT_STAGE_COUNT
 } as5600_output_stage_t;
 
-typedef enum {
+//! @brief Allowed PWM output frequencies at the PWMF bitfield at the CONF register
+typedef enum
+{
+        //! @brief PWM Frequency of 115 Hz
         AS5600_PWM_FREQUENCY_115HZ = 0,
+
+        //! @brief PWM Frequency of 230 Hz
         AS5600_PWM_FREQUENCY_230HZ,
+
+        //! @brief PWM Frequency of 460 Hz
         AS5600_PWM_FREQUENCY_460HZ,
+
+        //! @brief PWM Frequency of 920 Hz
         AS5600_PWM_FREQUENCY_920HZ,
+
+        //! @brief Fence member
         AS5600_PWM_FREQUENCY_COUNT
 } as5600_pwm_frequency_t;
 
-typedef enum {
+//! @brief Slow filter step response delays for SF bitfield at CONF register
+typedef enum
+{
+        //! @brief Slow filter with 16x step response delay
         AS5600_SLOW_FILTER_16X = 0,
+
+        //! @brief Slow filter with 8x step response delay
         AS5600_SLOW_FILTER_8X,
+
+        //! @brief Slow filter with 4x step response delay
         AS5600_SLOW_FILTER_4X,
+
+        //! @brief Slow filter with 2x step response delay
         AS5600_SLOW_FILTER_2X,
+
+        //! @brief Fence member
         AS5600_SLOW_FILTER_COUNT
 } as5600_slow_filter_t;
 
-typedef enum {
+//! @brief Fast filter threshold options for FF bitfield at CONF register
+typedef enum
+{
+        //! @brief Use slow filter only
         AS5600_FF_THRESHOLD_SLOW_FILTER_ONLY = 0,
+
+        //! @brief Fast filter threshold of 6 LSB
         AS5600_FF_THRESHOLD_6LSB,
+
+        //! @brief Fast filter threshold of 7 LSB
         AS5600_FF_THRESHOLD_7LSB,
+
+        //! @brief Fast filter threshold of 9 LSB
         AS5600_FF_THRESHOLD_9LSB,
+
+        //! @brief Fast filter threshold of 18 LSB
         AS5600_FF_THRESHOLD_18LSB,
+
+        //! @brief Fast filter threshold of 21 LSB
         AS5600_FF_THRESHOLD_21LSB,
+
+        //! @brief Fast filter threshold of 24 LSB
         AS5600_FF_THRESHOLD_24LSB,
+
+        //! @brief Fast filter threshold of 10 LSB
         AS5600_FF_THRESHOLD_10LSB,
+
+        //! @brief Fence member
         AS5600_FF_THRESHOLD_COUNT
 } as5600_ff_threshold_t;
 
-typedef struct as5600_configuration_s {
+//! @brief Configuration register (CONF) structure
+typedef struct as5600_configuration_s
+{
+        //! @brief Power Mode (PM) bitfield
         as5600_power_mode_t power_mode;
+
+        //! @brief Hysteresis (HYST) bitfield
         as5600_hysteresis_t hysteresis;
+
+        //! @brief Output stage (OUTS) bitfield
         as5600_output_stage_t output_stage;
+
+        //! @brief PWM Frequency (PWMF) bitfield
         as5600_pwm_frequency_t pwm_frequency;
+
+        //! @brief Slow filter (SF) bitfield
         as5600_slow_filter_t slow_filter;
+
+        //! @brief Fast filter threshold (FFT) bitfield
         as5600_ff_threshold_t ff_threshold;
+
+        //! @brief Watchdog (WD) bitfield
         bool watchdog;
+
 } as5600_configuration_t;
 
+//! @brief Status register (STATUS) elements
 typedef enum
 {
         // @brief No magnet was detected
@@ -176,11 +266,18 @@ typedef enum
 
 } as5600_status_t;
 
+//! @brief BURN register commands
 typedef enum
 {
+        //! @brief Command for burning a setting configuration
         AS5600_BURN_MODE_BURN_SETTING = 0x40U,
+
+        //! @brief Command for burning start and end angles
         AS5600_BURN_MODE_BURN_ANGLE = 0x80U,
+
+        //! @brief Fence member
         AS5600_BURN_MODE_COUNT,
+
 } as5600_burn_mode_t;
 
 /*
@@ -225,7 +322,7 @@ as5600_error_t as5600_get_maximum_angle(uint16_t * const p_maximum_angle);
 
 //! @brief Set configuration of the AS5600
 as5600_error_t as5600_set_configuration(
-                                 as5600_configuration_t const * const p_config);
+                as5600_configuration_t const * const p_config);
 
 //! @brief Get configuration of the AS5600
 as5600_error_t as5600_get_configuration(as5600_configuration_t * const p_config);
@@ -236,8 +333,8 @@ as5600_error_t as5600_set_slow_filter(as5600_slow_filter_t const slow_filter,
 
 //! @brief Get slow filter
 as5600_error_t as5600_get_slow_filter(
-                                 as5600_slow_filter_t * const p_slow_filter,
-                                 as5600_configuration_t const * const p_config);
+                as5600_slow_filter_t * const p_slow_filter,
+                as5600_configuration_t const * const p_config);
 
 //! @brief Set fast filter threshold
 as5600_error_t as5600_set_ff_threshold(as5600_ff_threshold_t const ff_threshold,
@@ -245,18 +342,18 @@ as5600_error_t as5600_set_ff_threshold(as5600_ff_threshold_t const ff_threshold,
 
 //! @brief Get fast filter threshold
 as5600_error_t as5600_get_ff_threshold(
-                                 as5600_ff_threshold_t * const p_ff_threshold,
-                                 as5600_configuration_t const * const p_config);
+                as5600_ff_threshold_t * const p_ff_threshold,
+                as5600_configuration_t const * const p_config);
 
 //! @brief Set watchdog status
 as5600_error_t as5600_set_watchdog_enabled(
-                                       bool const enabled,
-                                       as5600_configuration_t * const p_config);
+                bool const enabled,
+                as5600_configuration_t * const p_config);
 
 //! @brief Get status of the watchdog
 as5600_error_t as5600_is_watchdog_enabled(
-                                 bool * const p_enabled,
-                                 as5600_configuration_t const * const p_config);
+                bool * const p_enabled,
+                as5600_configuration_t const * const p_config);
 
 //! @brief Set power mode
 as5600_error_t as5600_set_power_mode(as5600_power_mode_t const power_mode,
@@ -264,8 +361,8 @@ as5600_error_t as5600_set_power_mode(as5600_power_mode_t const power_mode,
 
 //! @brief Get power mode
 as5600_error_t as5600_get_power_mode(
-                                 as5600_power_mode_t * const p_power_mode,
-                                 as5600_configuration_t const * const p_config);
+                as5600_power_mode_t * const p_power_mode,
+                as5600_configuration_t const * const p_config);
 
 //! @brief Set hysteresis sensitivity
 as5600_error_t as5600_set_hysteresis(as5600_hysteresis_t const hysteresis,
@@ -273,8 +370,8 @@ as5600_error_t as5600_set_hysteresis(as5600_hysteresis_t const hysteresis,
 
 //! @brief Get hysteresis sensitivity
 as5600_error_t as5600_get_hysteresis(
-                                 as5600_hysteresis_t * const p_hysteresis,
-                                 as5600_configuration_t const * const p_config);
+                as5600_hysteresis_t * const p_hysteresis,
+                as5600_configuration_t const * const p_config);
 
 //! @brief Set output stage
 as5600_error_t as5600_set_output_stage(as5600_output_stage_t const output_stage,
@@ -282,18 +379,18 @@ as5600_error_t as5600_set_output_stage(as5600_output_stage_t const output_stage,
 
 //! @brief Get output stage
 as5600_error_t as5600_get_output_stage(
-                                 as5600_output_stage_t * const p_output_stage,
-                                 as5600_configuration_t const * const p_config);
+                as5600_output_stage_t * const p_output_stage,
+                as5600_configuration_t const * const p_config);
 
 //! @brief Set PWM frequency
 as5600_error_t as5600_set_pwm_frequency(
-                                     as5600_pwm_frequency_t const pwm_frequency,
-                                     as5600_configuration_t * const p_config);
+                as5600_pwm_frequency_t const pwm_frequency,
+                as5600_configuration_t * const p_config);
 
 //! @brief Get PWM frequency
 as5600_error_t as5600_get_pwm_frequency(
-                                 as5600_pwm_frequency_t * const p_pwm_frequency,
-                                 as5600_configuration_t const * const p_config);
+                as5600_pwm_frequency_t * const p_pwm_frequency,
+                as5600_configuration_t const * const p_config);
 
 //! @brief Get RAW angle
 as5600_error_t as5600_get_raw_angle(uint16_t * const p_raw_angle);
@@ -312,5 +409,9 @@ as5600_error_t as5600_get_cordic_magnitude(uint16_t * const p_magnitude);
 
 //! @brief Send burn command to the device
 as5600_error_t as5600_burn_command(as5600_burn_mode_t const mode);
+
+#ifdef __cplusplus
+}
+#endif // defined (__cplusplus)
 
 #endif //AS5600_H
